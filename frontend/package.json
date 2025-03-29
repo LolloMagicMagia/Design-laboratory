@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "update-driver": "npx @puppeteer/browsers install chromedriver@latest",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "test_selenium": "node selenium-test.js"
   },
   "dependencies": {
     "next": "15.2.3",

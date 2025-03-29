@@ -8,12 +8,14 @@ import Link from 'next/link';
 import API from '@/lib/api';
 
 export default function Home() {
+  // value and function that we want to change, useState for add state at functional components
   const [chats, setChats] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
 
+  //  Client Component, the data will loads like this
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,6 +81,7 @@ export default function Home() {
     return date.toLocaleDateString();
   };
 
+  // Always on condition
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -101,6 +104,7 @@ export default function Home() {
     );
   }
 
+  // The main page after all the previous if are not choosen
   return (
     <div className="page-container">
       {/* Header */}
