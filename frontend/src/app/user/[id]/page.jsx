@@ -1,10 +1,10 @@
 // src/app/user/[id]/page.jsx
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import API from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import API from "@/lib/api";
 
 export default function UserProfilePage({ params }) {
   const userId = params.id;
@@ -20,8 +20,8 @@ export default function UserProfilePage({ params }) {
         setUser(userData);
         setLoading(false);
       } catch (err) {
-        console.error('Errore nel caricamento dell\'utente:', err);
-        setError('Si è verificato un errore nel caricamento dell\'utente. Riprova più tardi.');
+        console.error("Errore nel caricamento dell'utente:", err);
+        setError("Si è verificato un errore nel caricamento dell'utente. Riprova più tardi.");
         setLoading(false);
       }
     };
@@ -34,9 +34,9 @@ export default function UserProfilePage({ params }) {
       // Verifica se esiste già una chat individuale con questo utente
       const chats = await API.getChats();
       const existingChat = chats.find(chat => 
-        chat.type === 'individual' && 
+        chat.type === "individual" && 
         chat.participants.includes(userId) && 
-        chat.participants.includes('currentUser')
+        chat.participants.includes("currentUser")
       );
       
       if (existingChat) {
@@ -46,16 +46,16 @@ export default function UserProfilePage({ params }) {
         // Crea una nuova chat
         const newChat = await API.createChat({
           name: user.name,
-          type: 'individual',
-          participants: ['currentUser', userId]
+          type: "individual",
+          participants: ["currentUser", userId]
         });
         
         // Naviga alla nuova chat
         router.push(`/chat/${newChat.id}`);
       }
     } catch (err) {
-      console.error('Errore nell\'avvio della chat:', err);
-      setError('Si è verificato un errore nell\'avvio della chat. Riprova più tardi.');
+      console.error("Errore nell'avvio della chat:", err);
+      setError("Si è verificato un errore nell'avvio della chat. Riprova più tardi.");
     }
   };
 
@@ -86,7 +86,7 @@ export default function UserProfilePage({ params }) {
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="text-red-500 mb-4">Utente non trovato</div>
         <button 
-          onClick={() => router.push('/')} 
+          onClick={() => router.push("/")} 
           className="btn btn-primary"
         >
           Torna alla lista chat
@@ -130,7 +130,7 @@ export default function UserProfilePage({ params }) {
             
             <div className="user-status mt-2">
               <span className={`status-indicator ${
-                user.status === 'online' ? 'status-online' : 'status-offline'
+                user.status === "online" ? "status-online" : "status-offline"
               }`}></span>
               <span className="capitalize">{user.status}</span>
             </div>

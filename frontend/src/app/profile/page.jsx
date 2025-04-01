@@ -1,10 +1,10 @@
 // src/app/profile/page.jsx
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import API from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import API from "@/lib/api";
 
 export default function ProfilePage() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -19,8 +19,8 @@ export default function ProfilePage() {
         setCurrentUser(userData);
         setLoading(false);
       } catch (err) {
-        console.error('Errore nel caricamento del profilo:', err);
-        setError('Si è verificato un errore nel caricamento del profilo. Riprova più tardi.');
+        console.error("Errore nel caricamento del profilo:", err);
+        setError("Si è verificato un errore nel caricamento del profilo. Riprova più tardi.");
         setLoading(false);
       }
     };
@@ -55,7 +55,7 @@ export default function ProfilePage() {
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="text-red-500 mb-4">Profilo non trovato</div>
         <button 
-          onClick={() => router.push('/')} 
+          onClick={() => router.push("/")} 
           className="btn btn-primary"
         >
           Torna alla lista chat
@@ -70,7 +70,7 @@ export default function ProfilePage() {
       <header className="page-header">
         <div className="container mx-auto flex items-center">
           <button 
-            onClick={() => router.push('/')} 
+            onClick={() => router.push("/")} 
             className="btn btn-icon"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,7 +99,7 @@ export default function ProfilePage() {
             
             <div className="user-status mt-2">
               <span className={`status-indicator ${
-                currentUser.status === 'online' ? 'status-online' : 'status-offline'
+                currentUser.status === "online" ? "status-online" : "status-offline"
               }`}></span>
               <span className="capitalize">{currentUser.status}</span>
             </div>
@@ -109,7 +109,7 @@ export default function ProfilePage() {
               <button 
                 onClick={() => {
                   // Qui potresti implementare la modifica del profilo
-                  alert('Funzionalità di modifica profilo non ancora implementata');
+                  alert("Funzionalità di modifica profilo non ancora implementata");
                 }}
                 className="btn btn-primary flex items-center"
               >
@@ -122,7 +122,7 @@ export default function ProfilePage() {
               <button 
                 onClick={() => {
                   // Cambia stato online/offline
-                  alert('Funzionalità di cambio stato non ancora implementata');
+                  alert("Funzionalità di cambio stato non ancora implementata");
                 }}
                 className="btn btn-secondary flex items-center"
               >

@@ -1,15 +1,15 @@
 // src/app/new-chat/page.jsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import API from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import API from "@/lib/api";
 
 export default function NewChatPage() {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [chatName, setChatName] = useState('');
-  const [chatType, setChatType] = useState('individual');
+  const [chatName, setChatName] = useState("");
+  const [chatType, setChatType] = useState("individual");
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +25,7 @@ export default function NewChatPage() {
         const userIdsSet = new Set();
         chats.forEach(chat => {
           chat.participants.forEach(participantId => {
-            if (participantId !== 'currentUser') {
+            if (participantId !== "currentUser") {
               userIdsSet.add(participantId);
             }
           });
@@ -52,8 +52,8 @@ export default function NewChatPage() {
         setUsers(validUsers);
         setLoading(false);
       } catch (err) {
-        console.error('Errore nel caricamento degli utenti:', err);
-        setError('Si è verificato un errore nel caricamento degli utenti. Riprova più tardi.');
+        console.error("Errore nel caricamento degli utenti:", err);
+        setError("Si è verificato un errore nel caricamento degli utenti. Riprova più tardi.");
         setLoading(false);
       }
     };
@@ -63,7 +63,7 @@ export default function NewChatPage() {
 
   // Aggiorna automaticamente il nome della chat per le chat individuali
   useEffect(() => {
-    if (chatType === 'individual' && selectedUsers.length === 1) {
+    if (chatType === "individual" && selectedUsers.length === 1) {
       const user = users.find(u => u.id === selectedUsers[0]);
       if (user) {
         setChatName(user.name);
@@ -78,7 +78,7 @@ export default function NewChatPage() {
         return prevSelected.filter(id => id !== userId);
       } else {
         // Aggiungi l'utente alla selezione
-        if (chatType === 'individual' && prevSelected.length === 1) {
+        if (chatType === "individual" && prevSelected.length === 1) {
           // Per le chat individuali, permetti solo un utente selezionato
           return [userId];
         }
@@ -90,12 +90,12 @@ export default function NewChatPage() {
   const handleCreateChat = async () => {
     // Validazione
     if (selectedUsers.length === 0) {
-      setError('Seleziona almeno un utente per la chat.');
+      setError("Seleziona almeno un utente per la chat.");
       return;
     }
 
-    if (chatType === 'group' && !chatName.trim()) {
-      setError('Inserisci un nome per la chat di gruppo.');
+    if (chatType === "group" && !chatName.trim()) {
+      setError("Inserisci un nome per la chat di gruppo.");
       return;
     }
 
@@ -103,12 +103,12 @@ export default function NewChatPage() {
       setCreating(true);
       
       // Se è una chat individuale e l'utente esiste già in una chat, naviga a quella
-      if (chatType === 'individual') {
+      if (chatType === "individual") {
         const chats = await API.getChats();
         const existingChat = chats.find(chat => 
-          chat.type === 'individual' && 
+          chat.type === "individual" && 
           chat.participants.includes(selectedUsers[0]) && 
-          chat.participants.includes('currentUser')
+          chat.participants.includes("currentUser")
         );
         
         if (existingChat) {
@@ -121,14 +121,14 @@ export default function NewChatPage() {
       const newChat = await API.createChat({
         name: chatName,
         type: chatType,
-        participants: ['currentUser', ...selectedUsers]
+        participants: ["currentUser", ...selectedUsers]
       });
       
       // Naviga alla nuova chat
       router.push(`/chat/${newChat.id}`);
     } catch (err) {
-      console.error('Errore nella creazione della chat:', err);
-      setError('Si è verificato un errore nella creazione della chat. Riprova più tardi.');
+      console.error("Errore nella creazione della chat:", err);
+      setError("Si è verificato un errore nella creazione della chat. Riprova più tardi.");
       setCreating(false);
     }
   };
@@ -147,7 +147,7 @@ export default function NewChatPage() {
       <header className="page-header">
         <div className="container mx-auto flex items-center">
           <button 
-            onClick={() => router.push('/')} 
+            onClick={() => router.push("/")} 
             className="btn btn-icon"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,26 +167,26 @@ export default function NewChatPage() {
             <div className="flex space-x-4">
               <button 
                 onClick={() => {
-                  setChatType('individual');
+                  setChatType("individual");
                   // Limita a un solo utente per chat individuali
                   if (selectedUsers.length > 1) {
                     setSelectedUsers([selectedUsers[0]]);
                   }
                 }}
                 className={`btn ${
-                  chatType === 'individual' 
-                    ? 'btn-primary' 
-                    : 'btn-secondary'
+                  chatType === "individual" 
+                    ? "btn-primary" 
+                    : "btn-secondary"
                 }`}
               >
                 Individuale
               </button>
               <button 
-                onClick={() => setChatType('group')}
+                onClick={() => setChatType("group")}
                 className={`btn ${
-                  chatType === 'group' 
-                    ? 'btn-primary' 
-                    : 'btn-secondary'
+                  chatType === "group" 
+                    ? "btn-primary" 
+                    : "btn-secondary"
                 }`}
               >
                 Gruppo
@@ -195,7 +195,7 @@ export default function NewChatPage() {
           </div>
 
           {/* Nome chat (solo per gruppi) */}
-          {chatType === 'group' && (
+          {chatType === "group" && (
             <div className="card-content border-b">
               <div className="form-group">
                 <label htmlFor="chatName" className="form-label">
@@ -240,7 +240,7 @@ export default function NewChatPage() {
                       checked={selectedUsers.includes(user.id)}
                       onChange={() => handleUserToggle(user.id)}
                       className="h-5 w-5 text-blue-600"
-                      disabled={chatType === 'individual' && selectedUsers.length === 1 && !selectedUsers.includes(user.id)}
+                      disabled={chatType === "individual" && selectedUsers.length === 1 && !selectedUsers.includes(user.id)}
                     />
                     <label 
                       htmlFor={`user-${user.id}`}
@@ -256,7 +256,7 @@ export default function NewChatPage() {
                         <p className="user-name">{user.name}</p>
                         <div className="user-status">
                           <span className={`status-indicator ${
-                            user.status === 'online' ? 'status-online' : 'status-offline'
+                            user.status === "online" ? "status-online" : "status-offline"
                           }`}></span>
                           <span className="capitalize">{user.status}</span>
                         </div>
@@ -271,7 +271,7 @@ export default function NewChatPage() {
           {/* Pulsanti di azione */}
           <div className="card-footer flex justify-end">
             <button 
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
               className="btn btn-secondary mr-2"
             >
               Annulla
@@ -279,9 +279,9 @@ export default function NewChatPage() {
             <button 
               onClick={handleCreateChat}
               className="btn btn-primary"
-              disabled={selectedUsers.length === 0 || (chatType === 'group' && !chatName.trim()) || creating}
+              disabled={selectedUsers.length === 0 || (chatType === "group" && !chatName.trim()) || creating}
             >
-              {creating ? 'Creazione in corso...' : 'Crea Chat'}
+              {creating ? "Creazione in corso..." : "Crea Chat"}
             </button>
           </div>
         </div>

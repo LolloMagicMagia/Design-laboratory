@@ -1,5 +1,5 @@
 // src/app/login/page.js
-import './styles.css';
+import "./styles.css";
 export default function LoginPage() {
   return (
     <div className="login-container">

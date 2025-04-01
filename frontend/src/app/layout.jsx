@@ -1,11 +1,11 @@
-import './globals.css';
-import { Inter } from 'next/font/google';
+import "./globals.css";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'Chat App',
-  description: 'Applicazione di messaggistica con Spring Boot e Next.js',
+  title: "Chat App",
+  description: "Applicazione di messaggistica con Spring Boot e Next.js",
 };
 
 export default function RootLayout({ children }) {
