@@ -33,4 +33,4 @@ build/
 .vscode/
 
 # Firebase credentials
-src/main/resources/bico-chat-firebase-adminsdk-fbsvc-387ac0c5d6.json
+src/main/resources/bico-chat-firebase-adminsdk-fbsvc-bb92cf9bac.json
