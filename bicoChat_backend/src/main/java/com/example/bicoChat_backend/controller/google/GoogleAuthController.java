@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-//@CrossOrigin(origins = "*") // Configura correttamente per la produzione
+@CrossOrigin(origins = "http://localhost:3000")
 public class GoogleAuthController {
 
     private final GoogleAuthService googleAuthService;
@@ -26,22 +27,27 @@ public class GoogleAuthController {
      * @return Authenticated User data or auth error
      */
     @PostMapping("/google")
-    public ResponseEntity<?> authenticateWithGoogle(@RequestBody Map<String, String> request) {
-        String idToken = request.get("idToken");
-
-        if (idToken == null || idToken.isEmpty()) {
-            return ResponseEntity.badRequest().body("Token Google not provided");
-        }
-
+    public ResponseEntity<Map<String, Object>> authenticateWithGoogle(@RequestBody Map<String, String> request) {
         try {
-            // Verify the Google token e obtain user data
+            String idToken = request.get("idToken");
+            //print
+            if (idToken == null || idToken.isEmpty()) {
+                //print
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of("error", "Token Google not provided"));
+            }
+
             Map<String, Object> userData = googleAuthService.verifyGoogleToken(idToken);
-            return ResponseEntity.ok(userData);
+            return ResponseEntity.ok().body(userData);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Authentication failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Authentication failed", "details", e.getMessage()));
         }
     }
+
 
     /**
      * Endpoint for test Google Services.

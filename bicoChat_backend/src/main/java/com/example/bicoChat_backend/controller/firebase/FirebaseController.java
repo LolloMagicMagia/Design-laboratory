@@ -33,6 +33,7 @@ public class FirebaseController {
     public ResponseEntity<?> createUser(@RequestBody UserRegisterRequest request) {
         try {
             String result = firebaseService.creteUnverifiedUser(request.getEmail(), request.getPassword());
+            System.out.println("ciao");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());

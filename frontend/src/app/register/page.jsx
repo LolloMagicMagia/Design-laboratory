@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { auth, provider, signInWithPopup } from '@/firebase' // Assicurati che il file esista
 
 export default function RegisterPage() {
     const router = useRouter()
-    const [form, setForm] = useState({
-        email: '',
-        password: ''
-    })
+    const [form, setForm] = useState({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [result, setResult] = useState(null) // Per mostrare risposta backend
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
@@ -22,16 +21,53 @@ export default function RegisterPage() {
         setError(null)
 
         try {
-            const res = await fetch('http://localhost:8080/api/auth/createUser', {
+            const res = await fetch('http://localhost:8080/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
+                body: JSON.stringify({ idToken })
             })
 
-            if (!res.ok) throw new Error(await res.text())
+            if (!res.ok) {
+                const errorText = await res.text()
+                throw new Error(`Errore backend: ${res.status} - ${errorText}`)
+            }
+
 
             const data = await res.text()
             console.log('User registered:', data)
+            router.push('/login')
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleGoogleRegister = async () => {
+        setLoading(true)
+        setError(null)
+        setResult(null)
+
+        try {
+            const result = await signInWithPopup(auth, provider)
+            const idToken = await result.user.getIdToken()
+
+            const res = await fetch('http://localhost:8080/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken })
+            })
+
+            const raw = await res.text()
+            let data
+
+            try {
+                data = raw ? JSON.parse(raw) : {}
+            } catch (err) {
+                console.error('Errore parsing JSON:', err)
+                data = { error: 'Risposta non valida dal server', raw }
+            }
+
             router.push('/login')
         } catch (err) {
             setError(err.message)
@@ -69,8 +105,25 @@ export default function RegisterPage() {
                 >
                     {loading ? 'Registering...' : 'Register'}
                 </button>
-                {error && <p className="text-red-500 text-sm">{error}</p>}
             </form>
+
+            <div className="my-4 text-center text-gray-500">or</div>
+
+            <button
+                type="button"
+                onClick={handleGoogleRegister}
+                disabled={loading}
+                className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
+            >
+                {loading ? 'Connecting...' : 'Sign up with Google'}
+            </button>
+
+            {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+            {result && (
+                <pre className="mt-4 p-2 bg-gray-100 text-sm whitespace-pre-wrap rounded">
+                    {JSON.stringify(result, null, 2)}
+                </pre>
+            )}
         </div>
     )
 }
