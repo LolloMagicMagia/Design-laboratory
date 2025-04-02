@@ -18,6 +18,9 @@ export default function Home() {
         const user = await API.getCurrentUser();
         setCurrentUser(user);
 
+        // Salva l'ID dell'utente nel localStorage -> potrebbe andare bene se no continuare con api
+        localStorage.setItem('currentUserId', user.id);
+
         const fetchedChats = await API.getChatsWithResolvedNames();
         setChats(fetchedChats);
         setLoading(false);
@@ -31,7 +34,7 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const handleChatClick = async (chatId) => {
+  const handleChatClick = async (chatId, chatName) => {
     try {
       await API.markChatAsRead(chatId);
       setChats(chats.map(chat =>
@@ -39,7 +42,9 @@ export default function Home() {
               ? { ...chat, unreadCount: 0, lastMessage: { ...chat.lastMessage, read: true } }
               : chat
       ));
-      router.push(`/chat/${chatId}`);
+
+      // Passa anche il nome della chat nell'URL
+      router.push(`/chat/${chatId}?name=${encodeURIComponent(chatName)}`);
     } catch (err) {
       console.error('Errore apertura chat:', err);
       setError('Impossibile aprire la chat.');
@@ -107,7 +112,7 @@ export default function Home() {
                         <div
                             key={chat.id}
                             className={`chat-list-item ${chat.unreadCount > 0 ? 'unread' : ''}`}
-                            onClick={() => handleChatClick(chat.id)}
+                            onClick={() => handleChatClick(chat.id, chat.name)}
                         >
                           <div className="chat-avatar">
                             <img

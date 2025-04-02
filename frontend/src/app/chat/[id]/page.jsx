@@ -3,10 +3,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import API from '@/lib/api';
 
 export default function ChatPage() {
   const params = useParams();  // <-- usa useParams
+  const searchParams = useSearchParams();
+  const title = searchParams.get('name') || 'Chat';
   const chatId = params?.id;
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -30,6 +33,11 @@ export default function ChatPage() {
     const fetchData = async () => {
       try {
         const chatData = await API.getChatById(chatId);
+        if (!chatData) {
+          setError('Chat non trovata');
+          setLoading(false);
+          return;
+        }
         setChat(chatData);
         await API.markChatAsRead(chatId);
         const messagesData = await API.getMessagesByChatId(chatId);
@@ -134,14 +142,16 @@ export default function ChatPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="ml-4 font-semibold">{chatTitle}</h1>
             </div>
-            <img
-                src={chatAvatar}
-                alt={chatTitle}
-                className="user-avatar"
-                style={{ width: '40px', height: '40px', borderRadius: '9999px', objectFit: 'cover' }}
-            />
+
+            <div className="flex flex-row items-center gap-2">
+              <img
+                  src={chatAvatar}
+                  alt={title}
+                  className="user-avatar h-8 w-8"
+              />
+              <h1 className="text-xs font-medium text-gray-700">{title}</h1>
+            </div>
           </div>
         </header>
 
