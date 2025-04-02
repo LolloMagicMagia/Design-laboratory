@@ -14,11 +14,17 @@ import org.springframework.mail.SimpleMailMessage;
 @Service
 public class FirebaseService {
 
+    private final FirebaseAuth firebaseAuth;
+    private final JavaMailSender emailSender;
+
     @Autowired
-    private JavaMailSender emailSender;
+    public FirebaseService(FirebaseAuth firebaseAuth, JavaMailSender emailSender) {
+        this.firebaseAuth = firebaseAuth;
+        this.emailSender = emailSender;
+    }
 
     public void listAllUsers() throws Exception {
-        ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
+        ListUsersPage page = firebaseAuth.listUsers(null);
         for (UserRecord user : page.iterateAll()) {
             System.out.println("User: " + user.getEmail());
         }
@@ -27,7 +33,7 @@ public class FirebaseService {
     public String creteUnverifiedUser(@RequestParam String email, @RequestParam String password) throws FirebaseAuthException {
         try {
             // Check if the user already exists in Firebase
-            UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);
+            UserRecord existingUser = firebaseAuth.getUserByEmail(email);
             if (existingUser.isEmailVerified()) {
                 return "Error: This email is already registered and verified.";
             } else {
@@ -38,12 +44,12 @@ public class FirebaseService {
             if (e.getAuthErrorCode() == AuthErrorCode.USER_NOT_FOUND) {
                 try {
                     // Create a new unverified user
-                    CreateRequest request = new CreateRequest()
+                    UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                             .setEmail(email)
                             .setEmailVerified(false)
                             .setPassword(password);
 
-                    UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+                    UserRecord userRecord = firebaseAuth.createUser(request);
                     return "Successfully created new unverified user: " + userRecord.getEmail();
                 } catch (FirebaseAuthException ex) {
                     return "Error creating user: " + ex.getMessage();
@@ -55,13 +61,13 @@ public class FirebaseService {
     }
 
     public String verifyUser(@RequestParam String email) throws FirebaseAuthException {
-        UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);
+        UserRecord existingUser = firebaseAuth.getUserByEmail(email);
         if (existingUser.isEmailVerified() || existingUser.getEmail().isEmpty()) {
             return "Error: This email is already registered";
         }
         try {
             // generate the verification link
-            String verificationLink = FirebaseAuth.getInstance().generateEmailVerificationLink(email);
+            String verificationLink = firebaseAuth.generateEmailVerificationLink(email);
 
             sendVerificationEmail(email, verificationLink);
             //System.out.println("Verification email sent: " + verificationLink);
