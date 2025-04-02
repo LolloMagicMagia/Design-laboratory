@@ -1,6 +1,7 @@
 package com.example.bicoChat_backend.config.firebase;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
@@ -15,14 +16,19 @@ import org.springframework.context.annotation.DependsOn;
 @Configuration
 public class FirebaseBeansConfig {
 
-    /**
-     * Bean per Firestore (database NoSQL)
-     */
+
+    @Value("${DATABASE_URL}")
+    private String databaseUrl;
+
+
+/* Firestore
+
     @Bean
     @DependsOn("firebaseApp")
     public Firestore firestoreDatabase() {
         return FirestoreClient.getFirestore();
     }
+*/
 
     /**
      * Bean per Firebase Authentication
@@ -39,7 +45,7 @@ public class FirebaseBeansConfig {
     @Bean
     @DependsOn("firebaseApp")
     public DatabaseReference firebaseDatabase() {
-        return FirebaseDatabase.getInstance().getReference();
+        return FirebaseDatabase.getInstance(databaseUrl).getReference();
     }
 
     /**
@@ -51,12 +57,15 @@ public class FirebaseBeansConfig {
         return StorageClient.getInstance();
     }
 
-    /**
+    /*
      * Bean per Firebase Cloud Messaging
-     */
+
     @Bean
     @DependsOn("firebaseApp")
     public FirebaseMessaging firebaseMessaging() {
         return FirebaseMessaging.getInstance();
     }
+
+     */
 }
+

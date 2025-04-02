@@ -32,7 +32,7 @@ public class FirebaseConfig {
     @Value("${CLIENT_ID}")
     private String client_id;
 
-    @Value("${AUTH_ID}")
+    @Value("${AUTH_URI}")
     private String auth_uri;
 
     @Value("${TOKEN_URI}")
@@ -43,6 +43,9 @@ public class FirebaseConfig {
 
     @Value("${CLIENT_X509_CERT_URL}")
     private String client_x509_cert_url;
+
+    @Value("${DATABASE_URL}")
+    private String database_url;
 
     private String type;
 
@@ -83,6 +86,7 @@ public class FirebaseConfig {
             // Configura le opzioni di Firebase
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(credentialsStream))
+                    .setDatabaseUrl(database_url)
                     .build();
 
             // Inizializza l'app
