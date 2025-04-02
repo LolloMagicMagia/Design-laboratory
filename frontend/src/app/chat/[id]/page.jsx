@@ -1,103 +1,56 @@
-// src/app/chat/[id]/page.jsx
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import API from "@/lib/api";
+import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import API from '@/lib/api';
 
-/**
- * Chat Page Component - Dynamic route for individual chat view.
- * @module frontend/page/src/app/chat/id/page.jsx
- * @param {Object} params - Route parameters object.
- * @param {string} params.id - The unique identifier of the chat.
- * @description Displays a specific chat conversation with its messages and provides message sending functionality.
- * @example
- * // Route: /chat/123
- * <ChatPage params={{ id: "123" }} />
- */
-export default function ChatPage({ params }) {
-  /**
-   * The chat ID extracted from route parameters.
-   * @type {string}
-   */
-  const chatId = params.id;
-
-  /**
-   * State for storing chat details.
-   * @type {Object|null}
-   */
+export default function ChatPage() {
+  const params = useParams();  // <-- usa useParams
+  const chatId = params?.id;
   const [chat, setChat] = useState(null);
-
-  /**
-   * State for storing chat messages.
-   * @type {Array<Object>}
-   */
   const [messages, setMessages] = useState([]);
-
-  /**
-   * State for the new message input.
-   * @type {string}
-   */
-  const [newMessage, setNewMessage] = useState("");
-
-  /**
-   * State for loading status.
-   * @type {boolean}
-   */
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
-
-  /**
-   * State for message sending status.
-   * @type {boolean}
-   */
   const [sendingMessage, setSendingMessage] = useState(false);
-
-  /**
-   * State for error messages.
-   * @type {string|null}
-   */
   const [error, setError] = useState(null);
-
-  /**
-   * Reference for auto-scrolling to the latest message.
-   * @type {React.RefObject<HTMLDivElement>}
-   */
+  const [usersMap, setUsersMap] = useState({});
   const messagesEndRef = useRef(null);
-
   const router = useRouter();
 
-  /**
-   * Fetches initial chat data and sets up message polling.
-   * @async
-   * @function
-   * @returns {void}
-   */
   useEffect(() => {
+    const id = localStorage.getItem('currentUserId');
+    if (!id) {
+      setError('Utente non autenticato');
+      return;
+    }
+    setCurrentUserId(id);
+
     const fetchData = async () => {
       try {
-        // Get chat details
         const chatData = await API.getChatById(chatId);
         setChat(chatData);
-
-        // Mark chat as read
         await API.markChatAsRead(chatId);
-
-        // Get chat messages
         const messagesData = await API.getMessagesByChatId(chatId);
         setMessages(messagesData);
 
+        const userIds = [...new Set(chatData.participants)];
+        const users = await Promise.all(userIds.map(uid => API.getUserById(uid)));
+        const map = {};
+        users.forEach(u => map[u.id] = u);
+        setUsersMap(map);
+
         setLoading(false);
       } catch (err) {
-        console.error("Error loading chat data:", err);
-        setError("Failed to load chat. Please try again later.");
+        console.error('Errore nel caricamento dei dati:', err);
+        setError('Errore nel caricamento della chat. Riprova più tardi.');
         setLoading(false);
       }
     };
 
     fetchData();
 
-    // Set up polling for new messages
     const interval = setInterval(async () => {
       try {
         const updatedMessages = await API.getMessagesByChatId(chatId);
@@ -105,247 +58,114 @@ export default function ChatPage({ params }) {
           setMessages(updatedMessages);
         }
       } catch (err) {
-        console.error("Error updating messages:", err);
+        console.error('Errore aggiornamento messaggi:', err);
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [chatId]);
 
-  /**
-   * Auto-scrolls to the latest message when messages change.
-   * @function
-   * @returns {void}
-   */
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  //useEffect(() => {
+  //  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  //}, [messages]);
 
-  /**
-   * Handles sending a new message.
-   * @async
-   * @function handleSendMessage
-   * @param {Event} e - The form submit event.
-   * @returns {Promise<void>}
-   */
   const handleSendMessage = async (e) => {
     e.preventDefault();
-
     if (!newMessage.trim()) return;
-
     try {
       setSendingMessage(true);
-
-      // Send the message
-      await API.sendMessage(chatId, newMessage.trim());
-
-      // Refresh messages
+      await API.sendMessage(chatId, newMessage.trim(), currentUserId);
       const updatedMessages = await API.getMessagesByChatId(chatId);
       setMessages(updatedMessages);
-
-      // Reset input
-      setNewMessage("");
-      setSendingMessage(false);
+      setNewMessage('');
     } catch (err) {
-      console.error("Error sending message:", err);
-      setError("Failed to send message. Please try again later.");
+      console.error('Errore invio messaggio:', err);
+      setError('Errore nell\'invio del messaggio. Riprova più tardi.');
+    } finally {
       setSendingMessage(false);
     }
   };
 
-  /**
-   * Formats message timestamp to time string.
-   * @function formatMessageTime
-   * @param {string|number} timestamp - The message timestamp.
-   * @returns {string} Formatted time string.
-   */
   const formatMessageTime = (timestamp) => {
-    if (!timestamp) return "";
+    if (!timestamp) return '';
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  /**
-   * Formats message timestamp to relative date string.
-   * @function formatMessageDate
-   * @param {string|number} timestamp - The message timestamp.
-   * @returns {string} Formatted date string ("Today", "Yesterday", or full date).
-   */
-  const formatMessageDate = (timestamp) => {
-    if (!timestamp) return "";
-
-    const date = new Date(timestamp);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return "Today";
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-
-  /**
-   * Groups messages by date.
-   * @function groupMessagesByDate
-   * @returns {Array<Object>} Array of message groups with date information.
-   */
   const groupMessagesByDate = () => {
     const groups = {};
-
     messages.forEach(message => {
-      const date = message.timestamp ? new Date(message.timestamp) : new Date();
-      const dateString = date.toDateString();
-
-      if (!groups[dateString]) {
-        groups[dateString] = [];
-      }
-
-      groups[dateString].push(message);
+      const date = new Date(message.timestamp || Date.now()).toDateString();
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(message);
     });
-
-    return Object.entries(groups).map(([date, msgs]) => ({
-      date,
-      messages: msgs,
-      formattedDate: formatMessageDate(date)
-    }));
-  };
-
-  /**
-   * Gets the other participant's ID in a one-to-one chat.
-   * @function getOtherParticipantId
-   * @returns {string|null} The other participant's ID or null if not applicable.
-   */
-  const getOtherParticipantId = () => {
-    if (!chat || chat.type !== "individual") return null;
-    return chat.participants.find(id => id !== "currentUser");
+    return Object.entries(groups).map(([date, msgs]) => ({ date, messages: msgs }));
   };
 
   if (loading) {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-xl font-semibold">Loading...</div>
-        </div>
-    );
+    return <div className="flex items-center justify-center min-h-screen text-xl font-semibold">Caricamento...</div>;
   }
 
   if (error) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
           <div className="text-red-500 mb-4">{error}</div>
-          <button
-              onClick={() => window.location.reload()}
-              className="btn btn-primary"
-          >
-            Try Again
-          </button>
+          <button onClick={() => window.location.reload()} className="btn btn-primary">Riprova</button>
         </div>
     );
   }
 
-  if (!chat) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-          <div className="text-red-500 mb-4">Chat not found</div>
-          <Link
-              href="/"
-              className="btn btn-primary"
-          >
-            Back to chat list
-          </Link>
-        </div>
-    );
-  }
+  const isGroup = chat.type === 'group';
+  const otherUser = !isGroup && chat.participants.find(pid => pid !== currentUserId);
+  const chatTitle = isGroup ? chat.name : usersMap[otherUser]?.name || 'Utente';
+  const chatAvatar = isGroup
+      ? chat.avatar || 'https://dummyimage.com/40x40/000/fff&text=G'
+      : usersMap[otherUser]?.avatar || 'https://dummyimage.com/40x40/000/fff&text=U';
 
   const messageGroups = groupMessagesByDate();
-  const otherParticipantId = getOtherParticipantId();
 
   return (
-      <div className="page-container">
-        {/* Header */}
+      <div className="page-container flex flex-col h-screen">
         <header className="page-header">
-          <div className="container mx-auto flex items-center">
-            <button
-                onClick={() => router.push("/")}
-                className="btn btn-icon"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            <div className="flex items-center ml-3">
-              <img
-                  src="https://dummyimage.com/40x40/000/fff&text=M"
-                  alt={chat.name}
-                  className="user-avatar"
-                  style={{ width: "40px", height: "40px" }}
-              />
-              <div className="ml-3">
-                <h1 className="font-semibold">{chat.name}</h1>
-                {chat.type === "group" ? (
-                    <p className="text-xs text-gray-500">{chat.participants.length} participants</p>
-                ) : (
-                    <div className="user-status">
-                      <span className="status-indicator status-online"></span>
-                      <span>Online</span>
-                    </div>
-                )}
-              </div>
+          <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center">
+              <button onClick={() => router.back()} className="btn btn-icon p-2 rounded-full hover:bg-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h1 className="ml-4 font-semibold">{chatTitle}</h1>
             </div>
-
-            {otherParticipantId && (
-                <Link
-                    href={`/user/${otherParticipantId}`}
-                    className="btn btn-icon ml-auto"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </Link>
-            )}
+            <img
+                src={chatAvatar}
+                alt={chatTitle}
+                className="user-avatar"
+                style={{ width: '40px', height: '40px', borderRadius: '9999px', objectFit: 'cover' }}
+            />
           </div>
         </header>
 
-        {/* Main content - Messages */}
-        <main className="page-content p-0">
-          <div className="chat-container">
-            <div className="message-list">
+        <main className="flex-1 flex flex-col justify-between overflow-hidden">
+          <div className="chat-container flex-1 overflow-y-auto">
+            <div className="message-list px-4 py-2">
               {messageGroups.map(group => (
                   <div key={group.date} className="message-group">
-                    {/* Date divider */}
                     <div className="message-date">
-                  <span className="message-date-text">
-                    {group.formattedDate}
-                  </span>
+                      <span className="message-date-text">{group.date}</span>
                     </div>
-
-                    {/* Messages for this date */}
                     <div className="space-y-3">
-                      {group.messages.map(message => {
-                        const isCurrentUser = message.sender === "currentUser";
-
+                      {group.messages.map(msg => {
+                        const isMine = msg.sender === currentUserId;
+                        const senderName = usersMap[msg.sender]?.username || 'Utente';
                         return (
-                            <div
-                                key={message.id}
-                                className={`message ${isCurrentUser ? "message-sent" : "message-received"}`}
-                            >
-                              {!isCurrentUser && chat.type === "group" && (
-                                  <p className="text-xs font-semibold mb-1">
-                                    {message.senderName || "User"}
-                                  </p>
+                            <div key={msg.id} className={`message ${isMine ? 'message-sent' : 'message-received'}`}>
+                              {!isMine && isGroup && (
+                                  <p className="text-xs font-bold mb-1">{senderName}</p>
                               )}
-                              <p>{message.content}</p>
+                              <p>{msg.content}</p>
                               <p className="message-time">
-                                {formatMessageTime(message.timestamp)}
-                                {isCurrentUser && (
-                                    <span className="ml-1">
-                              {message.read ? "✓✓" : "✓"}
-                            </span>
-                                )}
+                                {formatMessageTime(msg.timestamp)}
+                                {isMine && <span className="ml-1">{msg.read ? '✓✓' : '✓'}</span>}
                               </p>
                             </div>
                         );
@@ -353,40 +173,37 @@ export default function ChatPage({ params }) {
                     </div>
                   </div>
               ))}
-
-              {/* Dummy div for auto-scroll */}
               <div ref={messagesEndRef} />
             </div>
+          </div>
 
-            {/* Message input */}
-            <div className="message-input-container">
-              <form onSubmit={handleSendMessage} className="message-input-form">
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="message-input"
-                    disabled={sendingMessage}
-                />
-                <button
-                    type="submit"
-                    className="message-send-button"
-                    disabled={!newMessage.trim() || sendingMessage}
-                >
-                  {sendingMessage ? (
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                  ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                  )}
-                </button>
-              </form>
-            </div>
+          <div className="message-input-container">
+            <form onSubmit={handleSendMessage} className="message-input-form">
+              <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Scrivi un messaggio..."
+                  className="message-input"
+                  disabled={sendingMessage}
+              />
+              <button
+                  type="submit"
+                  className="message-send-button"
+                  disabled={!newMessage.trim() || sendingMessage}
+              >
+                {sendingMessage ? (
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                      <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z" className="opacity-75" />
+                    </svg>
+                ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                )}
+              </button>
+            </form>
           </div>
         </main>
       </div>

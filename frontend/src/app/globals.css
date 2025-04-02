@@ -171,6 +171,11 @@ body {
   color: white;
 }
 
+.font-bold {
+  font-weight: 700;
+}
+
+
 .badge-notification {
   width: 1.25rem;
   height: 1.25rem;
@@ -251,10 +256,14 @@ body {
 }
 
 .message-input-container {
-  padding: 0.75rem;
+  position: sticky;
+  bottom: 0;
   background-color: white;
+  padding: 0.75rem;
   border-top: 1px solid var(--border-color);
+  z-index: 10;
 }
+
 
 .message-input-form {
   display: flex;
@@ -477,11 +486,11 @@ body {
   .page-content {
     padding: 1rem;
   }
-  
+
   .chat-list-item, .user-list-item {
     padding: 0.75rem;
   }
-  
+
   .message {
     max-width: 85%;
   }
