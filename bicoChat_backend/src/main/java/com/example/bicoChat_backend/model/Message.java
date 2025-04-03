@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
-    // L'ID è gestito come chiave esterna nel DB Firebase
 
     @JsonProperty("content")
     private String content;
@@ -20,7 +19,7 @@ public class Message {
     @JsonProperty("read")
     private boolean read;
 
-    // Costruttori
+    // Constructors
     public Message() {
     }
 
@@ -31,7 +30,7 @@ public class Message {
         this.read = read;
     }
 
-    // Getter e Setter
+    // Getter and Setter
     public String getContent() {
         return content;
     }

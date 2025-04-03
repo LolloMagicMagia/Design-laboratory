@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/dto/request/UserRegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/dto/request/UserRegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/Chat.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/Chat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/MessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/MessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +111,7 @@
       <workItem from="1743624824833" duration="1993000" />
       <workItem from="1743626831416" duration="6248000" />
       <workItem from="1743713594045" duration="915000" />
-      <workItem from="1743715559955" duration="74000" />
+      <workItem from="1743715559955" duration="921000" />
     </task>
     <servers />
   </component>

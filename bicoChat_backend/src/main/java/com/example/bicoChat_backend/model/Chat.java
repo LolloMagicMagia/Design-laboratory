@@ -8,13 +8,12 @@ import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Chat {
-    // L'ID è gestito come chiave esterna nel DB Firebase
 
     @JsonProperty("name")
     private String name;
 
     @JsonProperty("type")
-    private String type; // "individual" o "group"
+    private String type; // "individual" or "group"
 
     @JsonProperty("participants")
     private List<String> participants;
@@ -22,7 +21,7 @@ public class Chat {
     @JsonProperty("messages")
     private Map<String, Message> messages;
 
-    // Costruttori
+    // Constructors
     public Chat() {
         this.participants = new ArrayList<>();
     }
@@ -72,7 +71,7 @@ public class Chat {
         this.messages = messages;
     }
 
-    // Metodo per aggiungere un messaggio utilizzando la mappa
+    // Adding messages
     public void addMessage(String messageId, Message message) {
         if (this.messages == null) {
             throw new IllegalStateException("Map of messages is not initialized");

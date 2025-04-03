@@ -7,7 +7,6 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
-    // ID non è più un campo della classe ma viene gestito come chiave esterna
 
     @JsonProperty("username")
     private String username;
@@ -18,7 +17,7 @@ public class User {
     @JsonProperty("chatUser")
     private Map<String, ChatInfo> chatUser;
 
-    // Classe interna per rappresentare le informazioni di chat
+    // Chat Info
     public static class ChatInfo {
         @JsonProperty("lastMessage")
         private String lastMessage;
@@ -32,7 +31,7 @@ public class User {
         @JsonProperty("unreadCount")
         private int unreadCount;
 
-        // Costruttore vuoto
+        // Empty constructor
         public ChatInfo() {
         }
 
@@ -103,7 +102,7 @@ public class User {
         }
     }
 
-    // Costruttore vuoto per Firebase
+    // Empty constructor for Firebase
     public User() {
     }
 
@@ -113,7 +112,7 @@ public class User {
         this.chatUser = chatUser;
     }
 
-    // Getter e Setter
+    // Getter and Setter
     public String getUsername() {
         return username;
     }
@@ -138,7 +137,7 @@ public class User {
         this.chatUser = chatUser;
     }
 
-    // Metodo toString per debug
+    // toString
     @Override
     public String toString() {
         return "User{" +
@@ -148,7 +147,7 @@ public class User {
                 '}';
     }
 
-    // Equals e HashCode
+    // Equals and HashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

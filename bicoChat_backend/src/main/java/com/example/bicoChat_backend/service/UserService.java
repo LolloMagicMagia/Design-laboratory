@@ -19,9 +19,9 @@ public class UserService {
     private FirebaseService firebaseService;
 
     /**
-     * Recupera un utente specifico dal Firebase Realtime Database.
-     * @param userId ID dell'utente
-     * @return CompletableFuture con l'utente trovato o un Optional vuoto
+     * Retrieves a specific user from the Firebase Realtime Database.
+     * @param userId ID of the user
+     * @return CompletableFuture with the found user or an empty Optional
      */
     public CompletableFuture<Optional<UserResponse>> getUserById(String userId) {
         return firebaseService.get(USERS_PATH + "/" + userId, User.class)
@@ -34,8 +34,8 @@ public class UserService {
     }
 
     /**
-     * Recupera tutti gli utenti dal Firebase Realtime Database.
-     * @return CompletableFuture con la lista di utenti
+     * Retrieves all users from the Firebase Realtime Database.
+     * @return CompletableFuture with the list of users
      */
     public CompletableFuture<List<UserResponse>> getAllUsers() {
         GenericTypeIndicator<Map<String, User>> typeIndicator = new GenericTypeIndicator<Map<String, User>>() {};
@@ -55,14 +55,14 @@ public class UserService {
     }
 
     /**
-     * Recupera l'utente corrente, se non esiste restituisce un valore di default.
-     * @return CompletableFuture con l'utente corrente
+     * Retrieves the current user, returning a default value if it does not exist.
+     * @return CompletableFuture with the current user
      */
     public CompletableFuture<UserResponse> getCurrentUser() {
         Map<String, User.ChatInfo> defaultChats = new HashMap<>();
         defaultChats.put("welcome", new User.ChatInfo(
-                "Benvenuto in BicoChat!",
-                "Sistema",
+                "Benvenuto su BicoChat!",
+                "System",
                 LocalDateTime.now().toString(),
                 0
         ));
@@ -73,10 +73,10 @@ public class UserService {
     }
 
     /**
-     * Aggiorna lo stato di un utente nel Firebase Realtime Database.
-     * @param userId ID dell'utente
-     * @param status Nuovo stato (es. "online", "offline")
-     * @return CompletableFuture che si completa quando l'operazione è terminata
+     * Updates a user's status in the Firebase Realtime Database.
+     * @param userId ID of the user
+     * @param status New status (e.g., "online", "offline")
+     * @return CompletableFuture that completes when the operation is finished
      */
     public CompletableFuture<Void> updateUserStatus(String userId, String status) {
         Map<String, Object> updates = new HashMap<>();
@@ -85,19 +85,19 @@ public class UserService {
     }
 
     /**
-     * Aggiunge un nuovo utente nel Firebase Realtime Database.
-     * @param userId ID dell'utente
-     * @param user Utente da aggiungere
-     * @return CompletableFuture che si completa quando l'operazione è terminata
+     * Adds a new user to the Firebase Realtime Database.
+     * @param userId ID of the user
+     * @param user User to add
+     * @return CompletableFuture that completes when the operation is finished
      */
     public CompletableFuture<Void> addUser(String userId, User user) {
         return firebaseService.set(USERS_PATH + "/" + userId, user);
     }
 
     /**
-     * Elimina un utente dal Firebase Realtime Database.
-     * @param userId ID dell'utente da eliminare
-     * @return CompletableFuture che si completa quando l'operazione è terminata
+     * Deletes a user from the Firebase Realtime Database.
+     * @param userId ID of the user to delete
+     * @return CompletableFuture that completes when the operation is finished
      */
     public CompletableFuture<Void> deleteUser(String userId) {
         return firebaseService.delete(USERS_PATH + "/" + userId);

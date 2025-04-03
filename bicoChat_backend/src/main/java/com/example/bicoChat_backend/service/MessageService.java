@@ -18,9 +18,9 @@ public class MessageService {
     private ChatService chatService;
 
     /**
-     * Recupera tutti i messaggi di una chat specifica.
-     * @param chatId ID della chat
-     * @return CompletableFuture con la lista di MessageResponse
+     * Retrieves all the messages of a specific chat.
+     * @param chatId ID of the chat
+     * @return CompletableFuture with the list of MessageResponse
      */
     public CompletableFuture<List<MessageResponse>> getMessages(String chatId) {
         return chatService.getMessagesMap(chatId)
@@ -30,7 +30,7 @@ public class MessageService {
                         for (Map.Entry<String, Message> entry : messagesMap.entrySet()) {
                             messageResponseList.add(new MessageResponse(entry.getKey(), entry.getValue()));
                         }
-                        // Ordina i messaggi per timestamp
+                        // Sorts messages by timestamp
                         messageResponseList.sort(Comparator.comparing(mr -> mr.getMessage().getTimestamp()));
                     }
                     return messageResponseList;
@@ -38,30 +38,30 @@ public class MessageService {
     }
 
     /**
-     * Aggiunge un nuovo messaggio a una chat.
-     * @param chatId ID della chat
-     * @param sender ID del mittente
-     * @param content Contenuto del messaggio
-     * @return CompletableFuture con il MessageResponse creato
+     * Adds a new message to a chat.
+     * @param chatId ID of the chat
+     * @param sender ID of the sender
+     * @param content Content of the message
+     * @return CompletableFuture with the created MessageResponse
      */
     public CompletableFuture<MessageResponse> addMessage(String chatId, String sender, String content) {
-        // Crea il nuovo messaggio
+        // Creates the new message
         Message message = new Message();
         message.setSender(sender);
         message.setContent(content);
         message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        message.setRead("currentUser".equals(sender)); // Il messaggio è letto se inviato dall'utente corrente
+        message.setRead("currentUser".equals(sender)); // The message is read if sent by the current user
 
-        // Aggiunge il messaggio alla chat
+        // Adds the message to the chat
         return chatService.addMessage(chatId, message)
                 .thenApply(entry -> new MessageResponse(entry.getKey(), entry.getValue()));
     }
 
     /**
-     * Marca tutti i messaggi di una chat come letti per un utente specifico.
-     * @param chatId ID della chat
-     * @param userId ID dell'utente
-     * @return CompletableFuture che si completa quando l'operazione è terminata
+     * Marks all the messages of a chat as read for a specific user.
+     * @param chatId ID of the chat
+     * @param userId ID of the user
+     * @return CompletableFuture that completes when the operation is finished
      */
     public CompletableFuture<Void> markChatMessagesAsRead(String chatId, String userId) {
         return chatService.markChatAsRead(chatId, userId);
