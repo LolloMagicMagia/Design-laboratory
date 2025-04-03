@@ -1,15 +1,14 @@
 package com.example.bicoChat_backend.service;
 
-import com.example.bicoChat_backend.model.Chat;
+import com.example.bicoChat_backend.dto.response.MessageResponse;
 import com.example.bicoChat_backend.model.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,49 +17,53 @@ public class MessageService {
     @Autowired
     private ChatService chatService;
 
-    public List<Message> getMessages(String chatId) {
-        return chatService.getChatById(chatId) // Restituisce un Optional<Chat>
-                .map(Chat::getMessages)  // Estrae la lista di messaggi se la chat esiste
-                .orElse(Collections.emptyList());  // Ritorna una lista vuota se la chat non esiste
+    /**
+     * Recupera tutti i messaggi di una chat specifica.
+     * @param chatId ID della chat
+     * @return CompletableFuture con la lista di MessageResponse
+     */
+    public CompletableFuture<List<MessageResponse>> getMessages(String chatId) {
+        return chatService.getMessagesMap(chatId)
+                .thenApply(messagesMap -> {
+                    List<MessageResponse> messageResponseList = new ArrayList<>();
+                    if (messagesMap != null) {
+                        for (Map.Entry<String, Message> entry : messagesMap.entrySet()) {
+                            messageResponseList.add(new MessageResponse(entry.getKey(), entry.getValue()));
+                        }
+                        // Ordina i messaggi per timestamp
+                        messageResponseList.sort(Comparator.comparing(mr -> mr.getMessage().getTimestamp()));
+                    }
+                    return messageResponseList;
+                });
     }
 
-    // per recuperare un messaggio (utile per eliminare o modificare messaggi)
-    public Optional<Message> getMessage(String chatId, String messageId) {
-        // Ottiene un Optional<Chat> utilizzando l'ID della chat dal ChatService
-        return chatService.getChatById(chatId)
-                // Se la chat esiste, utilizza flatMap per operare sui suoi messaggi
-                // flatMap è usato perché lavoriamo con due livelli di Optional
-                .flatMap(chat -> chat.getMessages().stream()
-                        // Filtra i messaggi per trovare quello con l'ID corrispondente
-                        .filter(message -> message.getId().equals(messageId))
-                        // Prende il primo messaggio corrispondente (dovrebbe essere unico)
-                        .findFirst());
+    /**
+     * Aggiunge un nuovo messaggio a una chat.
+     * @param chatId ID della chat
+     * @param sender ID del mittente
+     * @param content Contenuto del messaggio
+     * @return CompletableFuture con il MessageResponse creato
+     */
+    public CompletableFuture<MessageResponse> addMessage(String chatId, String sender, String content) {
+        // Crea il nuovo messaggio
+        Message message = new Message();
+        message.setSender(sender);
+        message.setContent(content);
+        message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        message.setRead("currentUser".equals(sender)); // Il messaggio è letto se inviato dall'utente corrente
+
+        // Aggiunge il messaggio alla chat
+        return chatService.addMessage(chatId, message)
+                .thenApply(entry -> new MessageResponse(entry.getKey(), entry.getValue()));
     }
 
-    public Optional<Message> addMessage(String chatId, String sender, String content) {
-        LocalDateTime timestamp = LocalDateTime.now();
-        String messageId = UUID.randomUUID().toString();
-        boolean read = "currentUser".equals(sender);
-
-        Message newMessage = new Message();
-        newMessage.setId(messageId);
-        newMessage.setChatId(chatId);
-        newMessage.setSender(sender);
-        newMessage.setContent(content);
-        newMessage.setTimestamp(timestamp);
-        newMessage.setRead(read);
-
-        // Aggiungi il messaggio alla chat
-        chatService.getChatById(chatId).ifPresent(chat -> {
-            chat.addMessage(newMessage);
-            // Aggiorna solo lastMessage e unreadCount
-            chatService.updateLastMessageReference(chatId, newMessage);
-        });
-        return getMessage(chatId, messageId);
-    }
-
-    // In MessageService
-    public void markChatMessagesAsRead(String chatId) {
-        chatService.markAllMessagesAsRead(chatId);
+    /**
+     * Marca tutti i messaggi di una chat come letti per un utente specifico.
+     * @param chatId ID della chat
+     * @param userId ID dell'utente
+     * @return CompletableFuture che si completa quando l'operazione è terminata
+     */
+    public CompletableFuture<Void> markChatMessagesAsRead(String chatId, String userId) {
+        return chatService.markChatAsRead(chatId, userId);
     }
 }

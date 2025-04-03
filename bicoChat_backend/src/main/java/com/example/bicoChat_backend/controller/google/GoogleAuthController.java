@@ -6,12 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "*")
 public class GoogleAuthController {
 
     private final GoogleAuthService googleAuthService;
@@ -27,27 +26,22 @@ public class GoogleAuthController {
      * @return Authenticated User data or auth error
      */
     @PostMapping("/google")
-    public ResponseEntity<Map<String, Object>> authenticateWithGoogle(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> authenticateWithGoogle(@RequestBody Map<String, String> request) {
+        String idToken = request.get("idToken");
+
+        if (idToken == null || idToken.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token Google not provided");
+        }
+
         try {
-            String idToken = request.get("idToken");
-            //print
-            if (idToken == null || idToken.isEmpty()) {
-                //print
-                return ResponseEntity
-                        .badRequest()
-                        .body(Map.of("error", "Token Google not provided"));
-            }
-
+            // Verify the Google token e obtain user data
             Map<String, Object> userData = googleAuthService.verifyGoogleToken(idToken);
-            return ResponseEntity.ok().body(userData);
-
+            return ResponseEntity.ok(userData);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500)
-                    .body(Map.of("error", "Authentication failed", "details", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Authentication failed: " + e.getMessage());
         }
     }
-
 
     /**
      * Endpoint for test Google Services.

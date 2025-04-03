@@ -1,4 +1,4 @@
-package com.example.bicoChat_backend.service.firebase;
+package com.example.bicoChat_backend.service.user;
 
 import com.google.firebase.auth.*;
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.mail.SimpleMailMessage;
 @Service
-public class FirebaseService {
+public class RegistrationService {
 
     @Autowired
     private JavaMailSender emailSender;

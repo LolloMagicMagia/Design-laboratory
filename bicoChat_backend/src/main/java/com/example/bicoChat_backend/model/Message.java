@@ -1,43 +1,43 @@
 package com.example.bicoChat_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
-    private String id;
-    private String chatId;
-    private String sender;
+    // L'ID è gestito come chiave esterna nel DB Firebase
+
+    @JsonProperty("content")
     private String content;
-    private LocalDateTime timestamp;
+
+    @JsonProperty("sender")
+    private String sender;
+
+    @JsonProperty("timestamp")
+    private String timestamp;
+
+    @JsonProperty("read")
     private boolean read;
 
     // Costruttori
     public Message() {
     }
 
-    public Message(String id, String chatId, String sender, String content, LocalDateTime timestamp, boolean read) {
-        this.id = id;
-        this.chatId = chatId;
-        this.sender = sender;
+    public Message(String content, String sender, String timestamp, boolean read) {
         this.content = content;
+        this.sender = sender;
         this.timestamp = timestamp;
         this.read = read;
     }
 
-    // Getter e setter
-    public String getId() {
-        return id;
+    // Getter e Setter
+    public String getContent() {
+        return content;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(String chatId) {
-        this.chatId = chatId;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getSender() {
@@ -48,19 +48,11 @@ public class Message {
         this.sender = sender;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -70,5 +62,15 @@ public class Message {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "content='" + content + '\'' +
+                ", sender='" + sender + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", read=" + read +
+                '}';
     }
 }

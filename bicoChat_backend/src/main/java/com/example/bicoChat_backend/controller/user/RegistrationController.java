@@ -1,8 +1,7 @@
-package com.example.bicoChat_backend.controller.firebase;
+package com.example.bicoChat_backend.controller.user;
 
 import com.example.bicoChat_backend.model.UserRegisterRequest;
-import com.example.bicoChat_backend.service.firebase.FirebaseService;
-import com.google.firebase.auth.FirebaseAuthException;
+import com.example.bicoChat_backend.service.user.RegistrationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
-public class FirebaseController {
+public class RegistrationController {
 
-    private final FirebaseService firebaseService;
+    private final RegistrationService firebaseService;
 
-    public FirebaseController(FirebaseService firebaseService) {
+    public RegistrationController(RegistrationService firebaseService) {
         this.firebaseService = firebaseService;
     }
 
@@ -33,7 +32,6 @@ public class FirebaseController {
     public ResponseEntity<?> createUser(@RequestBody UserRegisterRequest request) {
         try {
             String result = firebaseService.creteUnverifiedUser(request.getEmail(), request.getPassword());
-            System.out.println("ciao");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());

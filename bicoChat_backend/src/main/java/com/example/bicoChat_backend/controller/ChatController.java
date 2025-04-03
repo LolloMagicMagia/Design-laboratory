@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/chats")
@@ -21,88 +20,91 @@ public class ChatController {
     private ChatService chatService;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllChats() {
-        try {
-            List<Chat> chats = chatService.getAllChats();
-            Map<String, Object> response = new HashMap<>();
-            response.put("chats", chats);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Si è verificato un errore nel recupero delle chat");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> getAllChats() {
+        return chatService.getAllChats()
+                .thenApply(chats -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("chats", chats);
+                    return ResponseEntity.ok(response);
+                })
+                .exceptionally(ex -> {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "Si è verificato un errore nel recupero delle chat");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                });
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getChatById(@PathVariable String id) {
-        try {
-            Optional<Chat> optionalChat = chatService.getChatById(id);  // optionalChat to manage null value
-            if (optionalChat.isPresent()) {
-                Chat chat = optionalChat.get();
-                Map<String, Object> response = new HashMap<>();
-                response.put("chat", chat);
-                return ResponseEntity.ok(response);
-            }
-            else{
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Chat non trovata");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-            }
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Si è verificato un errore nel recupero della chat");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> getChatById(@PathVariable String id) {
+        return chatService.getChatById(id)
+                .thenApply(optionalChat -> {
+                    if (optionalChat.isPresent()) {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("chat", optionalChat.get());
+                        return ResponseEntity.ok(response);
+                    } else {
+                        Map<String, Object> errorResponse = new HashMap<>();
+                        errorResponse.put("error", "Chat non trovata");
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+                    }
+                })
+                .exceptionally(ex -> {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "Error during getChatById");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                });
     }
 
-    // TODO --> Capire da chi viene passato l'argomento chat già istanziato come tipo Chat
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createChat(@RequestBody Chat chatData) {
-        try {
-            // Verifica dei dati necessari
-            if (chatData.getName() == null || chatData.getType() == null || chatData.getParticipants() == null) {
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Dati mancanti. Richiesti: name, type, participants");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-            }
-
-            Chat newChat = chatService.createChat(chatData);
-            Map<String, Object> response = new HashMap<>();
-            response.put("chat", newChat);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> createChat(@RequestBody Chat chatData) {
+        // Verify the necessary data
+        if (chatData.getType() == null || chatData.getParticipants() == null) {
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Si è verificato un errore nella creazione della chat");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            errorResponse.put("error", "Missing data. Required: type, participants");
+            return CompletableFuture.completedFuture(
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse));
         }
+
+        return chatService.createChat(chatData)
+                .thenApply(newChat -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("chat", newChat);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+                })
+                .exceptionally(ex -> {
+                    Map<String, Object> errorResponse = new HashMap<>();
+                    errorResponse.put("error", "Error during chat creation");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                });
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateChat(@PathVariable String id, @RequestBody Map<String, Object> updateData) {
-        try {
-            // Verifica se l'operazione è per marcare la chat come letta
-            if (updateData.containsKey("markAsRead") && (boolean) updateData.get("markAsRead")) {
-                boolean success = chatService.markChatAsRead(id);
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> updateChat(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> updateData) {
 
-                if (!success) {
-                    Map<String, Object> errorResponse = new HashMap<>();
-                    errorResponse.put("error", "Chat non trovata");
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-                }
+        // Verifica se l'operazione è per marcare la chat come letta
+        if (updateData.containsKey("markAsRead") && (boolean) updateData.get("markAsRead")) {
+            String userId = updateData.containsKey("userId") ?
+                    (String) updateData.get("userId") : "currentUser";
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                return ResponseEntity.ok(response);
-            }
-
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Operazione non supportata");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Si è verificato un errore nell'aggiornamento della chat");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            return chatService.markChatAsRead(id, userId)
+                    .thenApply(v -> {
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("success", true);
+                        return ResponseEntity.ok(response);
+                    })
+                    .exceptionally(ex -> {
+                        Map<String, Object> errorResponse = new HashMap<>();
+                        errorResponse.put("error", "Error while updating chat");
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                    });
         }
+
+        // Operation not supported
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Operation not supported");
+        return CompletableFuture.completedFuture(
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse));
     }
 }

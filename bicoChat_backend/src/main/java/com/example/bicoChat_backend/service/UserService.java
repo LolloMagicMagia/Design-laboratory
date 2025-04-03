@@ -1,55 +1,105 @@
 package com.example.bicoChat_backend.service;
 
+import com.example.bicoChat_backend.dto.response.UserResponse;
 import com.example.bicoChat_backend.model.User;
-import jakarta.annotation.PostConstruct;
+import com.google.firebase.database.GenericTypeIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserService {
 
-    // Storage in-memory per gli utenti
-    private final Map<String, User> users = new ConcurrentHashMap<>();
+    private static final String USERS_PATH = "users";
 
-    @PostConstruct
-    public void init() {
-        // Inizializza alcuni utenti di esempio
-        addUser(new User("1", "Marco Rossi", "online", "https://dummyimage.com/40x40/000/fff&text=M"));
-        addUser(new User("2", "Laura Bianchi", "online", "/api/placeholder/40/40"));
-        addUser(new User("3", "Francesca Verdi", "offline", "/api/placeholder/40/40"));
-        addUser(new User("4", "Giulia Neri", "online", "/api/placeholder/40/40"));
-        addUser(new User("5", "Andrea Ferretti", "offline", "/api/placeholder/40/40"));
-        addUser(new User("currentUser", "Tu", "online", "https://dummyimage.com/40x40/000/fff&text=P"));
+    @Autowired
+    private FirebaseService firebaseService;
+
+    /**
+     * Recupera un utente specifico dal Firebase Realtime Database.
+     * @param userId ID dell'utente
+     * @return CompletableFuture con l'utente trovato o un Optional vuoto
+     */
+    public CompletableFuture<Optional<UserResponse>> getUserById(String userId) {
+        return firebaseService.get(USERS_PATH + "/" + userId, User.class)
+                .thenApply(user -> {
+                    if (user != null) {
+                        return Optional.of(new UserResponse(userId, user));
+                    }
+                    return Optional.empty();
+                });
     }
 
-    public void addUser(User user) {
-        users.put(user.getId(), user);
+    /**
+     * Recupera tutti gli utenti dal Firebase Realtime Database.
+     * @return CompletableFuture con la lista di utenti
+     */
+    public CompletableFuture<List<UserResponse>> getAllUsers() {
+        GenericTypeIndicator<Map<String, User>> typeIndicator = new GenericTypeIndicator<Map<String, User>>() {};
+
+        return firebaseService.getWithTypeIndicator(USERS_PATH, typeIndicator)
+                .thenApply(usersMap -> {
+                    List<UserResponse> userResponses = new ArrayList<>();
+                    if (usersMap != null) {
+                        for (Map.Entry<String, User> entry : usersMap.entrySet()) {
+                            String userId = entry.getKey();
+                            User user = entry.getValue();
+                            userResponses.add(new UserResponse(userId, user));
+                        }
+                    }
+                    return userResponses;
+                });
     }
 
-    public Optional<User> getUserById(String id) {
-        return Optional.ofNullable(users.get(id));
+    /**
+     * Recupera l'utente corrente, se non esiste restituisce un valore di default.
+     * @return CompletableFuture con l'utente corrente
+     */
+    public CompletableFuture<UserResponse> getCurrentUser() {
+        Map<String, User.ChatInfo> defaultChats = new HashMap<>();
+        defaultChats.put("welcome", new User.ChatInfo(
+                "Benvenuto in BicoChat!",
+                "Sistema",
+                LocalDateTime.now().toString(),
+                0
+        ));
+
+        return getUserById("currentUser").thenApply(user -> user.orElse(
+                new UserResponse("currentUser", new User("Tu", "online", defaultChats))
+        ));
     }
 
-    public User getCurrentUser() {
-        return users.getOrDefault("currentUser",
-                new User("currentUser", "Tu", "online", "/api/placeholder/40/40"));
+    /**
+     * Aggiorna lo stato di un utente nel Firebase Realtime Database.
+     * @param userId ID dell'utente
+     * @param status Nuovo stato (es. "online", "offline")
+     * @return CompletableFuture che si completa quando l'operazione è terminata
+     */
+    public CompletableFuture<Void> updateUserStatus(String userId, String status) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", status);
+        return firebaseService.update(USERS_PATH + "/" + userId, updates);
     }
 
-    public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+    /**
+     * Aggiunge un nuovo utente nel Firebase Realtime Database.
+     * @param userId ID dell'utente
+     * @param user Utente da aggiungere
+     * @return CompletableFuture che si completa quando l'operazione è terminata
+     */
+    public CompletableFuture<Void> addUser(String userId, User user) {
+        return firebaseService.set(USERS_PATH + "/" + userId, user);
     }
 
-    public void updateUserStatus(String userId, String status) {
-        getUserById(userId).ifPresent(user -> {
-            user.setStatus(status);
-            users.put(userId, user);
-        });
+    /**
+     * Elimina un utente dal Firebase Realtime Database.
+     * @param userId ID dell'utente da eliminare
+     * @return CompletableFuture che si completa quando l'operazione è terminata
+     */
+    public CompletableFuture<Void> deleteUser(String userId) {
+        return firebaseService.delete(USERS_PATH + "/" + userId);
     }
 }
