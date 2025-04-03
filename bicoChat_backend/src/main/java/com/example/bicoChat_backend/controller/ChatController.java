@@ -29,7 +29,7 @@ public class ChatController {
                 })
                 .exceptionally(ex -> {
                     Map<String, Object> errorResponse = new HashMap<>();
-                    errorResponse.put("error", "Si è verificato un errore nel recupero delle chat");
+                    errorResponse.put("error", "Error during fetching chats");
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
                 });
     }
@@ -44,7 +44,7 @@ public class ChatController {
                         return ResponseEntity.ok(response);
                     } else {
                         Map<String, Object> errorResponse = new HashMap<>();
-                        errorResponse.put("error", "Chat non trovata");
+                        errorResponse.put("error", "Chat not found");
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
                     }
                 })

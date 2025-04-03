@@ -1,6 +1,6 @@
 package com.example.bicoChat_backend.controller.user;
 
-import com.example.bicoChat_backend.model.UserRegisterRequest;
+import com.example.bicoChat_backend.dto.request.UserRegisterRequest;
 import com.example.bicoChat_backend.service.user.RegistrationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

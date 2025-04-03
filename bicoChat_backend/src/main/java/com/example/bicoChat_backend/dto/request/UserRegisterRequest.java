@@ -1,4 +1,4 @@
-package com.example.bicoChat_backend.model;
+package com.example.bicoChat_backend.dto.request;
 
 public class UserRegisterRequest {
     private String email;
