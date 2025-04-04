@@ -10,9 +10,9 @@ import org.springframework.context.annotation.ComponentScan;
 		"com.example.bicoChat_backend.config",
 		"com.example.bicoChat_backend.config.firebase",
 		"com.example.bicoChat_backend.controller",
-		"com.example.bicoChat_backend.controller.firebase",
+		"com.example.bicoChat_backend.controller.user",
 		"com.example.bicoChat_backend.service",
-		"com.example.bicoChat_backend.service.firebase"
+		"com.example.bicoChat_backend.service.user"
 })
 public class BicoChatBackendApplication {
 

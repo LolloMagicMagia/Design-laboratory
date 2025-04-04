@@ -21,27 +21,45 @@ export default function RegisterPage() {
         setError(null)
 
         try {
+            // 1. Registra utente
             const res = await fetch('http://localhost:8080/api/auth/createUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form) // contiene email + password
+                body: JSON.stringify(form)
             })
 
             if (!res.ok) {
                 const errorText = await res.text()
-                throw new Error(`Errore backend: ${res.status} - ${errorText}`)
+                throw new Error(`Errore creazione utente: ${res.status} - ${errorText}`)
             }
 
-            const data = await res.text()
-            console.log('✅ User registered via email/password:', data)
+            const createMsg = await res.text()
+            console.log('✅ Utente creato:', createMsg)
+
+            // 2. Invia email di verifica
+            const verifyRes = await fetch(`http://localhost:8080/api/auth/verifyUser?email=${encodeURIComponent(form.email)}`, {
+                method: 'POST'
+            })
+
+            if (!verifyRes.ok) {
+                const errorText = await verifyRes.text()
+                throw new Error(`Errore invio verifica: ${verifyRes.status} - ${errorText}`)
+            }
+
+            const verifyMsg = await verifyRes.text()
+            console.log('📧 Email di verifica inviata:', verifyMsg)
+
+            alert("Registrazione completata! Controlla l'email per verificare il tuo account.")
             router.push('/login')
 
         } catch (err) {
+            console.error(err)
             setError(err.message)
         } finally {
             setLoading(false)
         }
     }
+
 
 
     const handleGoogleRegister = async () => {

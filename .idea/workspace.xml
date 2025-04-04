@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
