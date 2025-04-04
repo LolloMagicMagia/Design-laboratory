@@ -39,14 +39,15 @@ export default function ChatPage() {
           return;
         }
         setChat(chatData);
-        await API.markChatAsRead(chatId);
+
         const messagesData = await API.getMessagesByChatId(chatId);
+
         setMessages(messagesData);
 
         const userIds = [...new Set(chatData.participants)];
         const users = await Promise.all(userIds.map(uid => API.getUserById(uid)));
         const map = {};
-        users.forEach(u => map[u.id] = u);
+        users.forEach(u => (map[u.id] = u));
         setUsersMap(map);
 
         setLoading(false);

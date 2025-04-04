@@ -6,9 +6,9 @@
       "chatUser": {
         "CHATID1": {
           "name": "Luigi Casamonica",
-          "lastUser": "arhUqPTzttgLSgSdyalBVvnRZDW2",
-          "lastMessage": "Carlito????",
-          "timestamp": "2025-03-28T10:27:00",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Eccomi",
+          "timestamp": "2025-03-28T10:28:00",
           "unreadCount": 0
         },
         "CHATID3": {
@@ -148,6 +148,13 @@
           "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
           "content": "Carlito????",
           "timestamp": "2025-03-28T10:27:00",
+          "read": true
+        },
+        "MSG5": {
+          "chatId": "CHATID1",
+          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "content": "Eccomi",
+          "timestamp": "2025-03-28T10:28:00",
           "read": true
         }
       }

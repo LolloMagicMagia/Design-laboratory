@@ -12,6 +12,7 @@ export default function NewChatPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
+  const [initialMessage, setInitialMessage] = useState(""); // Nuovo stato per il messaggio iniziale
   const router = useRouter();
 
   useEffect(() => {
@@ -61,51 +62,83 @@ export default function NewChatPage() {
     });
   };
 
-  const handleCreateChat = async () => {
-    // Validazione
+  const handleButtonCreateChat = async () => {
+    setError(null);
+
+    // Verifica se è stato selezionato almeno un amico
     if (selectedUsers.length === 0) {
       setError("Seleziona almeno un amico per la chat.");
       return;
     }
 
-    if (chatType === "group" && !chatName.trim()) {
-      setError("Inserisci un nome per la chat di gruppo.");
+    // Verifica se è stato scritto un messaggio
+    if (!initialMessage.trim()) {
+      setError("Devi scrivere un messaggio per creare la chat.");
       return;
     }
+
+    else{
+      handleCreateChat()
+    }
+
+    // Verifica se è stato inserito un nome per la chat di gruppo
+    /*if (chatType === "group" && !chatName.trim()) {
+      setError("Inserisci un nome per la chat di gruppo.");
+      return;
+    }*/
+
+
+  };
+
+  const handleCreateChat = async () => {
+    setError(null);
 
     try {
       setCreating(true);
 
-      // Se è una chat individuale e l'utente esiste già in una chat, naviga a quella
+      // Gestione della creazione della chat individuale
       if (chatType === "individual") {
-        const chats = await API.getChats();
-        const existingChat = chats.find(chat =>
-            chat.type === "individual" &&
-            chat.participants.includes(selectedUsers[0]) &&
-            chat.participants.includes("currentUser")
-        );
+        const friendId = selectedUsers[0];
 
-        if (existingChat) {
-          router.push(`/chat/${existingChat.id}`);
-          return;
+        // Verifica se l'utente è già un amico
+        if (friends.some(friend => friend.id === friendId)) {
+          const result = await API.createIndividualChatIfNotExists(friendId, initialMessage);
+
+          // Se la chat esiste già, mostriamo un errore
+          if (result.alreadyExists) {
+            setError("Esiste già una chat con questo utente.");
+            setTimeout(() => setError(null), 3000);
+            setCreating(false);
+            return;
+          }
+
+          // Se la chat è stata creata correttamente, navighiamo alla chat
+          router.push(`../`);
+        } else {
+          setError("Non sei ancora amico con questo utente.");
+          setTimeout(() => setError(null), 3000);
+          setCreating(false);
         }
+        return;
       }
 
-      // Crea una nuova chat
-      const newChat = await API.createChat({
-        name: chatName,
-        type: chatType,
-        participants: ["currentUser", ...selectedUsers]
-      });
+      // Gestione per la creazione di una chat di gruppo
+      const currentUserId = await API.getCurrentUserId();
+      const timestamp = new Date().toISOString();
+      const participants = [currentUserId, ...selectedUsers];
 
-      // Naviga alla nuova chat
-      router.push(`/chat/${newChat.id}`);
+      const chatId = `chat_${Date.now()}`;
+      await API.createGroupChat(chatId, chatName, participants, timestamp);
+
+      // Navigazione alla chat di gruppo appena creata
+      router.push(`/chat/${chatId}`);
     } catch (err) {
       console.error("Errore nella creazione della chat:", err);
-      setError("Si è verificato un errore nella creazione della chat. Riprova più tardi.");
+      setError("Errore nella creazione della chat. Riprova più tardi.");
       setCreating(false);
     }
   };
+
 
   // Funzione per ottenere il colore in base allo status
   const getStatusColor = (status) => {
@@ -116,6 +149,9 @@ export default function NewChatPage() {
       default: return "bg-gray-500";
     }
   };
+
+  // Verifica se il bottone deve essere disabilitato
+  const isCreateButtonDisabled = selectedUsers.length === 0 || !initialMessage.trim() || creating;
 
   if (loading) {
     return (
@@ -161,16 +197,16 @@ export default function NewChatPage() {
               </div>
             </div>
 
-            {chatType === "group" && (
+            {chatType === "individual" && selectedUsers.length === 1 && (
                 <div className="card-content border-b">
                   <div className="form-group">
-                    <label htmlFor="chatName" className="form-label">Nome del gruppo</label>
+                    <label htmlFor="initialMessage" className="form-label">Messaggio iniziale</label>
                     <input
                         type="text"
-                        id="chatName"
-                        value={chatName}
-                        onChange={(e) => setChatName(e.target.value)}
-                        placeholder="Es. Amici, Lavoro, Famiglia..."
+                        id="initialMessage"
+                        value={initialMessage}
+                        onChange={(e) => setInitialMessage(e.target.value)}
+                        placeholder="Scrivi il primo messaggio..."
                         className="form-input"
                     />
                   </div>
@@ -223,36 +259,6 @@ export default function NewChatPage() {
                     ))
                 )}
               </div>
-
-              {/* Sezione Richieste in attesa */}
-              {pendingFriends.length > 0 && (
-                  <>
-                    <h2 className="text-lg font-semibold mb-4 mt-6">Richieste in attesa</h2>
-                    <div className="user-list">
-                      {pendingFriends.map(user => (
-                          <div key={user.id} className="user-list-item">
-                            <div className="ml-3 flex items-center flex-1">
-                              <img
-                                  src={user.avatar || "https://dummyimage.com/40x40/000/fff&text=P"}
-                                  alt={user.username || user.name}
-                                  className="user-avatar"
-                                  style={{ width: "40px", height: "40px" }}
-                              />
-                              <div className="user-info">
-                                <p className="user-name">{user.username || user.name}</p>
-                                <div className="flex items-center">
-                                  <span className={`w-2 h-2 rounded-full mr-2 ${getStatusColor(user.friendshipStatus)}`}></span>
-                                  <span className="capitalize text-sm text-gray-500">
-                                In attesa
-                              </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                      ))}
-                    </div>
-                  </>
-              )}
             </div>
 
             <div className="card-footer flex justify-end">
@@ -263,9 +269,8 @@ export default function NewChatPage() {
                 Annulla
               </button>
               <button
-                  onClick={handleCreateChat}
+                  onClick={handleButtonCreateChat}
                   className="btn btn-primary"
-                  disabled={selectedUsers.length === 0 || (chatType === "group" && !chatName.trim()) || creating}
               >
                 {creating ? "Creazione in corso..." : "Crea Chat"}
               </button>

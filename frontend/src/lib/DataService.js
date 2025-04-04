@@ -17,6 +17,23 @@ class DataService {
     return this.data.users[currentUserId] ? { id: currentUserId, ...this.data.users[currentUserId] } : null;
   }
 
+  // Metodo per ottenere tutte le chat dell'utente con i nomi risolti
+  async getChatsWithResolvedNames() {
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser || !currentUser.chatUser) {
+      return [];
+    }
+
+    return Object.entries(currentUser.chatUser).map(([chatId, chatData]) => ({
+      chatId,
+      name: chatData.name,
+      lastUser: chatData.lastUser,
+      lastMessage: chatData.lastMessage,
+      timestamp: chatData.timestamp,
+      unreadCount: chatData.unreadCount
+    }));
+  }
+
   async getUserById(userId) {
     return this.data.users[userId] ? { id: userId, ...this.data.users[userId] } : null;
   }
@@ -38,7 +55,7 @@ class DataService {
 
   async sendMessage(chatId, content, sender = this.getCurrentUserId()) {
     const timestamp = new Date().toISOString();
-    const messageId = `msg_${Date.now()}`;
+    const messageId = `msg${Date.now()}`;
 
     const newMessage = {
       chatId,
@@ -62,29 +79,54 @@ class DataService {
       chatUserRef.lastMessage = content;
       chatUserRef.lastUser = sender;
       chatUserRef.timestamp = timestamp;
+      chatUserRef.unreadCount = (chatUserRef.unreadCount || 0) + 1;
 
-      if (uid !== sender) {
-        chatUserRef.unreadCount = (chatUserRef.unreadCount || 0) + 1;
-      } else {
-        chatUserRef.unreadCount = 0;
-      }
     }
 
     return { id: messageId, ...newMessage };
   }
 
   async markChatAsRead(chatId) {
-    const currentUserId = this.getCurrentUserId();
-    const chatUserRef = this.data.users?.[currentUserId]?.chatUser?.[chatId];
+    try {
+      const currentUserId = this.getCurrentUserId();
+      if (!currentUserId) {
+        throw new Error('Utente non autenticato');
+      }
 
-    if (chatUserRef) {
+      // Controllo più rigoroso della struttura dati
+      if (!this.data.users?.[currentUserId]?.chatUser?.[chatId]) {
+        throw new Error(`Chat ${chatId} non trovata per l'utente corrente`);
+      }
+
+      const chatUserRef = this.data.users[currentUserId].chatUser[chatId];
+
+      // Azzeramento conteggio messaggi non letti
       chatUserRef.unreadCount = 0;
 
-      const lastMsg = this.data.chats?.[chatId]?.messages;
-      const lastKey = Object.keys(lastMsg || {}).pop();
-      if (lastMsg?.[lastKey]) {
-        lastMsg[lastKey].read = true;
+      // Controllo esistenza chat e messaggi
+      if (!this.data.chats[chatId]) {
+        console.warn(`Chat ${chatId} non trovata nella collezione chats`);
+        return; // Potresti anche voler lanciare un errore qui
       }
+
+      const chatMessages = this.data.chats[chatId].messages;
+
+      if (chatMessages) {
+        // Modifica più efficiente con Object.keys
+        Object.keys(chatMessages).forEach(messageId => {
+          if (!chatMessages[messageId].read) {
+            chatMessages[messageId].read = true;
+          }
+        });
+
+        console.debug(`Marcati come letti i messaggi per la chat ${chatId}`);
+        return true; // Esplicito ritorno di successo
+      }
+
+      return false; // Indica che non c'erano messaggi da marcare
+    } catch (error) {
+      console.error(`Errore in markChatAsRead per la chat ${chatId}:`, error);
+      throw error; // Rilancia per gestione nell'UI
     }
   }
 
@@ -101,6 +143,57 @@ class DataService {
       friendsSince: details.since
     }));
   }
+
+  async createIndividualChatIfNotExists(friendId, message) {
+    const currentUserId = this.getCurrentUserId();
+
+    // Controlla se esiste già una chat individuale tra currentUser e friendId
+    for (const [chatId, chat] of Object.entries(this.data.chats)) {
+      if (
+          chat.type === "individual" &&
+          chat.participants.includes(currentUserId) &&
+          chat.participants.includes(friendId)
+      ) {
+        return { alreadyExists: true, chatId };
+      }
+    }
+
+    // Crea una nuova chat
+    const chatId = `chat${Date.now()}`;
+    const timestamp = new Date().toISOString();
+    const name = this.data.users[friendId]?.username || "Nuova Chat";
+
+    // Crea la chat nel nodo `chats` e aggiungi il messaggio iniziale
+    this.data.chats[chatId] = {
+      participants: [currentUserId, friendId],
+      type: "individual",
+      messages: {
+        [`msg_${Date.now()}`]: {
+          sender: currentUserId,
+          content: message,
+          timestamp,
+          read: false,
+        }
+      },
+    };
+
+    // Aggiungi anche il messaggio nel campo `chatUser` per entrambi gli utenti
+    for (const userId of [currentUserId, friendId]) {
+      if (!this.data.users[userId].chatUser) {
+        this.data.users[userId].chatUser = {};
+      }
+      this.data.users[userId].chatUser[chatId] = {
+        name: this.data.users[userId === currentUserId ? friendId : currentUserId]?.username || "Chat",
+        lastMessage: message,
+        lastUser: currentUserId,
+        timestamp,
+        unreadCount: 1, // Il primo messaggio è non letto
+      };
+    }
+
+    return { alreadyExists: false, chatId };
+  }
+
 
   exportData() {
     return JSON.stringify(this.data, null, 2);
