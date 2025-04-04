@@ -8,6 +8,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -16,6 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class FirebaseConfig {
@@ -47,6 +50,19 @@ public class FirebaseConfig {
     @Value("${DATABASE_URL}")
     private String database_url;
 
+    // the following 4 variables are needed for setting the email address to send verification email
+    @Value("${EMAIL_USERNAME}")
+    private String mail_username;
+
+    @Value("${EMAIL_ADDITIONAL_PSW}")
+    private String email_additional_psw;
+
+    @Value("${EMAIL_HOST}")
+    private String email_host;
+
+    @Value("${EMAIL_PORT}")
+    private int email_port;
+
     private String type;
 
     private String project_id;
@@ -58,7 +74,6 @@ public class FirebaseConfig {
         this.project_id = "bico-chat";
         this.universe_domain = "googleapis.com";
     }
-
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
@@ -93,5 +108,29 @@ public class FirebaseConfig {
         } else {
             return FirebaseApp.getInstance();
         }
+    }
+
+    @Bean
+    public JavaMailSender getMailSender() {
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+
+        javaMailSender.setHost(email_host);
+        javaMailSender.setPort(email_port);
+        javaMailSender.setUsername(mail_username);
+        javaMailSender.setPassword(email_additional_psw);
+        javaMailSender.setJavaMailProperties(getMailProperties());
+
+        return javaMailSender;
+    }
+
+    private Properties getMailProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("smtp.starttls.enable", "true");
+        properties.setProperty("mail.smtp.starttls.required", "true");
+        properties.setProperty("mail.smtp.ssl.trust", "smtp.gmail.com");
+        properties.setProperty("mail.smtp.ssl.protocols", "TLSv1.2");
+        return properties;
+
     }
 }

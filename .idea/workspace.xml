@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,27 +65,20 @@
         <env name="CLIENT_EMAIL" value="firebase-adminsdk-fbsvc@bico-chat.iam.gserviceaccount.com" />
         <env name="CLIENT_ID" value="117114992242812169927" />
         <env name="CLIENT_X509_CERT_URL" value="https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bico-chat.iam.gserviceaccount.com" />
+        <env name="DATABASE_URL" value="https://bico-chat-default-rtdb.europe-west1.firebasedatabase.app/" />
+        <env name="EMAIL_ADDITIONAL_PSW" value="poirwwumbyqpiptb" />
+        <env name="EMAIL_HOST" value="smtp.gmail.com" />
+        <env name="EMAIL_PORT" value="587" />
+        <env name="EMAIL_USERNAME" value="bbicochat@gmail.com" />
         <env name="PRIVATE_KEY" value="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCg6ZC5RQCZt+Hq\nP2plTLeuuN3irWS8blT1IhHhZcR7I11xhezT6iEWjEP9dB8U5hyEzKtT8bwbT8BH\nn2n20/84CXhQpPflMRzelTMOaVIMdYTj++MhXnDG/UKpdd35h4sCv3HiJXD+ivH4\nXdw3XJtlhMuI4Neq0S/dn2VrawQ6xUYcwBXxq9sqL/GtQnu2ef+Mzt/RE0oITVnQ\nDgTROAE8Wuaom9OLkNC2ibO2Eb9oETMUEitaQbEDmg3KL5jNNLSNebDVfYNyI2BY\nvrimew6UjBVScie7lViOdPQ8v1HK8CtVR6hd9Y68qQ+k44sNjVDqQOuSM0QRvVBM\nPbwPJRolAgMBAAECggEADk5Flhsa3w+4j41cxa3I5Mk9vNHik1gRyItjYJEeIz51\nJ8saz4pQr8L/pnBk9QQyQ+I4Vym2Kg1wkE2Na6rUVWSOJElOWrt/kBBerijR6Ran\nnmc9/bD6QM6yVwOKHQ2eX7uqgcsHXTH4KjcaBXf/vspMGBq5QdAAO+lYaHDmuty7\n8Xj1+fFRtlpNCOp7xtbUEoiTlpNv7Xx5jvxMYblgRtgf8MtJHLfLXLSI2gMZlC27\nIZBp3i/17uFyBfK8f0HjuFvq3dDrLcwsUgQiyeL56Q/NI8m+76YCMi+CGwI7nsXL\nhVEkVgKFMEZgYxIbt9LaUr4vw74gT8aj7utN7wKmkQKBgQDQdW3/tMlnLY9wU9wj\niRGkPhWdqIR02rp5oI50k16O6J3kZDoudAAxGKBq9sKQyB6I/+PziYmsjaHzKm+p\nCUVIorRMPko72McEeIimnAa66H3fglYD1miWy01FT2M5kuP5rOcpYhekg5LPhsYG\nEAQeJpBmaZnIidllOSo0xxRKzQKBgQDFnDVxK4nTMO8BBWm9uVfL1jKKq4iX7tXx\noV4nsSxVhD/Rvfe3aehGUIU8mLwN8fyrHs+2Tle+6kxV90LfLeqtZP+OTHj8epx6\n4xzszZb68HTWr1waV/DxeDYPWLozz623VOk+aVe42LrVAEg8V94fVwhOanz3BURl\nJr/sJb88uQKBgQCD1J/aBJUSQUfjO8WOW5LikbjN2dLaq7EeViGBK+my6v1fgNsi\noY21fuOEgcWOFmDpNxsL20FL9M4koAO5nPlJ9EudpA8CRhemhiu1YhsHfRyNizmm\nd6PxKWUWnhwcPv8Z2PTfwP8+tU7VG2CEWQChqLXNbp8oqbToRPyiH/x/SQKBgQCa\nNvr587leqHyM9nV8C4251NKip5U0xL4QERfSsBDiOBA6Fh+g8rTDUwl3rdZsp6HA\nxY3iPyd5JY4nNIzqcQIJCZ3qpkFxABroSB+FqjgeY9M6y6V8JY8yUtcViO/fiT6P\nqWNRQpKj/fdoTQ0SkpwVJy2jTLVzbZffvKrgluC0eQKBgAXL+LO7ByZTG0uttMaU\nXhFKYoQIYzPklR+o/tmp4t2xxEkBY7kXK7u289bhNF4Lq+uI20159B+SY0fbOqj/\neQDW+rgfkIjxf0B/MxfBPHw16ejtXeFT5ftLeW8y9pO3HduVR5vYCMr3st8QUJj/\n6xEFdwf9E7YKsLxBMGk+8R4W\n-----END PRIVATE KEY-----\n" />
         <env name="PRIVATE_KEY_ID" value="74e01b5fc173fbe1eab037210e4d3259ab09286d" />
         <env name="TOKEN_URI" value="https://oauth2.googleapis.com/token" />
-        <env name="DATABASE_URL" value="https://bico-chat-default-rtdb.europe-west1.firebasedatabase.app/" />
       </envs>
       <option name="MAIN_CLASS_NAME" value="com.example.bicoChat_backend.BicoChatBackendApplication" />
       <module name="bicoChat_backend" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="bicoChat_backend" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="bicoChat_backend" />
-      <option name="filePath" />
-      <method v="2" />
     </configuration>
     <configuration name="BicoChatBackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="bicoChat_backend" />
@@ -119,6 +112,7 @@
       <workItem from="1743626831416" duration="6248000" />
       <workItem from="1743713594045" duration="915000" />
       <workItem from="1743715559955" duration="921000" />
+      <workItem from="1743776091468" duration="8196000" />
     </task>
     <servers />
   </component>
