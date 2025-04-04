@@ -1,0 +1,365 @@
+Index: bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.bicoChat_backend;\r\n\r\nimport org.springframework.boot.SpringApplication;\r\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\r\nimport org.springframework.context.annotation.ComponentScan;\r\n\r\n@SpringBootApplication\r\n@ComponentScan(basePackages = {\"com.example.bicoChat_backend.config.firebase\",\r\n\t\t\"com.example.bicoChat_backend.controller.firebase\",\r\n\t\t\"com.example.bicoChat_backend.service.firebase\",\r\n\t\t\"com.example.bicoChat_backend.controller.google\",\r\n\t\t\"com.example.bicoChat_backend.service.google\"})\r\npublic class BicoChatBackendApplication {\r\n\r\n\tpublic static void main(String[] args) {\r\n\t\tSpringApplication.run(BicoChatBackendApplication.class, args);\r\n\r\n\t}\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java
+--- a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java	(revision 6d9d0c18f3814cc54237f187b0d86d4738cda4fb)
++++ b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java	(date 1743627800811)
+@@ -5,11 +5,15 @@
+ import org.springframework.context.annotation.ComponentScan;
+ 
+ @SpringBootApplication
+-@ComponentScan(basePackages = {"com.example.bicoChat_backend.config.firebase",
++@ComponentScan(basePackages = {
++		"com.example.bicoChat_backend",  // Questo includerà tutti i pacchetti sotto bicoChat_backend
++		"com.example.bicoChat_backend.config",
++		"com.example.bicoChat_backend.config.firebase",
++		"com.example.bicoChat_backend.controller",
+ 		"com.example.bicoChat_backend.controller.firebase",
+-		"com.example.bicoChat_backend.service.firebase",
+-		"com.example.bicoChat_backend.controller.google",
+-		"com.example.bicoChat_backend.service.google"})
++		"com.example.bicoChat_backend.service",
++		"com.example.bicoChat_backend.service.firebase"
++})
+ public class BicoChatBackendApplication {
+ 
+ 	public static void main(String[] args) {
+Index: bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.bicoChat_backend.config.firebase;\r\n\r\nimport com.google.auth.oauth2.GoogleCredentials;\r\nimport com.google.firebase.FirebaseApp;\r\nimport com.google.firebase.FirebaseOptions;\r\nimport jakarta.annotation.PostConstruct;\r\nimport org.springframework.context.annotation.Configuration;\r\n\r\nimport java.io.ByteArrayInputStream;\r\nimport java.io.FileInputStream;\r\nimport java.io.IOException;\r\nimport java.io.InputStream;\r\nimport java.nio.charset.StandardCharsets;\r\n\r\n@Configuration\r\npublic class FirebaseConfig {\r\n    @PostConstruct\r\n    public void initialize() {\r\n        FirebaseOptions options;\r\n        try {\r\n            // Initialize Firebase Admin SDK\r\n            if (System.getenv(\"FIREBASE_CREDENTIALS\") != null) {\r\n                // Using environment variable\r\n                InputStream credentialsStream = new ByteArrayInputStream(\r\n                        System.getenv(\"FIREBASE_CREDENTIALS\").getBytes(StandardCharsets.UTF_8)\r\n                );\r\n                options = FirebaseOptions.builder()\r\n                        .setCredentials(GoogleCredentials.fromStream(credentialsStream))\r\n                        .build();\r\n            } else {\r\n                // If the json file is present\r\n                FileInputStream serviceAccount = new FileInputStream(\"resources/bico-chat-firebase-adminsdk-fbsvc-387ac0c5d6.json\");\r\n                options = FirebaseOptions.builder()\r\n                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))\r\n                        .build();\r\n            }\r\n            FirebaseApp.initializeApp(options);\r\n        } catch (IOException e) {\r\n            System.err.println(\"Firebase initialization error: \" + e.getMessage());\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java
+--- a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java	(revision 6d9d0c18f3814cc54237f187b0d86d4738cda4fb)
++++ b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java	(date 1743627710338)
+@@ -1,9 +1,12 @@
+ package com.example.bicoChat_backend.config.firebase;
+ 
++import com.fasterxml.jackson.databind.ObjectMapper;
+ import com.google.auth.oauth2.GoogleCredentials;
+ import com.google.firebase.FirebaseApp;
+ import com.google.firebase.FirebaseOptions;
+ import jakarta.annotation.PostConstruct;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Bean;
+ import org.springframework.context.annotation.Configuration;
+ 
+ import java.io.ByteArrayInputStream;
+@@ -11,9 +14,89 @@
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.nio.charset.StandardCharsets;
++import java.util.HashMap;
++import java.util.Map;
+ 
+ @Configuration
+ public class FirebaseConfig {
++
++    @Value("${PRIVATE_KEY_ID}")
++    private String private_key_id;
++
++    @Value("${PRIVATE_KEY}")
++    private String private_key;
++
++    @Value("${CLIENT_EMAIL}")
++    private String client_email;
++
++    @Value("${CLIENT_ID}")
++    private String client_id;
++
++    @Value("${AUTH_URI}")
++    private String auth_uri;
++
++    @Value("${TOKEN_URI}")
++    private String token_uri;
++
++    @Value("${AUTH_PROVIDER_X509_CERT_URL}")
++    private String auth_provider_x509_cert_url;
++
++    @Value("${CLIENT_X509_CERT_URL}")
++    private String client_x509_cert_url;
++
++    @Value("${DATABASE_URL}")
++    private String database_url;
++
++    private String type;
++
++    private String project_id;
++
++    private String universe_domain;
++
++    public FirebaseConfig(){
++        this.type = "service_account";
++        this.project_id = "bico-chat";
++        this.universe_domain = "googleapis.com";
++    }
++
++
++    @Bean
++    public FirebaseApp firebaseApp() throws IOException {
++        if (FirebaseApp.getApps().isEmpty()) {
++            // Costruisci il file JSON delle credenziali in memoria
++            Map<String, Object> credentialsMap = new HashMap<>();
++            credentialsMap.put("type", type);
++            credentialsMap.put("project_id", project_id);
++            credentialsMap.put("private_key_id", private_key_id);
++            credentialsMap.put("private_key", private_key.replace("\\n", "\n"));
++            credentialsMap.put("client_email", client_email);
++            credentialsMap.put("client_id", client_id);
++            credentialsMap.put("auth_uri", auth_uri);
++            credentialsMap.put("token_uri", token_uri);
++            credentialsMap.put("auth_provider_x509_cert_url", auth_provider_x509_cert_url);
++            credentialsMap.put("client_x509_cert_url", client_x509_cert_url);
++            credentialsMap.put("universe_domain", universe_domain);
++
++            // Converti la mappa in JSON
++            String jsonCredentials = new ObjectMapper().writeValueAsString(credentialsMap);
++
++            // Crea InputStream dalle credenziali JSON
++            InputStream credentialsStream = new ByteArrayInputStream(jsonCredentials.getBytes());
++
++            // Configura le opzioni di Firebase
++            FirebaseOptions options = FirebaseOptions.builder()
++                    .setCredentials(GoogleCredentials.fromStream(credentialsStream))
++                    .setDatabaseUrl(database_url)
++                    .build();
++
++            // Inizializza l'app
++            return FirebaseApp.initializeApp(options);
++        } else {
++            return FirebaseApp.getInstance();
++        }
++    }
++
++/*
+     @PostConstruct
+     public void initialize() {
+         FirebaseOptions options;
+@@ -39,4 +122,6 @@
+             System.err.println("Firebase initialization error: " + e.getMessage());
+         }
+     }
++
++ */
+ }
+\ No newline at end of file
+Index: bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseBeansConfig.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseBeansConfig.java b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseBeansConfig.java
+new file mode 100644
+--- /dev/null	(date 1743627710336)
++++ b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseBeansConfig.java	(date 1743627710336)
+@@ -0,0 +1,71 @@
++package com.example.bicoChat_backend.config.firebase;
++
++
++import org.springframework.beans.factory.annotation.Value;
++import com.google.cloud.firestore.Firestore;
++import com.google.firebase.auth.FirebaseAuth;
++import com.google.firebase.cloud.FirestoreClient;
++import com.google.firebase.database.DatabaseReference;
++import com.google.firebase.database.FirebaseDatabase;
++import com.google.firebase.messaging.FirebaseMessaging;
++import com.google.firebase.cloud.StorageClient;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.context.annotation.DependsOn;
++
++@Configuration
++public class FirebaseBeansConfig {
++
++
++    @Value("${DATABASE_URL}")
++    private String databaseUrl;
++
++
++/* Firestore
++
++    @Bean
++    @DependsOn("firebaseApp")
++    public Firestore firestoreDatabase() {
++        return FirestoreClient.getFirestore();
++    }
++*/
++
++    /**
++     * Bean per Firebase Authentication
++     */
++    @Bean
++    @DependsOn("firebaseApp")
++    public FirebaseAuth firebaseAuth() {
++        return FirebaseAuth.getInstance();
++    }
++
++    /**
++     * Bean per Realtime Database
++     */
++    @Bean
++    @DependsOn("firebaseApp")
++    public DatabaseReference firebaseDatabase() {
++        return FirebaseDatabase.getInstance(databaseUrl).getReference();
++    }
++
++    /**
++     * Bean per Firebase Storage
++     */
++    @Bean
++    @DependsOn("firebaseApp")
++    public StorageClient firebaseStorage() {
++        return StorageClient.getInstance();
++    }
++
++    /*
++     * Bean per Firebase Cloud Messaging
++
++    @Bean
++    @DependsOn("firebaseApp")
++    public FirebaseMessaging firebaseMessaging() {
++        return FirebaseMessaging.getInstance();
++    }
++
++     */
++}
++
+Index: bicoChat_backend/src/main/resources/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>spring.application.name=bicoChat_backend\r\n// application.properties\r\n# Server configuration\r\nserver.port=8080\r\n\r\n# Log levels\r\nlogging.level.root=INFO\r\nlogging.level.com.example.chatapp=DEBUG\r\n\r\n# CORS configuration (for the frontend requests)\r\nspring.mvc.cors.allowed-origins=*\r\nspring.mvc.cors.allowed-methods=GET,POST,PUT,PATCH,DELETE,OPTIONS\r\nspring.mvc.cors.allowed-headers=*\r\nspring.mvc.cors.max-age=3600\r\n\r\n# Language configuration\r\nspring.messages.basename=messages\r\nspring.messages.encoding=UTF-8\r\n\r\n# Firebase configuration\r\nfirebase.credentials.path=classpath:bico-chat-firebase-adminsdk-fbsvc-387ac0c5d6.json\r\n\r\n# Configuration email for user verification\r\nspring.mail.host=smtp.gmail.com\r\nspring.mail.port=587\r\nspring.mail.username=${MAIL_USERNAME}\r\nspring.mail.password=${MAIL_PASSWORD}\r\nspring.mail.properties.mail.smtp.auth=true\r\nspring.mail.properties.mail.smtp.starttls.enable=true\r\nspring.mail.properties.mail.smtp.starttls.required=true
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/bicoChat_backend/src/main/resources/application.properties b/bicoChat_backend/src/main/resources/application.properties
+--- a/bicoChat_backend/src/main/resources/application.properties	(revision 6d9d0c18f3814cc54237f187b0d86d4738cda4fb)
++++ b/bicoChat_backend/src/main/resources/application.properties	(date 1743627710341)
+@@ -27,4 +27,5 @@
+ spring.mail.password=${MAIL_PASSWORD}
+ spring.mail.properties.mail.smtp.auth=true
+ spring.mail.properties.mail.smtp.starttls.enable=true
+-spring.mail.properties.mail.smtp.starttls.required=true
+\ No newline at end of file
++spring.mail.properties.mail.smtp.starttls.required=true
++
+Index: bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/firebase/FirebaseService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.bicoChat_backend.service.firebase;\r\n\r\nimport com.google.firebase.auth.*;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseAuthException;\r\nimport com.google.firebase.auth.UserRecord;\r\nimport com.google.firebase.auth.UserRecord.CreateRequest;\r\n\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.mail.javamail.JavaMailSender;\r\nimport org.springframework.stereotype.Service;\r\nimport org.springframework.web.bind.annotation.RequestParam;\r\nimport org.springframework.mail.SimpleMailMessage;\r\n@Service\r\npublic class FirebaseService {\r\n\r\n    @Autowired\r\n    private JavaMailSender emailSender;\r\n\r\n    public void listAllUsers() throws Exception {\r\n        ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);\r\n        for (UserRecord user : page.iterateAll()) {\r\n            System.out.println(\"User: \" + user.getEmail());\r\n        }\r\n    }\r\n\r\n    public String creteUnverifiedUser(@RequestParam String email, @RequestParam String password) throws FirebaseAuthException {\r\n        try {\r\n            // Check if the user already exists in Firebase\r\n            UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);\r\n            if (existingUser.isEmailVerified()) {\r\n                return \"Error: This email is already registered and verified.\";\r\n            } else {\r\n                return \"Error: This email is already registered but not verified. Please check your inbox.\";\r\n            }\r\n        } catch (FirebaseAuthException e) {\r\n            // If user is not found, create a new unverified user\r\n            if (e.getAuthErrorCode() == AuthErrorCode.USER_NOT_FOUND) {\r\n                try {\r\n                    // Create a new unverified user\r\n                    CreateRequest request = new CreateRequest()\r\n                            .setEmail(email)\r\n                            .setEmailVerified(false)\r\n                            .setPassword(password);\r\n\r\n                    UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);\r\n                    return \"Successfully created new unverified user: \" + userRecord.getEmail();\r\n                } catch (FirebaseAuthException ex) {\r\n                    return \"Error creating user: \" + ex.getMessage();\r\n                }\r\n            } else {\r\n                return \"Error checking user: \" + e.getMessage();\r\n            }\r\n        }\r\n    }\r\n\r\n    public String verifyUser(@RequestParam String email) throws FirebaseAuthException {\r\n        UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);\r\n        if (existingUser.isEmailVerified() || existingUser.getEmail().isEmpty()) {\r\n            return \"Error: This email is already registered\";\r\n        }\r\n        try {\r\n            // generate the verification link\r\n            String verificationLink = FirebaseAuth.getInstance().generateEmailVerificationLink(email);\r\n\r\n            sendVerificationEmail(email, verificationLink);\r\n            //System.out.println(\"Verification email sent: \" + verificationLink);\r\n\r\n            return \"Verification email sent successfully to: \" + email;\r\n        } catch (FirebaseAuthException e) {\r\n            return \"Error: \" + e.getMessage();\r\n        }\r\n    }\r\n\r\n    private void sendVerificationEmail(String email, String verificationLink) {\r\n        SimpleMailMessage message = new SimpleMailMessage();\r\n        message.setTo(email);\r\n        message.setSubject(\"Verify Your Email - Firebase\");\r\n        message.setText(\"Click the link below to verify your email:\\n\" + verificationLink);\r\n\r\n        emailSender.send(message);\r\n    }\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/firebase/FirebaseService.java b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/firebase/FirebaseService.java
+--- a/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/firebase/FirebaseService.java	(revision 6d9d0c18f3814cc54237f187b0d86d4738cda4fb)
++++ b/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/firebase/FirebaseService.java	(date 1743627710339)
+@@ -14,11 +14,17 @@
+ @Service
+ public class FirebaseService {
+ 
++    private final FirebaseAuth firebaseAuth;
++    private final JavaMailSender emailSender;
++
+     @Autowired
+-    private JavaMailSender emailSender;
++    public FirebaseService(FirebaseAuth firebaseAuth, JavaMailSender emailSender) {
++        this.firebaseAuth = firebaseAuth;
++        this.emailSender = emailSender;
++    }
+ 
+     public void listAllUsers() throws Exception {
+-        ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
++        ListUsersPage page = firebaseAuth.listUsers(null);
+         for (UserRecord user : page.iterateAll()) {
+             System.out.println("User: " + user.getEmail());
+         }
+@@ -27,7 +33,7 @@
+     public String creteUnverifiedUser(@RequestParam String email, @RequestParam String password) throws FirebaseAuthException {
+         try {
+             // Check if the user already exists in Firebase
+-            UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);
++            UserRecord existingUser = firebaseAuth.getUserByEmail(email);
+             if (existingUser.isEmailVerified()) {
+                 return "Error: This email is already registered and verified.";
+             } else {
+@@ -38,12 +44,12 @@
+             if (e.getAuthErrorCode() == AuthErrorCode.USER_NOT_FOUND) {
+                 try {
+                     // Create a new unverified user
+-                    CreateRequest request = new CreateRequest()
++                    UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                             .setEmail(email)
+                             .setEmailVerified(false)
+                             .setPassword(password);
+ 
+-                    UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
++                    UserRecord userRecord = firebaseAuth.createUser(request);
+                     return "Successfully created new unverified user: " + userRecord.getEmail();
+                 } catch (FirebaseAuthException ex) {
+                     return "Error creating user: " + ex.getMessage();
+@@ -55,13 +61,13 @@
+     }
+ 
+     public String verifyUser(@RequestParam String email) throws FirebaseAuthException {
+-        UserRecord existingUser = FirebaseAuth.getInstance().getUserByEmail(email);
++        UserRecord existingUser = firebaseAuth.getUserByEmail(email);
+         if (existingUser.isEmailVerified() || existingUser.getEmail().isEmpty()) {
+             return "Error: This email is already registered";
+         }
+         try {
+             // generate the verification link
+-            String verificationLink = FirebaseAuth.getInstance().generateEmailVerificationLink(email);
++            String verificationLink = firebaseAuth.generateEmailVerificationLink(email);
+ 
+             sendVerificationEmail(email, verificationLink);
+             //System.out.println("Verification email sent: " + verificationLink);
+Index: bicoChat_backend/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n\txsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n\t<modelVersion>4.0.0</modelVersion>\r\n\t<parent>\r\n\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t<artifactId>spring-boot-starter-parent</artifactId>\r\n\t\t<version>3.4.3</version>\r\n\t\t<relativePath/> <!-- lookup parent from repository -->\r\n\t</parent>\r\n\t<groupId>com.example</groupId>\r\n\t<artifactId>bicoChat_backend</artifactId>\r\n\t<version>0.0.1-SNAPSHOT</version>\r\n\t<name>bicoChat_backend</name>\r\n\t<description>Demo project for Spring Boot</description>\r\n\t<url/>\r\n\t<licenses>\r\n\t\t<license/>\r\n\t</licenses>\r\n\t<developers>\r\n\t\t<developer/>\r\n\t</developers>\r\n\t<scm>\r\n\t\t<connection/>\r\n\t\t<developerConnection/>\r\n\t\t<tag/>\r\n\t\t<url/>\r\n\t</scm>\r\n\t<properties>\r\n\t\t<java.version>21</java.version>\r\n\t</properties>\r\n\t<dependencies>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-data-mongodb</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-web</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>jakarta.annotation</groupId>\r\n\t\t\t<artifactId>jakarta.annotation-api</artifactId>\r\n\t\t\t<version>2.1.1</version>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-mail</artifactId>\r\n\t\t</dependency>\r\n\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-web</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.postgresql</groupId>\r\n\t\t\t<artifactId>postgresql</artifactId>\r\n\t\t\t<scope>runtime</scope>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-test</artifactId>\r\n\t\t\t<scope>test</scope>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.projectlombok</groupId>\r\n\t\t\t<artifactId>lombok</artifactId>\r\n\t\t\t<optional>true</optional>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>com.h2database</groupId>\r\n\t\t\t<artifactId>h2</artifactId>\r\n\t\t\t<scope>runtime</scope>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-data-jpa</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>com.google.firebase</groupId>\r\n\t\t\t<artifactId>firebase-admin</artifactId>\r\n\t\t\t<version>9.4.3</version>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>com.google.api-client</groupId>\r\n\t\t\t<artifactId>google-api-client</artifactId>\r\n\t\t\t<version>2.2.0</version>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>com.google.auth</groupId>\r\n\t\t\t<artifactId>google-auth-library-oauth2-http</artifactId>\r\n\t\t\t<version>1.7.0</version>\r\n\t\t</dependency>\r\n\r\n\t</dependencies>\r\n\r\n\t<build>\r\n\t\t<plugins>\r\n\t\t\t<plugin>\r\n\t\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t\t<artifactId>spring-boot-maven-plugin</artifactId>\r\n\t\t\t</plugin>\r\n\t\t</plugins>\r\n\t</build>\r\n\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/bicoChat_backend/pom.xml b/bicoChat_backend/pom.xml
+--- a/bicoChat_backend/pom.xml	(revision 6d9d0c18f3814cc54237f187b0d86d4738cda4fb)
++++ b/bicoChat_backend/pom.xml	(date 1743627710335)
+@@ -32,10 +32,6 @@
+ 	<dependencies>
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+-		</dependency>
+-		<dependency>
+-			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+ 		</dependency>
+ 		<dependency>
+@@ -51,11 +47,6 @@
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+-		</dependency>
+-		<dependency>
+-			<groupId>org.postgresql</groupId>
+-			<artifactId>postgresql</artifactId>
+-			<scope>runtime</scope>
+ 		</dependency>
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+@@ -91,6 +82,11 @@
+ 			<artifactId>google-auth-library-oauth2-http</artifactId>
+ 			<version>1.7.0</version>
+ 		</dependency>
++		<dependency>
++			<groupId>com.google.firebase</groupId>
++			<artifactId>firebase-admin</artifactId>
++			<version>9.2.0</version>
++		</dependency>
+ 
+ 	</dependencies>
+ 

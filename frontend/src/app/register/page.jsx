@@ -21,10 +21,10 @@ export default function RegisterPage() {
         setError(null)
 
         try {
-            const res = await fetch('http://localhost:8080/api/auth/google', {
+            const res = await fetch('http://localhost:8080/api/auth/createUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken })
+                body: JSON.stringify(form) // contiene email + password
             })
 
             if (!res.ok) {
@@ -32,16 +32,17 @@ export default function RegisterPage() {
                 throw new Error(`Errore backend: ${res.status} - ${errorText}`)
             }
 
-
             const data = await res.text()
-            console.log('User registered:', data)
+            console.log('✅ User registered via email/password:', data)
             router.push('/login')
+
         } catch (err) {
             setError(err.message)
         } finally {
             setLoading(false)
         }
     }
+
 
     const handleGoogleRegister = async () => {
         setLoading(true)
