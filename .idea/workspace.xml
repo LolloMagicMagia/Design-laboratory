@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/register/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/BicoChatBackendApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/register/page.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -24,6 +24,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitLabMergeRequestFiltersHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPENED",
+    "assignee": {
+      "type": "org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue",
+      "username": "e.oltolini2",
+      "fullname": "Edoardo Oltolini"
+    }
+  }
+}]]></component>
+  <component name="GitLabMergeRequestsSettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "first": "https://gitlab.com/ElioGargiulo/bicochat.git",
+    "second": "1c946a7c-35a8-49d5-8217-9489af11b18d"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -46,7 +62,7 @@
     &quot;Spring Boot.BicoChatBackendApplication.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;C1__User__Registration&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/eliog/OneDrive/Documents/GitHub/bicochat&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/edo01/IdeaProjects/bicochat/frontend/src/app/register&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -55,6 +71,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\edo01\IdeaProjects\bicochat\frontend\src\app\register" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.BicoChat">
     <configuration name="BicoChat" type="Application" factoryName="Application">
       <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
@@ -75,17 +96,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="bicoChat_backend" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="bicoChat_backend" />
-      <option name="filePath" />
-      <method v="2" />
     </configuration>
     <configuration name="BicoChatBackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="bicoChat_backend" />
@@ -119,6 +129,7 @@
       <workItem from="1743626831416" duration="6248000" />
       <workItem from="1743713594045" duration="915000" />
       <workItem from="1743715559955" duration="921000" />
+      <workItem from="1743781532853" duration="694000" />
     </task>
     <servers />
   </component>

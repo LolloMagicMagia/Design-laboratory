@@ -1,15 +1,15 @@
 'use client'
 
+import './styles.css'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { auth, provider, signInWithPopup } from '@/firebase' // Assicurati che il file esista
+import { auth, provider, signInWithPopup } from '@/firebase'
 
 export default function RegisterPage() {
     const router = useRouter()
     const [form, setForm] = useState({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [result, setResult] = useState(null) // Per mostrare risposta backend
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
@@ -21,51 +21,30 @@ export default function RegisterPage() {
         setError(null)
 
         try {
-            // 1. Registra utente
             const res = await fetch('http://localhost:8080/api/auth/createUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
+                body: JSON.stringify(form),
             })
 
-            if (!res.ok) {
-                const errorText = await res.text()
-                throw new Error(`Errore creazione utente: ${res.status} - ${errorText}`)
-            }
+            if (!res.ok) throw new Error(await res.text())
 
-            const createMsg = await res.text()
-            console.log('✅ Utente creato:', createMsg)
-
-            // 2. Invia email di verifica
-            const verifyRes = await fetch(`http://localhost:8080/api/auth/verifyUser?email=${encodeURIComponent(form.email)}`, {
-                method: 'POST'
+            await fetch(`http://localhost:8080/api/auth/verifyUser?email=${encodeURIComponent(form.email)}`, {
+                method: 'POST',
             })
 
-            if (!verifyRes.ok) {
-                const errorText = await verifyRes.text()
-                throw new Error(`Errore invio verifica: ${verifyRes.status} - ${errorText}`)
-            }
-
-            const verifyMsg = await verifyRes.text()
-            console.log('📧 Email di verifica inviata:', verifyMsg)
-
-            alert("Registrazione completata! Controlla l'email per verificare il tuo account.")
+            alert('Registrazione completata! Controlla la tua email.')
             router.push('/login')
-
         } catch (err) {
-            console.error(err)
             setError(err.message)
         } finally {
             setLoading(false)
         }
     }
 
-
-
     const handleGoogleRegister = async () => {
         setLoading(true)
         setError(null)
-        setResult(null)
 
         try {
             const result = await signInWithPopup(auth, provider)
@@ -74,19 +53,10 @@ export default function RegisterPage() {
             const res = await fetch('http://localhost:8080/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken })
+                body: JSON.stringify({ idToken }),
             })
 
-            const raw = await res.text()
-            let data
-
-            try {
-                data = raw ? JSON.parse(raw) : {}
-            } catch (err) {
-                console.error('Errore parsing JSON:', err)
-                data = { error: 'Risposta non valida dal server', raw }
-            }
-
+            if (!res.ok) throw new Error(await res.text())
             router.push('/login')
         } catch (err) {
             setError(err.message)
@@ -96,53 +66,61 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow-md">
-            <h1 className="text-2xl font-bold mb-4">Register</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <input
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                >
-                    {loading ? 'Registering...' : 'Register'}
-                </button>
-            </form>
+        <div className="login-container">
+            <div className="login-card">
+                <div className="login-header">
+                    <h1>Registrati</h1>
+                    <p>Crea un nuovo account su BicoChat</p>
+                </div>
 
-            <div className="my-4 text-center text-gray-500">or</div>
+                <form className="login-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Inserisci la tua email"
+                            value={form.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-            <button
-                type="button"
-                onClick={handleGoogleRegister}
-                disabled={loading}
-                className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
-            >
-                {loading ? 'Connecting...' : 'Sign up with Google'}
-            </button>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Inserisci la tua password"
+                            value={form.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-            {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
-            {result && (
-                <pre className="mt-4 p-2 bg-gray-100 text-sm whitespace-pre-wrap rounded">
-                    {JSON.stringify(result, null, 2)}
-                </pre>
-            )}
+                    <button type="submit" className="login-button" disabled={loading}>
+                        {loading ? 'Registrazione in corso...' : 'Registrati'}
+                    </button>
+                </form>
+
+                <div className="form-options" style={{ justifyContent: 'center', marginTop: '10px' }}>
+                    <button className="login-button" style={{ backgroundColor: '#db4437' }} onClick={handleGoogleRegister}>
+                        {loading ? 'Connessione...' : 'Registrati con Google'}
+                    </button>
+                </div>
+
+                {error && (
+                    <div className="login-footer" style={{ color: 'red', marginTop: '16px' }}>
+                        ⚠️ {error}
+                    </div>
+                )}
+
+                <div className="login-footer">
+                    <p>Hai già un account? <a href="/login">Accedi</a></p>
+                </div>
+            </div>
         </div>
     )
 }
