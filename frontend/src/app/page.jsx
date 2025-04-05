@@ -13,15 +13,33 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    const id = localStorage.getItem('currentUserId');
+    if (!id) {
+      setError('Utente non autenticato');
+      return;
+    }
+    setCurrentUser(id);
+
     const fetchData = async () => {
       try {
+
+        //Credo debba passare email così da prendere il suo id e poterlo utilizzare dopo
         const user = await API.getCurrentUser();
         setCurrentUser(user);
-        localStorage.setItem('currentUserId', user.id);
 
-        const fetchedChats = await API.getChatsWithResolvedNames();
-        console.error("fetchedChats", fetchedChats);
+        //localStorage.setItem('currentUserId', user.id);
+
+        const fetchedChats = Object.entries(user.chatUser).map(([chatId, chatData]) => ({
+          chatId,
+          name: chatData.name,
+          lastUser: chatData.lastUser,
+          lastMessage: chatData.lastMessage,
+          timestamp: chatData.timestamp,
+          unreadCount: chatData.unreadCount
+        }));
+
         setChats(fetchedChats);
+
         setLoading(false);
       } catch (err) {
         console.error('Errore nel caricamento dei dati:', err);
@@ -34,7 +52,7 @@ export default function Home() {
   }, []);
 
   const handleChatClick = async (chatId, chatName, lastUser, unreadCount) => {
-    console.error('tutto: ',chatId, " ", chatName, " ", lastUser, " ", unreadCount);
+    console.log('tutto: ',chatId, " ", chatName, " ", lastUser, " ", unreadCount);
     try {
       // Aggiungi un controllo aggiuntivo per currentUser
       if (!currentUser) {
@@ -45,13 +63,9 @@ export default function Home() {
       // Se ci sono messaggi non letti, procedi solo se l'ultimo messaggio non è stato inviato dall'utente loggato
       if (unreadCount > 0 && lastUser !== currentUser.id) {
         try {
-          // Aggiungi await esplicito e gestisci il risultato
-          console.error('Prima di result:');
-          const result = await API.markChatAsRead(chatId);
-          console.log('Chat marcata come letta:', result);
+          await API.markChatAsRead(chatId);
         } catch (markReadError) {
           console.error('Errore nel marcare la chat come letta:', markReadError);
-          // Puoi decidere se continuare comunque o fermarti qui
         }
       }
 

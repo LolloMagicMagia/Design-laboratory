@@ -9,7 +9,7 @@
           "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
           "lastMessage": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
-          "unreadCount": 0
+          "unreadCount": 1
         },
         "CHATID3": {
           "name": "Team Progetto",
@@ -70,10 +70,10 @@
       "chatUser": {
         "CHATID1": {
           "name": "Marco Rossi",
-          "lastUser": "arhUqPTzttgLSgSdyalBVvnRZDW2",
-          "lastMessage": "Carlito????",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Eccomi.",
           "timestamp": "2025-03-28T10:27:00",
-          "unreadCount": 0
+          "unreadCount": 1
         },
         "CHATID2": {
           "name": "Carla Orlock",
@@ -155,7 +155,7 @@
           "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
           "content": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
-          "read": true
+          "read": false
         }
       }
     },

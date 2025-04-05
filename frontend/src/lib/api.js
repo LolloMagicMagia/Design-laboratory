@@ -3,9 +3,10 @@ import DataService from './DataService';
 const API = {
     getCurrentUser: () => DataService.getCurrentUser(),
 
-    getChatsWithResolvedNames: () => DataService.getChatsWithResolvedNames(),
-
-    getChats: () => DataService.getChats(),
+    //Post per cambiare dati
+    markChatAsRead: (chatId) => {
+        return DataService.markChatAsRead(chatId);
+    },
 
     getChatById: (chatId) => DataService.getChatById(chatId),
 
@@ -13,21 +14,14 @@ const API = {
 
     sendMessage: (chatId, content, sender) => DataService.sendMessage(chatId, content, sender),
 
-    //Post per cambiare dati
-    markChatAsRead: (chatId) => {
-        return DataService.markChatAsRead(chatId);
-    },
+    getUserById: (userId) => DataService.getUserById(userId),
+
+    getFriendsList: () => DataService.getFriendsList(),
 
     //Post per cambiare dati
     createIndividualChatIfNotExists: (friendId, message) => {
         return DataService.createIndividualChatIfNotExists(friendId, message);
     },
-
-    getUserById: (userId) => DataService.getUserById(userId),
-
-    getFriendsList: () => DataService.getFriendsList(),
-
-    exportData: () => DataService.exportData()
 };
 
 export default API;

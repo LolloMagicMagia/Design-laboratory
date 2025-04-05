@@ -5,33 +5,14 @@ class DataService {
     this.data = JSON.parse(JSON.stringify(mockData)); // Deep copy per evitare modifiche dirette
   }
 
+  // Andare a definire la logica con elio per prendere l'id
   getCurrentUserId() {
-    if (typeof window !== 'undefined') {
-      return "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1"; // Simulazione localStorage
-    }
-    return null;
+    return localStorage.getItem('currentUserId');
   }
 
   async getCurrentUser() {
     const currentUserId = this.getCurrentUserId();
     return this.data.users[currentUserId] ? { id: currentUserId, ...this.data.users[currentUserId] } : null;
-  }
-
-  // Metodo per ottenere tutte le chat dell'utente con i nomi risolti
-  async getChatsWithResolvedNames() {
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser || !currentUser.chatUser) {
-      return [];
-    }
-
-    return Object.entries(currentUser.chatUser).map(([chatId, chatData]) => ({
-      chatId,
-      name: chatData.name,
-      lastUser: chatData.lastUser,
-      lastMessage: chatData.lastMessage,
-      timestamp: chatData.timestamp,
-      unreadCount: chatData.unreadCount
-    }));
   }
 
   async getUserById(userId) {

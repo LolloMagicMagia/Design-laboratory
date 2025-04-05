@@ -123,7 +123,7 @@ export default function NewChatPage() {
       }
 
       // Gestione per la creazione di una chat di gruppo
-      const currentUserId = await API.getCurrentUserId();
+      /*const currentUserId = await API.getCurrentUserId();
       const timestamp = new Date().toISOString();
       const participants = [currentUserId, ...selectedUsers];
 
@@ -131,7 +131,7 @@ export default function NewChatPage() {
       await API.createGroupChat(chatId, chatName, participants, timestamp);
 
       // Navigazione alla chat di gruppo appena creata
-      router.push(`/chat/${chatId}`);
+      router.push(`/chat/${chatId}`);*/
     } catch (err) {
       console.error("Errore nella creazione della chat:", err);
       setError("Errore nella creazione della chat. Riprova più tardi.");
@@ -151,7 +151,7 @@ export default function NewChatPage() {
   };
 
   // Verifica se il bottone deve essere disabilitato
-  const isCreateButtonDisabled = selectedUsers.length === 0 || !initialMessage.trim() || creating;
+  //const isCreateButtonDisabled = selectedUsers.length === 0 || !initialMessage.trim() || creating;
 
   if (loading) {
     return (
