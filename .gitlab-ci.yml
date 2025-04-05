@@ -10,7 +10,7 @@ variables:
 
   # Variabili per il progetto
   FRONTEND_DIR: "./frontend"
-  BACKEND_DIR: "./backend"
+  BACKEND_DIR: "./bicoChat_backend"
 
 # Job per costruire il frontend Next.js
 build-frontend:

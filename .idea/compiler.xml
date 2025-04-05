@@ -6,6 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for bicoChat_backend" enabled="true">
+        <sourceOutputDir name="../backend/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../backend/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
         <module name="bicoChat_backend" />
       </profile>
     </annotationProcessing>
