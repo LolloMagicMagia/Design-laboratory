@@ -1,0 +1,225 @@
+{
+  "users": {
+    "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1": {
+      "username": "Marco Rossi",
+      "status": "online",
+      "chatUser": {
+        "CHATID1": {
+          "name": "Luigi Casamonica",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Eccomi",
+          "timestamp": "2025-03-28T10:28:00",
+          "unreadCount": 1
+        },
+        "CHATID3": {
+          "name": "Team Progetto",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Parliamo del backend prima?",
+          "timestamp": "2025-04-01T09:03:00",
+          "unreadCount": 0
+        }
+      },
+      "friends": {
+        "arhUqPTzttgLSgSdyalBVvnRZDW2": {
+          "since": "2025-01-15T14:30:00",
+          "status": "active"
+        },
+        "ZzfGIYCT4yfvnEAjBCLVLrEVkch2": {
+          "since": "2025-02-20T09:15:00",
+          "status": "pending"
+        },
+        "CiaoProvaUtente": {
+          "since": "2025-02-20T09:15:00",
+          "status": "active"
+        }
+      }
+    },
+    "ZzfGIYCT4yfvnEAjBCLVLrEVkch2": {
+      "username": "Carla Orlock",
+      "status": "offline",
+      "chatUser": {
+        "CHATID2": {
+          "name": "Luigi Casamonica",
+          "lastUser": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "lastMessage": "Grazie per i soldi!",
+          "timestamp": "2025-03-28T10:27:00",
+          "unreadCount": 0
+        },
+        "CHATID3": {
+          "name": "Team Progetto",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Parliamo del backend prima?",
+          "timestamp": "2025-04-01T09:03:00",
+          "unreadCount": 1
+        }
+      },
+      "friends": {
+        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1": {
+          "since": "2025-02-20T09:15:00",
+          "status": "received"
+        },
+        "arhUqPTzttgLSgSdyalBVvnRZDW2": {
+          "since": "2025-03-10T16:45:00",
+          "status": "active"
+        }
+      }
+    },
+    "arhUqPTzttgLSgSdyalBVvnRZDW2": {
+      "username": "Luigi Casamonica",
+      "status": "online",
+      "chatUser": {
+        "CHATID1": {
+          "name": "Marco Rossi",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Eccomi.",
+          "timestamp": "2025-03-28T10:27:00",
+          "unreadCount": 1
+        },
+        "CHATID2": {
+          "name": "Carla Orlock",
+          "lastUser": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "lastMessage": "Grazie per i soldi!",
+          "timestamp": "2025-03-28T10:27:00",
+          "unreadCount": 0
+        },
+        "CHATID3": {
+          "name": "Team Progetto",
+          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastMessage": "Parliamo del backend prima?",
+          "timestamp": "2025-04-01T09:03:00",
+          "unreadCount": 1
+        }
+      },
+      "friends": {
+        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1": {
+          "since": "2025-01-15T14:30:00",
+          "status": "active"
+        },
+        "ZzfGIYCT4yfvnEAjBCLVLrEVkch2": {
+          "since": "2025-03-10T16:45:00",
+          "status": "active"
+        }
+      }
+    },
+    "CiaoProvaUtente": {
+      "username": "Dario Morte",
+      "status": "offline",
+      "chatUser": {
+      },
+      "friends": {
+        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1": {
+          "since": "2025-02-20T09:15:00",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "chats": {
+    "CHATID1": {
+      "type": "individual",
+      "participants": [
+        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+        "arhUqPTzttgLSgSdyalBVvnRZDW2"
+      ],
+      "messages": {
+        "MSG1": {
+          "chatId": "CHATID1",
+          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "content": "Ciao! Come stai oggi?",
+          "timestamp": "2025-03-28T10:15:00",
+          "read": true
+        },
+        "MSG2": {
+          "chatId": "CHATID1",
+          "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "content": "Tutto bene, grazie! E tu?",
+          "timestamp": "2025-03-28T10:25:00",
+          "read": true
+        },
+        "MSG3": {
+          "chatId": "CHATID1",
+          "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "content": "Carlos?",
+          "timestamp": "2025-03-28T10:26:00",
+          "read": true
+        },
+        "MSG4": {
+          "chatId": "CHATID1",
+          "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "content": "Carlito????",
+          "timestamp": "2025-03-28T10:27:00",
+          "read": true
+        },
+        "MSG5": {
+          "chatId": "CHATID1",
+          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "content": "Eccomi",
+          "timestamp": "2025-03-28T10:28:00",
+          "read": false
+        }
+      }
+    },
+    "CHATID2": {
+      "type": "individual",
+      "participants": [
+        "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
+        "arhUqPTzttgLSgSdyalBVvnRZDW2"
+      ],
+      "messages": {
+        "MSG1": {
+          "chatId": "CHATID2",
+          "sender": "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
+          "content": "Ehi Luigi, ci sei?",
+          "timestamp": "2025-03-28T10:20:00",
+          "read": true
+        },
+        "MSG2": {
+          "chatId": "CHATID2",
+          "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "content": "Grazie per i soldi!",
+          "timestamp": "2025-03-28T10:27:00",
+          "read": true
+        }
+      }
+    },
+    "CHATID3": {
+      "type": "group",
+      "name": "Team Progetto",
+      "participants": [
+        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+        "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
+        "arhUqPTzttgLSgSdyalBVvnRZDW2"
+      ],
+      "messages": {
+        "MSG1": {
+          "chatId": "CHATID3",
+          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "content": "Ciao a tutti, iniziamo la riunione?",
+          "timestamp": "2025-04-01T09:00:00",
+          "read": true
+        },
+        "MSG2": {
+          "chatId": "CHATID3",
+          "sender": "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
+          "content": "Sì, ci sono!",
+          "timestamp": "2025-04-01T09:01:00",
+          "read": true
+        },
+        "MSG3": {
+          "chatId": "CHATID3",
+          "sender": "arhUqPTzttgLSgSdyalBVvnRZDW2",
+          "content": "Eccomi, pronto.",
+          "timestamp": "2025-04-01T09:02:00",
+          "read": true
+        },
+        "MSG4": {
+          "chatId": "CHATID3",
+          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "content": "Parliamo del backend prima?",
+          "timestamp": "2025-04-01T09:03:00",
+          "read": false
+        }
+      }
+    }
+  }
+}

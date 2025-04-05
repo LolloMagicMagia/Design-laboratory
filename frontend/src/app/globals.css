@@ -10,6 +10,7 @@
   --text-light: #6b7280;
   --error-color: #ef4444;
   --success-color: #10b981;
+  --amber-500: #f59e0b;
   --border-color: #e5e7eb;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -50,6 +51,22 @@ body {
   width: 100%;
 }
 
+.two-column-layout {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.column {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .two-column-layout {
+    flex-direction: column;
+  }
+}
+
 .card {
   background-color: white;
   border-radius: var(--radius-md);
@@ -69,6 +86,21 @@ body {
 .card-footer {
   padding: 1rem;
   border-top: 1px solid var(--border-color);
+}
+
+.friends-card {
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.friends-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-color);
 }
 
 /* Form elements */
@@ -171,6 +203,10 @@ body {
   color: white;
 }
 
+.font-bold {
+  font-weight: 700;
+}
+
 .badge-notification {
   width: 1.25rem;
   height: 1.25rem;
@@ -251,9 +287,12 @@ body {
 }
 
 .message-input-container {
-  padding: 0.75rem;
+  position: sticky;
+  bottom: 0;
   background-color: white;
+  padding: 0.75rem;
   border-top: 1px solid var(--border-color);
+  z-index: 10;
 }
 
 .message-input-form {
@@ -305,9 +344,23 @@ body {
   background-color: #f9fafb;
 }
 
+.user-card {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.user-card:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-1px);
+}
+
 .user-avatar {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 1rem;
@@ -329,11 +382,34 @@ body {
   color: var(--text-light);
 }
 
+.user-status-container {
+  display: flex;
+  align-items: center;
+}
+
+.user-status-text {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.combined-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .status-indicator {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
   margin-right: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .status-online {
@@ -342,6 +418,26 @@ body {
 
 .status-offline {
   background-color: var(--text-light);
+}
+
+.friend-status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.friend-status-active {
+  background-color: var(--success-color);
+}
+
+.friend-status-pending {
+  background-color: var(--amber-500);
+}
+
+.friend-status-blocked {
+  background-color: var(--error-color);
 }
 
 /* Profile styles */
@@ -460,6 +556,30 @@ body {
   max-width: 80%;
 }
 
+/* Tab styles */
+.tab-container {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  color: var(--text-light);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.tab-button:hover:not(.active) {
+  color: var(--text-color);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
@@ -472,16 +592,31 @@ body {
   }
 }
 
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-content {
+  animation: fadeInTab 0.3s ease-out;
+}
+
 /* Responsive styles */
 @media (max-width: 640px) {
   .page-content {
     padding: 1rem;
   }
-  
+
   .chat-list-item, .user-list-item {
     padding: 0.75rem;
   }
-  
+
   .message {
     max-width: 85%;
   }
