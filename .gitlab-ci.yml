@@ -32,7 +32,7 @@ build-frontend:
 # Job per costruire il backend Spring Boot
 build-backend:
   stage: build
-  image: maven:3.8-openjdk-21
+  image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
     - mvn package -B -DskipTests
@@ -63,7 +63,7 @@ test-frontend:
 # Job per testare il backend
 test-backend:
   stage: test
-  image: maven:3.8-openjdk-21
+  image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
     - mvn test
@@ -93,7 +93,7 @@ deploy-frontend:
 # Job per deploy del backend (placeholder)
 deploy-backend:
   stage: deploy
-  image: maven:3.8-openjdk-21
+  image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
     - echo "Backend build successfully completed"
