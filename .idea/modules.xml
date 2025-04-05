@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/bicochat.iml" filepath="$PROJECT_DIR$/.idea/bicochat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/bicochat-gitlab.iml" filepath="$PROJECT_DIR$/.idea/bicochat-gitlab.iml" />
     </modules>
   </component>
 </project>

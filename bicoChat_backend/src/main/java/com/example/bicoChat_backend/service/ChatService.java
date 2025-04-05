@@ -1,217 +1,212 @@
 package com.example.bicoChat_backend.service;
 
-
+import com.example.bicoChat_backend.dto.response.ChatResponse;
 import com.example.bicoChat_backend.model.Chat;
 import com.example.bicoChat_backend.model.Message;
 import com.example.bicoChat_backend.model.User;
-import jakarta.annotation.PostConstruct;
+import com.google.firebase.database.GenericTypeIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ChatService {
 
-    private UserService userService;
-    private Map<String, Chat> chats;
-    private List<Chat> chatList;
+    private static final String CHATS_PATH = "chats";
+    private static final String USERS_PATH = "users";
 
     @Autowired
-    public ChatService(UserService userService) {
-        this.userService = userService;
+    private FirebaseService firebaseService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * Retrieves all chats from the Firebase Realtime Database.
+     * @return CompletableFuture with the list of chats
+     */
+    public CompletableFuture<List<ChatResponse>> getAllChats() {
+        GenericTypeIndicator<Map<String, Chat>> typeIndicator = new GenericTypeIndicator<Map<String, Chat>>() {};
+
+        return firebaseService.getWithTypeIndicator(CHATS_PATH, typeIndicator)
+                .thenApply(chatsMap -> {
+                    List<ChatResponse> chatResponseList = new ArrayList<>();
+                    if (chatsMap != null) {
+                        for (Map.Entry<String, Chat> entry : chatsMap.entrySet()) {
+                            chatResponseList.add(new ChatResponse(entry.getKey(), entry.getValue()));
+                        }
+                    }
+                    return chatResponseList;
+                });
     }
 
-    @PostConstruct
-    public void init() {
-        this.chats = new ConcurrentHashMap<>();
-        this.chatList = new ArrayList<>();
-        initializeExampleChat();
+    /**
+     * Retrieves a specific chat from the Firebase Realtime Database.
+     * @param chatId ID of the chat
+     * @return CompletableFuture with the found chat or an empty Optional
+     */
+    public CompletableFuture<Optional<ChatResponse>> getChatById(String chatId) {
+        return firebaseService.get(CHATS_PATH + "/" + chatId, Chat.class)
+                .thenApply(chat -> {
+                    if (chat != null) {
+                        return Optional.of(new ChatResponse(chatId, chat));
+                    }
+                    return Optional.empty();
+                });
     }
 
-    private void initializeExampleChat() {
-        // Ottieni l'utente corrente
-        User currentUser = userService.getCurrentUser();
+    /**
+     * Creates a new chat in the Firebase Realtime Database.
+     * @param chat Chat to create
+     * @return CompletableFuture with the created chat
+     */
+    public CompletableFuture<ChatResponse> createChat(Chat chat) {
+        String chatId = UUID.randomUUID().toString();
 
-        // Usa Marco Rossi (ID: 1) come esempio
-        Optional<User> exampleUser = userService.getUserById("1");
+        return firebaseService.set(CHATS_PATH + "/" + chatId, chat)
+                .thenApply(v -> {
+                    // Updates the chat references in user profiles
+                    updateChatReferencesInUserProfiles(chatId, chat);
+                    return new ChatResponse(chatId, chat);
+                });
+    }
 
-        if (exampleUser.isPresent()) {
-            User user = exampleUser.get();
-            String chatId = UUID.randomUUID().toString();
+    /**
+     * Updates the chat references in the profiles of the participating users.
+     * @param chatId ID of the chat
+     * @param chat Chat to reference
+     */
+    private void updateChatReferencesInUserProfiles(String chatId, Chat chat) {
+        for (String userId : chat.getParticipants()) {
+            userService.getUserById(userId).thenAccept(optionalUser -> {
+                optionalUser.ifPresent(userResponse -> {
+                    User user = userResponse.getUser();
 
-            // Crea una nuova chat
-            Chat chat = new Chat();
-            chat.setId(chatId);
-            chat.setName(user.getName());
-            chat.setType("individual");
+                    // Creates a ChatInfo for the user
+                    User.ChatInfo chatInfo = new User.ChatInfo(
+                            "", // Empty last message initially
+                            chat.getName() != null ? chat.getName() : userId,
+                            LocalDateTime.now().toString(),
+                            0
+                    );
 
-            // Aggiungi i partecipanti (utente corrente e altro utente)
-            List<String> participants = new ArrayList<>();
-            participants.add(currentUser.getId());
-            participants.add(user.getId());
-            chat.setParticipants(participants);
+                    // Adds the chat to the user's chats
+                    Map<String, User.ChatInfo> userChats = user.getChatUser();
+                    if (userChats == null) {
+                        userChats = new HashMap<>();
+                    }
+                    userChats.put(chatId, chatInfo);
+                    user.setChatUser(userChats);
 
-            // Inizializza altri campi della chat
-            chat.setUnreadCount(0);
-
-            // Aggiungi la chat alla mappa
-            chats.put(chatId, chat);
-
-            // Aggiungi alcuni messaggi di esempio
-            addSampleMessages(chat, user.getId());
+                    // Updates the user on Firebase
+                    firebaseService.set(USERS_PATH + "/" + userId, user);
+                });
+            });
         }
     }
 
-    private void addSampleMessages(Chat chat, String otherUserId) {
-        // Crea alcuni messaggi di esempio per la chat
-        LocalDateTime now = LocalDateTime.now();
+    /**
+     * Adds a message to an existing chat.
+     * @param chatId ID of the chat
+     * @param message Message to add
+     * @return CompletableFuture with the added message and its ID
+     */
+    public CompletableFuture<Map.Entry<String, Message>> addMessage(String chatId, Message message) {
+        String messageId = UUID.randomUUID().toString();
 
-        // Esempio di messaggio dall'altro utente
-        Message message1 = new Message();
-        message1.setId(UUID.randomUUID().toString());
-        message1.setChatId(chat.getId());
-        message1.setSender(otherUserId);
-        message1.setContent("Ciao! Come stai oggi?");
-        message1.setTimestamp(now.minusMinutes(30));
-        message1.setRead(true);
-
-        // Esempio di messaggio dall'utente corrente
-        Message message2 = new Message();
-        message2.setId(UUID.randomUUID().toString());
-        message2.setChatId(chat.getId());
-        message2.setSender("currentUser");
-        message2.setContent("Tutto bene, grazie! E tu?");
-        message2.setTimestamp(now.minusMinutes(25));
-        message2.setRead(true);
-
-        // Aggiungi i messaggi alla chat
-        chat.addMessage(message1);
-        chat.addMessage(message2);
-
-        // Imposta l'ultimo messaggio
-        Chat.LastMessage lastMessage = new Chat.LastMessage();
-        lastMessage.setSender(message2.getSender());
-        lastMessage.setContent(message2.getContent());
-        lastMessage.setTimestamp(message2.getTimestamp());
-        lastMessage.setRead(true);
-        chat.setLastMessage(lastMessage);
+        return firebaseService.set(CHATS_PATH + "/" + chatId + "/messages/" + messageId, message)
+                .thenCompose(v -> {
+                    // Updates the last message for all participants
+                    return updateLastMessageForParticipants(chatId, message);
+                })
+                .thenApply(v -> new AbstractMap.SimpleEntry<>(messageId, message));
     }
 
-    public List<Chat> getAllChats() {
-        return new ArrayList<>(chats.values());
-    }
+    /**
+     * Updates the last message for all participants of the chat.
+     * @param chatId ID of the chat
+     * @param message Last message
+     * @return CompletableFuture completed when the operation is finished
+     */
+    private CompletableFuture<Void> updateLastMessageForParticipants(String chatId, Message message) {
+        return getChatById(chatId).thenCompose(optionalChat -> {
+            if (optionalChat.isPresent()) {
+                Chat chat = optionalChat.get().getChat();
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-    public Optional<Chat> getChatById(String id) {
-        return Optional.ofNullable(chats.get(id));
-    }
+                for (String userId : chat.getParticipants()) {
+                    CompletableFuture<Void> future = userService.getUserById(userId)
+                            .thenCompose(optionalUser -> {
+                                if (optionalUser.isPresent()) {
+                                    User user = optionalUser.get().getUser();
+                                    Map<String, User.ChatInfo> userChats = user.getChatUser();
 
-    public void addChat(Chat chat) {
-        chats.put(chat.getId(), chat);
-    }
+                                    if (userChats != null && userChats.containsKey(chatId)) {
+                                        User.ChatInfo chatInfo = userChats.get(chatId);
+                                        chatInfo.setLastMessage(message.getContent());
+                                        chatInfo.setTimestamp(message.getTimestamp());
 
-    public Chat createChat(String name, List<String> participants) {
-        String chatId = UUID.randomUUID().toString();
-        Chat chat = new Chat(chatId, name, participants);
-        chat.setUnreadCount(0);
-        addChat(chat);
-        return chat;
-    }
+                                        // Increments unreadCount only if the recipient is different from the sender
+                                        if (!userId.equals(message.getSender())) {
+                                            chatInfo.setUnreadCount(chatInfo.getUnreadCount() + 1);
+                                        }
 
-    // TODO la logica di creazione della chat è responsabilità del chiamante (view o controller)
-    //  --> NON IL MASSIMO
-    public Chat createChat(Chat chat) {
-        String chatId = UUID.randomUUID().toString();
-        chat.setId(chatId);
-        chat.setUnreadCount(0);
-        addChat(chat);
-        return chat;
-    }
+                                        userChats.put(chatId, chatInfo);
+                                        user.setChatUser(userChats);
 
-    public boolean markChatAsRead(String chatId) {
-        return getChatById(chatId).map(chat -> {
-            chat.setUnreadCount(0);
-            if (chat.getLastMessage() != null) {
-                chat.getLastMessage().setRead(true);
+                                        // User update on Firebase
+                                        return firebaseService.set(USERS_PATH + "/" + userId, user);
+                                    }
+                                }
+                                return CompletableFuture.completedFuture(null);
+                            });
+
+                    futures.add(future);
+                }
+
+                // Wait for all updates to be completed
+                return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
             }
-            chats.replace(chatId, chat);
-            return true;
-        }).orElse(false);
-    }
-
-    public void updateLastMessage(String chatId, String sender, String content, LocalDateTime timestamp, boolean read) {
-        getChatById(chatId).ifPresent(chat -> {
-            Chat.LastMessage lastMessage = new Chat.LastMessage();
-            lastMessage.setSender(sender);
-            lastMessage.setContent(content);
-            lastMessage.setTimestamp(timestamp);
-            lastMessage.setRead(read);
-
-            // Imposta senderName per i gruppi
-            if ("group".equals(chat.getType()) && !"currentUser".equals(sender)) {
-                lastMessage.setSenderName(sender);
-            }
-
-            chat.setLastMessage(lastMessage);
-
-            // Incrementa il contatore dei messaggi non letti se necessario
-            if (!sender.equals("currentUser")) {
-                chat.setUnreadCount(chat.getUnreadCount() + 1);
-            }
-            chats.replace(chatId, chat);
+            return CompletableFuture.completedFuture(null);
         });
     }
 
+    /**
+     * Marks all messages in a chat as read for a specific user.
+     * @param chatId ID of the chat
+     * @param userId ID of the user
+     * @return CompletableFuture that completes when the operation is finished
+     */
+    public CompletableFuture<Void> markChatAsRead(String chatId, String userId) {
+        return userService.getUserById(userId).thenCompose(optionalUser -> {
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get().getUser();
+                Map<String, User.ChatInfo> userChats = user.getChatUser();
 
-    public void updateLastMessageReference(String chatId, Message message) {
-        getChatById(chatId).ifPresent(chat -> {
-            // Crea un LastMessage basato sul messaggio esistente
-            Chat.LastMessage lastMessage = new Chat.LastMessage();
-            lastMessage.setSender(message.getSender());
-            lastMessage.setContent(message.getContent());
-            lastMessage.setTimestamp(message.getTimestamp());
-            lastMessage.setRead(message.isRead());
+                if (userChats != null && userChats.containsKey(chatId)) {
+                    User.ChatInfo chatInfo = userChats.get(chatId);
+                    chatInfo.setUnreadCount(0);
+                    userChats.put(chatId, chatInfo);
+                    user.setChatUser(userChats);
 
-            // Imposta senderName per i gruppi
-            if ("group".equals(chat.getType()) && !"currentUser".equals(message.getSender())) {
-                // Qui dovresti ottenere il nome reale dell'utente dal UserService
-                Optional<User> senderUser = userService.getUserById(message.getSender());
-                senderUser.ifPresent(user -> lastMessage.setSenderName(user.getName()));
-            }
-
-            chat.setLastMessage(lastMessage);
-
-            // Incrementa il contatore dei messaggi non letti se necessario
-            if (!message.getSender().equals("currentUser") && !message.isRead()) {
-                chat.setUnreadCount(chat.getUnreadCount() + 1);
-            }
-
-            chats.replace(chatId, chat);
-        });
-    }
-
-    public void markAllMessagesAsRead(String chatId) {
-        getChatById(chatId).ifPresent(chat -> {
-            List<Message> messages = chat.getMessages();
-            boolean updated = false;
-
-            for (Message message : messages) {
-                if (!message.isRead()) {
-                    message.setRead(true);
-                    updated = true;
+                    return firebaseService.set(USERS_PATH + "/" + userId, user);
                 }
             }
-
-            // Aggiorna anche il contatore di non letti
-            if (updated) {
-                chat.setUnreadCount(0);
-                if (chat.getLastMessage() != null) {
-                    chat.getLastMessage().setRead(true);
-                }
-            }
+            return CompletableFuture.completedFuture(null);
         });
+    }
+
+    /**
+     * Retrieves the messages of a specific chat.
+     * @param chatId ID of the chat
+     * @return CompletableFuture with the map of messages (ID -> Message)
+     */
+    public CompletableFuture<Map<String, Message>> getMessagesMap(String chatId) {
+        GenericTypeIndicator<Map<String, Message>> typeIndicator = new GenericTypeIndicator<Map<String, Message>>() {};
+        return firebaseService.getWithTypeIndicator(CHATS_PATH + "/" + chatId + "/messages", typeIndicator);
     }
 }

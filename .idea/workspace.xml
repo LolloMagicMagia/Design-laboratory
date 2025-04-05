@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/config/firebase/FirebaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2vBiN0nas1p1QLRkkNyYnsYhRHm" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.BicoChat.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BicoChatBackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;C1__User__Registration&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/eliog/OneDrive/Documents/GitHub/bicochat&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Application.BicoChat">
+    <configuration name="BicoChat" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <envs>
+        <env name="AUTH_PROVIDER_X509_CERT_URL" value="https://www.googleapis.com/oauth2/v1/certs" />
+        <env name="AUTH_URI" value="https://accounts.google.com/o/oauth2/auth" />
+        <env name="CLIENT_EMAIL" value="firebase-adminsdk-fbsvc@bico-chat.iam.gserviceaccount.com" />
+        <env name="CLIENT_ID" value="117114992242812169927" />
+        <env name="CLIENT_X509_CERT_URL" value="https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bico-chat.iam.gserviceaccount.com" />
+        <env name="DATABASE_URL" value="https://bico-chat-default-rtdb.europe-west1.firebasedatabase.app/" />
+        <env name="EMAIL_ADDITIONAL_PSW" value="poirwwumbyqpiptb" />
+        <env name="EMAIL_HOST" value="smtp.gmail.com" />
+        <env name="EMAIL_PORT" value="587" />
+        <env name="EMAIL_USERNAME" value="bbicochat@gmail.com" />
+        <env name="PRIVATE_KEY" value="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCg6ZC5RQCZt+Hq\nP2plTLeuuN3irWS8blT1IhHhZcR7I11xhezT6iEWjEP9dB8U5hyEzKtT8bwbT8BH\nn2n20/84CXhQpPflMRzelTMOaVIMdYTj++MhXnDG/UKpdd35h4sCv3HiJXD+ivH4\nXdw3XJtlhMuI4Neq0S/dn2VrawQ6xUYcwBXxq9sqL/GtQnu2ef+Mzt/RE0oITVnQ\nDgTROAE8Wuaom9OLkNC2ibO2Eb9oETMUEitaQbEDmg3KL5jNNLSNebDVfYNyI2BY\nvrimew6UjBVScie7lViOdPQ8v1HK8CtVR6hd9Y68qQ+k44sNjVDqQOuSM0QRvVBM\nPbwPJRolAgMBAAECggEADk5Flhsa3w+4j41cxa3I5Mk9vNHik1gRyItjYJEeIz51\nJ8saz4pQr8L/pnBk9QQyQ+I4Vym2Kg1wkE2Na6rUVWSOJElOWrt/kBBerijR6Ran\nnmc9/bD6QM6yVwOKHQ2eX7uqgcsHXTH4KjcaBXf/vspMGBq5QdAAO+lYaHDmuty7\n8Xj1+fFRtlpNCOp7xtbUEoiTlpNv7Xx5jvxMYblgRtgf8MtJHLfLXLSI2gMZlC27\nIZBp3i/17uFyBfK8f0HjuFvq3dDrLcwsUgQiyeL56Q/NI8m+76YCMi+CGwI7nsXL\nhVEkVgKFMEZgYxIbt9LaUr4vw74gT8aj7utN7wKmkQKBgQDQdW3/tMlnLY9wU9wj\niRGkPhWdqIR02rp5oI50k16O6J3kZDoudAAxGKBq9sKQyB6I/+PziYmsjaHzKm+p\nCUVIorRMPko72McEeIimnAa66H3fglYD1miWy01FT2M5kuP5rOcpYhekg5LPhsYG\nEAQeJpBmaZnIidllOSo0xxRKzQKBgQDFnDVxK4nTMO8BBWm9uVfL1jKKq4iX7tXx\noV4nsSxVhD/Rvfe3aehGUIU8mLwN8fyrHs+2Tle+6kxV90LfLeqtZP+OTHj8epx6\n4xzszZb68HTWr1waV/DxeDYPWLozz623VOk+aVe42LrVAEg8V94fVwhOanz3BURl\nJr/sJb88uQKBgQCD1J/aBJUSQUfjO8WOW5LikbjN2dLaq7EeViGBK+my6v1fgNsi\noY21fuOEgcWOFmDpNxsL20FL9M4koAO5nPlJ9EudpA8CRhemhiu1YhsHfRyNizmm\nd6PxKWUWnhwcPv8Z2PTfwP8+tU7VG2CEWQChqLXNbp8oqbToRPyiH/x/SQKBgQCa\nNvr587leqHyM9nV8C4251NKip5U0xL4QERfSsBDiOBA6Fh+g8rTDUwl3rdZsp6HA\nxY3iPyd5JY4nNIzqcQIJCZ3qpkFxABroSB+FqjgeY9M6y6V8JY8yUtcViO/fiT6P\nqWNRQpKj/fdoTQ0SkpwVJy2jTLVzbZffvKrgluC0eQKBgAXL+LO7ByZTG0uttMaU\nXhFKYoQIYzPklR+o/tmp4t2xxEkBY7kXK7u289bhNF4Lq+uI20159B+SY0fbOqj/\neQDW+rgfkIjxf0B/MxfBPHw16ejtXeFT5ftLeW8y9pO3HduVR5vYCMr3st8QUJj/\n6xEFdwf9E7YKsLxBMGk+8R4W\n-----END PRIVATE KEY-----\n" />
+        <env name="PRIVATE_KEY_ID" value="74e01b5fc173fbe1eab037210e4d3259ab09286d" />
+        <env name="TOKEN_URI" value="https://oauth2.googleapis.com/token" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.example.bicoChat_backend.BicoChatBackendApplication" />
+      <module name="bicoChat_backend" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BicoChatBackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="bicoChat_backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.bicoChat_backend.BicoChatBackendApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.BicoChat" />
+      <item itemvalue="Spring Boot.BicoChatBackendApplication" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="" />
+      <created>1743624823730</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743624823730</updated>
+      <workItem from="1743624824833" duration="1993000" />
+      <workItem from="1743626831416" duration="6248000" />
+      <workItem from="1743713594045" duration="915000" />
+      <workItem from="1743715559955" duration="921000" />
+      <workItem from="1743776091468" duration="8196000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

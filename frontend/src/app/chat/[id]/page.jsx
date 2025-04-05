@@ -59,7 +59,6 @@ export default function ChatPage() {
     };
 
     fetchData();
-
     const interval = setInterval(async () => {
       try {
         const updatedMessages = await API.getMessagesByChatId(chatId);
