@@ -79,10 +79,21 @@ class DataService {
         throw new Error(`Chat ${chatId} non trovata per l'utente corrente`);
       }
 
-      const chatUserRef = this.data.users[currentUserId].chatUser[chatId];
+      // Ottieni gli utenti coinvolti nella chat
+      const chat = this.data.chats[chatId];
+      if (!chat) {
+        throw new Error(`Chat ${chatId} non trovata`);
+      }
 
-      // Azzeramento conteggio messaggi non letti
-      chatUserRef.unreadCount = 0;
+      // Azzeramento del conteggio unreadCount per tutti gli utenti nella chat
+      const usersInChat = chat.participants;
+
+      usersInChat.forEach(userId => {
+        const chatUserRef = this.data.users[userId]?.chatUser?.[chatId];
+        if (chatUserRef) {
+          chatUserRef.unreadCount = 0;  // Azzeramento del contatore
+        }
+      });
 
       // Controllo esistenza chat e messaggi
       if (!this.data.chats[chatId]) {
