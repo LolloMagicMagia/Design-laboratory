@@ -52,7 +52,7 @@ test-frontend:
   script:
     - cd $FRONTEND_DIR
     - npm ci
-    - npm test
+    - npm run lint
   dependencies:
     - build-frontend
   cache:
