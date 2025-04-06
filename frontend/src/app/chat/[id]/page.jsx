@@ -1,31 +1,122 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
-import API from '@/lib/api';
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import API from "@/lib/api";
 
+/**
+ * ChatPage Component - Displays a single chat interface.
+ *
+ *
+ * This component:
+ * - Retrieves the chat ID from the URL
+ * - Loads chat and participant data
+ * - Polls for new messages
+ * - Allows the user to send new messages
+ *
+ * @module frontend/page/src/app/chat/id/page.jsx
+ * @returns {JSX.Element} The rendered chat page.
+ */
 export default function ChatPage() {
-  const params = useParams();  // <-- usa useParams
+  /**
+   * Parameters extracted from the route using `useParams` hook.
+   * @type {Object}
+   * @property {string} id - The ID of the current chat, extracted from the URL.
+   */
+  const params = useParams(); // <-- usa useParams
+
+  /**
+   * Search parameters from the URL using `useSearchParams` hook.
+   * @type {URLSearchParams}
+   */
   const searchParams = useSearchParams();
-  const title = searchParams.get('name') || 'Chat';
+
+  /**
+   * The title of the chat, either from the search parameters or defaulting to "Chat".
+   * @type {string}
+   */
+  const title = searchParams.get("name") || "Chat";
+
+  /**
+   * The ID of the current chat, extracted from the `params` object.
+   * @type {string}
+   */
   const chatId = params?.id;
+
+  /**
+   * The state holding the current chat data.
+   * @type {Object|null}
+   */
   const [chat, setChat] = useState(null);
+
+  /**
+   * The state holding the list of messages in the current chat.
+   * @type {Array<Object>}
+   */
   const [messages, setMessages] = useState([]);
+
+  /**
+   * The ID of the current user.
+   * @type {string|null}
+   */
   const [currentUserId, setCurrentUserId] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
+
+  /**
+   * The content of the new message being typed by the user.
+   * @type {string}
+   */
+  const [newMessage, setNewMessage] = useState("");
+
+  /**
+   * The loading state for chat and messages.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * The loading state for sending a message.
+   * @type {boolean}
+   */
   const [sendingMessage, setSendingMessage] = useState(false);
+
+  /**
+   * The error message if any occurs during loading or interaction.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
+
+  /**
+   * A map of user IDs to their corresponding user data.
+   * @type {Object}
+   */
   const [usersMap, setUsersMap] = useState({});
+
+  /**
+   * A reference to the bottom of the messages list, used for auto-scrolling.
+   * @type {React.RefObject}
+   */
   const messagesEndRef = useRef(null);
+
+  /**
+   * Router object for navigating programmatically.
+   * @type {Object}
+   * @property {function} push - Function to navigate to a new route.
+   */
   const router = useRouter();
 
+  /**
+   * Loads chat, messages and user data on mount.
+   * Also sets up polling every 5 seconds.
+   * @function useEffect
+   * @async
+   * @returns {void}
+   */
   useEffect(() => {
-    const id = localStorage.getItem('currentUserId');
+    const id = localStorage.getItem("currentUserId");
     if (!id) {
-      setError('Utente non autenticato');
+      setError("User not authenticated");
       return;
     }
     setCurrentUserId(id);
@@ -34,14 +125,13 @@ export default function ChatPage() {
       try {
         const chatData = await API.getChatById(chatId);
         if (!chatData) {
-          setError('Chat non trovata');
+          setError("Chat not found");
           setLoading(false);
           return;
         }
         setChat(chatData);
 
         const messagesData = await API.getMessagesByChatId(chatId);
-
         setMessages(messagesData);
 
         const userIds = [...new Set(chatData.participants)];
@@ -52,13 +142,14 @@ export default function ChatPage() {
 
         setLoading(false);
       } catch (err) {
-        console.error('Errore nel caricamento dei dati:', err);
-        setError('Errore nel caricamento della chat. Riprova più tardi.');
+        console.error("Error loading chat data:", err);
+        setError("Failed to load chat. Please try again later.");
         setLoading(false);
       }
     };
 
     fetchData();
+
     const interval = setInterval(async () => {
       try {
         const updatedMessages = await API.getMessagesByChatId(chatId);
@@ -66,17 +157,20 @@ export default function ChatPage() {
           setMessages(updatedMessages);
         }
       } catch (err) {
-        console.error('Errore aggiornamento messaggi:', err);
+        console.error("Error polling messages:", err);
       }
     }, 5000);
 
     return () => clearInterval(interval);
   }, [chatId]);
 
-  //useEffect(() => {
-  //  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  //}, [messages]);
-
+  /**
+   * Sends a message to the current chat.
+   * @function handleSendMessage
+   * @async
+   * @param {Event} e - The form submission event.
+   * @returns {Promise<void>}
+   */
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -85,21 +179,32 @@ export default function ChatPage() {
       await API.sendMessage(chatId, newMessage.trim(), currentUserId);
       const updatedMessages = await API.getMessagesByChatId(chatId);
       setMessages(updatedMessages);
-      setNewMessage('');
+      setNewMessage("");
     } catch (err) {
-      console.error('Errore invio messaggio:', err);
-      setError('Errore nell\'invio del messaggio. Riprova più tardi.');
+      console.error("Error sending message:", err);
+      setError("Failed to send message. Please try again later.");
     } finally {
       setSendingMessage(false);
     }
   };
 
+  /**
+   * Formats a timestamp string into "HH:mm".
+   * @function formatMessageTime
+   * @param {string} timestamp
+   * @returns {string}
+   */
   const formatMessageTime = (timestamp) => {
-    if (!timestamp) return '';
+    if (!timestamp) return "";
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  /**
+   * Groups messages by the date they were sent.
+   * @function groupMessagesByDate
+   * @returns {Array<{ date: string, messages: Array<Object> }>}
+   */
   const groupMessagesByDate = () => {
     const groups = {};
     messages.forEach(message => {
@@ -111,24 +216,23 @@ export default function ChatPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-xl font-semibold">Caricamento...</div>;
+    return <div className="flex items-center justify-center min-h-screen text-xl font-semibold">Loading...</div>;
   }
 
   if (error) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
           <div className="text-red-500 mb-4">{error}</div>
-          <button onClick={() => window.location.reload()} className="btn btn-primary">Riprova</button>
+          <button onClick={() => window.location.reload()} className="btn btn-primary">Try Again</button>
         </div>
     );
   }
 
-  const isGroup = chat.type === 'group';
+  const isGroup = chat.type === "group";
   const otherUser = !isGroup && chat.participants.find(pid => pid !== currentUserId);
-  const chatTitle = isGroup ? chat.name : usersMap[otherUser]?.name || 'Utente';
   const chatAvatar = isGroup
-      ? chat.avatar || 'https://dummyimage.com/40x40/000/fff&text=G'
-      : usersMap[otherUser]?.avatar || 'https://dummyimage.com/40x40/000/fff&text=U';
+      ? chat.avatar || "https://dummyimage.com/40x40/000/fff&text=G"
+      : usersMap[otherUser]?.avatar || "https://dummyimage.com/40x40/000/fff&text=U";
 
   const messageGroups = groupMessagesByDate();
 
@@ -143,13 +247,8 @@ export default function ChatPage() {
                 </svg>
               </button>
             </div>
-
             <div className="flex flex-row items-center gap-2">
-              <img
-                  src={chatAvatar}
-                  alt={title}
-                  className="user-avatar h-8 w-8"
-              />
+              <img src={chatAvatar} alt={title} className="user-avatar h-8 w-8" />
               <h1 className="text-xs font-medium text-gray-700">{title}</h1>
             </div>
           </div>
@@ -166,16 +265,16 @@ export default function ChatPage() {
                     <div className="space-y-3">
                       {group.messages.map(msg => {
                         const isMine = msg.sender === currentUserId;
-                        const senderName = usersMap[msg.sender]?.username || 'Utente';
+                        const senderName = usersMap[msg.sender]?.username || "User";
                         return (
-                            <div key={msg.id} className={`message ${isMine ? 'message-sent' : 'message-received'}`}>
+                            <div key={msg.id} className={`message ${isMine ? "message-sent" : "message-received"}`}>
                               {!isMine && isGroup && (
                                   <p className="text-xs font-bold mb-1">{senderName}</p>
                               )}
                               <p>{msg.content}</p>
                               <p className="message-time">
                                 {formatMessageTime(msg.timestamp)}
-                                {isMine && <span className="ml-1">{msg.read ? '✓✓' : '✓'}</span>}
+                                {isMine && <span className="ml-1">{msg.read ? "✓✓" : "✓"}</span>}
                               </p>
                             </div>
                         );
@@ -193,7 +292,7 @@ export default function ChatPage() {
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Scrivi un messaggio..."
+                  placeholder="Write a message..."
                   className="message-input"
                   disabled={sendingMessage}
               />

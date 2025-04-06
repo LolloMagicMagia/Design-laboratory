@@ -1,33 +1,62 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import API from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import API from "@/lib/api";
+
+/**
+ * Homepage - Main route ("/").
+ * @module frontend/page/src/app/page.jsx
+ * @description Displays the user's chat list and allows navigation to individual chats.
+ */
 
 export default function Home() {
+  /**
+   * Stores the list of chats.
+   * @type {Array<Object>}
+   */
   const [chats, setChats] = useState([]);
+
+  /**
+   * Stores the current user's data.
+   * @type {Object|null}
+   */
   const [currentUser, setCurrentUser] = useState(null);
+
+  /**
+   * Tracks whether data is still being loaded.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Stores any error message encountered during loading or user actions.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
+
   const router = useRouter();
 
+  /**
+   * Fetches the current user and their chat list on component mount.
+   * Retrieves chat data and sets application state.
+   * @async
+   * @function fetchData
+   * @returns {Promise<void>}
+   */
   useEffect(() => {
-    const id = localStorage.getItem('currentUserId');
+    const id = localStorage.getItem("currentUserId");
     if (!id) {
-      setError('Utente non autenticato');
+      setError("Utente non autenticato");
       return;
     }
     setCurrentUser(id);
 
     const fetchData = async () => {
       try {
-
-        //Credo debba passare email così da prendere il suo id e poterlo utilizzare dopo
         const user = await API.getCurrentUser();
         setCurrentUser(user);
-
-        //localStorage.setItem('currentUserId', user.id);
 
         const fetchedChats = Object.entries(user.chatUser).map(([chatId, chatData]) => ({
           chatId,
@@ -39,11 +68,10 @@ export default function Home() {
         }));
 
         setChats(fetchedChats);
-
         setLoading(false);
       } catch (err) {
-        console.error('Errore nel caricamento dei dati:', err);
-        setError('Errore nel caricamento delle chat.');
+        console.error("Errore nel caricamento dei dati:", err);
+        setError("Errore nel caricamento delle chat.");
         setLoading(false);
       }
     };
@@ -51,54 +79,67 @@ export default function Home() {
     fetchData();
   }, []);
 
+  /**
+   * Handles when a user clicks on a chat.
+   * Marks the chat as read if needed and redirects to the chat page.
+   * @async
+   * @function handleChatClick
+   * @param {string} chatId - The ID of the selected chat.
+   * @param {string} chatName - The name of the chat.
+   * @param {string} lastUser - The ID of the last user who sent a message.
+   * @param {number} unreadCount - Number of unread messages.
+   * @returns {Promise<void>}
+   */
   const handleChatClick = async (chatId, chatName, lastUser, unreadCount) => {
-    console.log('tutto: ',chatId, " ", chatName, " ", lastUser, " ", unreadCount);
+    console.log("tutto: ", chatId, " ", chatName, " ", lastUser, " ", unreadCount);
     try {
-      // Aggiungi un controllo aggiuntivo per currentUser
       if (!currentUser) {
-        console.error('Utente non loggato');
+        console.error("Utente non loggato");
         return;
       }
 
-      // Se ci sono messaggi non letti, procedi solo se l'ultimo messaggio non è stato inviato dall'utente loggato
       if (unreadCount > 0 && lastUser !== currentUser.id) {
         try {
           await API.markChatAsRead(chatId);
         } catch (markReadError) {
-          console.error('Errore nel marcare la chat come letta:', markReadError);
+          console.error("Errore nel marcare la chat come letta:", markReadError);
         }
       }
 
-      // Dopo aver aggiornato i messaggi, naviga alla chat
       router.push(`/chat/${chatId}?name=${encodeURIComponent(chatName)}`);
     } catch (err) {
-      console.error('Errore apertura chat:', err);
-      setError('Impossibile aprire la chat.');
+      console.error("Errore apertura chat:", err);
+      setError("Impossibile aprire la chat.");
     }
   };
 
-  // Funzione per determinare lo stato di lettura
+  /**
+   * Renders the visual status of message read/unread indicators.
+   * @function renderReadStatus
+   * @param {string} lastUser - ID of the last user who sent a message.
+   * @param {number} unreadCount - Number of unread messages.
+   * @returns {JSX.Element|null}
+   */
   const renderReadStatus = (lastUser, unreadCount) => {
     if (!currentUser) return null;
 
     if (lastUser === currentUser.id) {
       return (
           <span className="message-read-status text-green-500 font-bold">
-        {unreadCount > 0 ? '✓' : '✓✓'}
-      </span>
+          {unreadCount > 0 ? "✓" : "✓✓"}
+        </span>
       );
     }
 
     if (unreadCount > 0) {
       return (
           <span className="message-unread-status text-red-500 font-bold">
-        {unreadCount > 9 ? '9+' : unreadCount}
-      </span>
+          {unreadCount > 9 ? "9+" : unreadCount}
+        </span>
       );
     }
     return null;
   };
-
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Caricamento...</div>;
@@ -143,10 +184,10 @@ export default function Home() {
                     {chats.map(chat => (
                         <div
                             key={chat.chatId}
-                            className={`chat-list-item ${chat.unreadCount > 0 ? 'unread' : ''}`}
+                            className={`chat-list-item ${chat.unreadCount > 0 ? "unread" : ""}`}
                             onClick={() => handleChatClick(chat.chatId, chat.name, chat.lastUser, chat.unreadCount)}
                         >
-                          {/* Avatar della chat */}
+                          {/* Chat avatar */}
                           <div className="chat-avatar">
                             <img
                                 src="https://dummyimage.com/48x48/000/fff&text=C"
@@ -155,21 +196,21 @@ export default function Home() {
                             />
                           </div>
 
-                          {/* Informazioni della chat */}
+                          {/* Chat information */}
                           <div className="chat-info">
                             <div className="chat-header">
-                              {/* Nome della chat con icona */}
+                              {/* Chat name with icon */}
                               <h3 className="chat-name flex items-center">
                                 {chat.name}
                               </h3>
-                              {/* Ora dell'ultimo messaggio */}
+                              {/* Last message timestamp */}
                               <span className="chat-time">{chat.timestamp}</span>
                             </div>
 
-                            {/* Ultimo messaggio ricevuto/inviato con stato a sinistra */}
+                            {/* Last message preview with status icon */}
                             <div className="flex items-center">
                               <span className="mr-2">{renderReadStatus(chat.lastUser, chat.unreadCount)}</span>
-                              <span className="   chat-message-preview">{chat.lastMessage}</span>
+                              <span className="chat-message-preview">{chat.lastMessage}</span>
                             </div>
                           </div>
                         </div>

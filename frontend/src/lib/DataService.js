@@ -1,4 +1,4 @@
-import mockData from '../data/mock-data.json';
+import mockData from "../data/mock-data.json";
 
 class DataService {
   constructor() {
@@ -7,7 +7,7 @@ class DataService {
 
   // Andare a definire la logica con elio per prendere l'id
   getCurrentUserId() {
-    return localStorage.getItem('currentUserId');
+    return localStorage.getItem("currentUserId");
   }
 
   async getCurrentUser() {
@@ -71,7 +71,7 @@ class DataService {
     try {
       const currentUserId = this.getCurrentUserId();
       if (!currentUserId) {
-        throw new Error('Utente non autenticato');
+        throw new Error("Utente non autenticato");
       }
 
       // Controllo più rigoroso della struttura dati

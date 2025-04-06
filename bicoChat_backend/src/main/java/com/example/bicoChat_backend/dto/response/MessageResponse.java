@@ -10,29 +10,29 @@ public class MessageResponse {
     @JsonProperty("message")
     private Message message;
 
-    public MessageResponse() {
-    }
+    /*public MessageResponse() {
+    }*/
 
     public MessageResponse(String id, Message message) {
         this.id = id;
         this.message = message;
     }
 
-    public String getId() {
+    /*public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
-    }
+    }*/
 
     public Message getMessage() {
         return message;
     }
 
-    public void setMessage(Message message) {
+    /*public void setMessage(Message message) {
         this.message = message;
-    }
+    }*/
 
     @Override
     public String toString() {

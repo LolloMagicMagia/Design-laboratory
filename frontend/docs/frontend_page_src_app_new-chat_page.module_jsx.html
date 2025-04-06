@@ -34,13 +34,14 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>ChatPage Component - Displays a single chat interface.</p>
+            <div class="description"><p>NewChatPage Component - Displays the interface for creating a new chat.</p>
 <p>This component:</p>
 <ul>
-<li>Retrieves the chat ID from the URL</li>
-<li>Loads chat and participant data</li>
-<li>Polls for new messages</li>
-<li>Allows the user to send new messages</li>
+<li>Retrieves the list of friends from the API</li>
+<li>Allows the user to select participants for a new chat</li>
+<li>Supports the creation of individual and group chats</li>
+<li>Handles form submission to create the chat</li>
+<li>Displays error messages if there are any issues during the chat creation process</li>
 </ul></div>
         
 
@@ -110,7 +111,7 @@
     
 
     
-    <h4 class="name" id="~formatMessageTime"><span class="type-signature">(inner) </span>formatMessageTime<span class="signature">(timestamp)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="~handleButtonCreateChat"><span class="type-signature">(async, inner) </span>handleButtonCreateChat<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
     
 
     
@@ -118,7 +119,217 @@
 
 
 <div class="description">
-    <p>Formats a timestamp string into &quot;HH:mm&quot;.</p>
+    <p>Handles the click event for creating a new chat.
+Validates that at least one user is selected and that an initial message is provided.
+If the validation passes, it proceeds to create the chat by calling <code>handleCreateChat</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleCreateChat"><span class="type-signature">(async, inner) </span>handleCreateChat<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Handles the process of creating a new chat.
+This function first checks the chat type (individual or group) and performs the corresponding creation process.
+For an individual chat, it checks if the user is already a friend, and if not, it shows an error.
+If the chat already exists, it shows an error message.
+If the chat is successfully created, it navigates to the newly created chat.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleUserToggle"><span class="type-signature">(inner) </span>handleUserToggle<span class="signature">(userId)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Toggles the selection of a user for chat creation.
+Adds the user to the selection if they are not already selected,
+or removes them if they are. For individual chats, only one user can be selected at a time.</p>
 </div>
 
 
@@ -154,7 +365,7 @@
 
         <tr>
             
-                <td class="name"><code>timestamp</code></td>
+                <td class="name"><code>userId</code></td>
             
 
             <td class="type">
@@ -170,7 +381,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>The ID of the user to toggle in the selection.</p></td>
         </tr>
 
     
@@ -242,258 +453,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~groupMessagesByDate"><span class="type-signature">(inner) </span>groupMessagesByDate<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;{date: string, messages: Array.&lt;Object>}>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Groups messages by the date they were sent.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;{date: string, messages: Array.&lt;Object>}></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~handleSendMessage"><span class="type-signature">(async, inner) </span>handleSendMessage<span class="signature">(e)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Sends a message to the current chat.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>e</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Event</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The form submission event.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
+<span class="param-type">void</span>
 
 
     </dd>
@@ -519,8 +479,110 @@
 
 
 <div class="description">
-    <p>Loads chat, messages and user data on mount.
-Also sets up polling every 5 seconds.</p>
+    <p>Loads the list of friends when the component mounts.
+Handles loading state and error state.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~useEffect"><span class="type-signature">(inner) </span>useEffect<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Automatically updates the chat name for individual chats when a user is selected.
+Triggers when the selected users, chat type, or friends list changes.</p>
 </div>
 
 

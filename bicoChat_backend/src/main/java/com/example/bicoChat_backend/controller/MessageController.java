@@ -1,6 +1,5 @@
 package com.example.bicoChat_backend.controller;
 
-import com.example.bicoChat_backend.model.Message;
 import com.example.bicoChat_backend.service.ChatService;
 import com.example.bicoChat_backend.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;

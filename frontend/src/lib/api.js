@@ -1,4 +1,4 @@
-import DataService from './DataService';
+import DataService from "./DataService";
 
 const API = {
     getCurrentUser: () => DataService.getCurrentUser(),

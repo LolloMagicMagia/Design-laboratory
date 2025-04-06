@@ -4,17 +4,76 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import API from "@/lib/api";
 
+/**
+ * NewChatPage Component - Displays the interface for creating a new chat.
+ *
+ * This component:
+ * - Retrieves the list of friends from the API
+ * - Allows the user to select participants for a new chat
+ * - Supports the creation of individual and group chats
+ * - Handles form submission to create the chat
+ * - Displays error messages if there are any issues during the chat creation process
+ *
+ * @module frontend/page/src/app/new-chat/page.jsx
+ * @returns {JSX.Element} The rendered new chat creation page.
+ */
 export default function NewChatPage() {
+  /**
+   * The state holding the list of friends.
+   * @type {Array<Object>}
+   */
   const [friends, setFriends] = useState([]);
+
+  /**
+   * The state holding the list of selected users for creating a chat.
+   * @type {Array<Object>}
+   */
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [chatName, setChatName] = useState("");
+
+  /**
+   * The state holding the type of the chat (e.g., 'individual' or 'group').
+   * @type {string}
+   */
   const [chatType, setChatType] = useState("individual");
+
+  /**
+   * The loading state for fetching data or performing an action.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * The state indicating if the chat creation process is ongoing.
+   * @type {boolean}
+   */
   const [creating, setCreating] = useState(false);
+
+  /**
+   * The error message if any occurs during the creation or fetching process.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
+
+  /**
+   * The state holding the initial message to be sent when the chat is created.
+   * @type {string}
+   */
   const [initialMessage, setInitialMessage] = useState(""); // Nuovo stato per il messaggio iniziale
+
+  /**
+   * Router object for navigating programmatically.
+   * @type {Object}
+   * @property {function} push - Function to navigate to a new route.
+   */
   const router = useRouter();
 
+  /**
+   * Loads the list of friends when the component mounts.
+   * Handles loading state and error state.
+   * @function useEffect
+   * @async
+   * @returns {void}
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,12 +90,17 @@ export default function NewChatPage() {
     fetchData();
   }, []);
 
-  // Filtra gli amici attivi
+  // Filter Active Friends
   const activeFriends = friends.filter(friend => friend.friendshipStatus === "active");
-  // Filtra le richieste in attesa
-  const pendingFriends = friends.filter(friend => friend.friendshipStatus === "pending");
+  // Filter pending requests
+  //const pendingFriends = friends.filter(friend => friend.friendshipStatus === "pending");
 
-  // Aggiorna automaticamente il nome della chat per le chat individuali
+  /**
+   * Automatically updates the chat name for individual chats when a user is selected.
+   * Triggers when the selected users, chat type, or friends list changes.
+   * @function useEffect
+   * @returns {void}
+   */
   useEffect(() => {
     if (chatType === "individual" && selectedUsers.length === 1) {
       const user = friends.find(u => u.id === selectedUsers[0]);
@@ -46,6 +110,14 @@ export default function NewChatPage() {
     }
   }, [selectedUsers, chatType, friends]);
 
+  /**
+   * Toggles the selection of a user for chat creation.
+   * Adds the user to the selection if they are not already selected,
+   * or removes them if they are. For individual chats, only one user can be selected at a time.
+   * @function handleUserToggle
+   * @param {string} userId - The ID of the user to toggle in the selection.
+   * @returns {void}
+   */
   const handleUserToggle = (userId) => {
     setSelectedUsers(prevSelected => {
       if (prevSelected.includes(userId)) {
@@ -62,49 +134,66 @@ export default function NewChatPage() {
     });
   };
 
+  /**
+   * Handles the click event for creating a new chat.
+   * Validates that at least one user is selected and that an initial message is provided.
+   * If the validation passes, it proceeds to create the chat by calling `handleCreateChat`.
+   *
+   * @async
+   * @function handleButtonCreateChat
+   * @returns {void}
+   */
   const handleButtonCreateChat = async () => {
     setError(null);
 
-    // Verifica se è stato selezionato almeno un amico
+    // Check if at least one friend is selected
     if (selectedUsers.length === 0) {
       setError("Seleziona almeno un amico per la chat.");
       return;
     }
 
-    // Verifica se è stato scritto un messaggio
+    // Check if a message has been written
     if (!initialMessage.trim()) {
       setError("Devi scrivere un messaggio per creare la chat.");
       return;
     }
 
     else{
-      handleCreateChat()
+      handleCreateChat();
     }
-
-    // Verifica se è stato inserito un nome per la chat di gruppo
+    // Check if a name for the group chat has been entered
     /*if (chatType === "group" && !chatName.trim()) {
       setError("Inserisci un nome per la chat di gruppo.");
       return;
     }*/
-
-
   };
 
+  /**
+   * Handles the process of creating a new chat.
+   * This function first checks the chat type (individual or group) and performs the corresponding creation process.
+   * For an individual chat, it checks if the user is already a friend, and if not, it shows an error.
+   * If the chat already exists, it shows an error message.
+   * If the chat is successfully created, it navigates to the newly created chat.
+   *
+   * @async
+   * @function handleCreateChat
+   * @returns {void}
+   */
   const handleCreateChat = async () => {
     setError(null);
 
     try {
       setCreating(true);
 
-      // Gestione della creazione della chat individuale
+      // Handle the creation of an individual chat
       if (chatType === "individual") {
         const friendId = selectedUsers[0];
 
-        // Verifica se l'utente è già un amico
+        // Check if the user is already a friend
         if (friends.some(friend => friend.id === friendId)) {
           const result = await API.createIndividualChatIfNotExists(friendId, initialMessage);
 
-          // Se la chat esiste già, mostriamo un errore
+          // If the chat already exists, show an error
           if (result.alreadyExists) {
             setError("Esiste già una chat con questo utente.");
             setTimeout(() => setError(null), 3000);
@@ -112,8 +201,8 @@ export default function NewChatPage() {
             return;
           }
 
-          // Se la chat è stata creata correttamente, navighiamo alla chat
-          router.push(`../`);
+          // If the chat is created successfully, navigate to the chat
+          router.push("../");
         } else {
           setError("Non sei ancora amico con questo utente.");
           setTimeout(() => setError(null), 3000);
@@ -122,7 +211,7 @@ export default function NewChatPage() {
         return;
       }
 
-      // Gestione per la creazione di una chat di gruppo
+      // Handle the creation of a group chat
       /*const currentUserId = await API.getCurrentUserId();
       const timestamp = new Date().toISOString();
       const participants = [currentUserId, ...selectedUsers];
@@ -140,7 +229,7 @@ export default function NewChatPage() {
   };
 
 
-  // Funzione per ottenere il colore in base allo status
+  // Function to get the color based on the status
   const getStatusColor = (status) => {
     switch (status) {
       case "active": return "bg-green-500";
@@ -150,7 +239,7 @@ export default function NewChatPage() {
     }
   };
 
-  // Verifica se il bottone deve essere disabilitato
+// Check if the button should be disabled
   //const isCreateButtonDisabled = selectedUsers.length === 0 || !initialMessage.trim() || creating;
 
   if (loading) {

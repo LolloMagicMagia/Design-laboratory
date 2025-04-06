@@ -2,12 +2,9 @@ package com.example.bicoChat_backend.config.firebase;
 
 
 import org.springframework.beans.factory.annotation.Value;
-import com.google.cloud.firestore.Firestore;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.cloud.StorageClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
