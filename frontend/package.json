@@ -13,6 +13,7 @@
     "docs": "jsdoc -c jsdoc.config.json"
   },
   "dependencies": {
+    "firebase": "^11.6.0",
     "next": "15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
