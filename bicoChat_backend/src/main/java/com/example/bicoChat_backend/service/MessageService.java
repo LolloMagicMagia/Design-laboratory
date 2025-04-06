@@ -27,6 +27,7 @@ public class MessageService {
                 .thenApply(messagesMap -> {
                     List<MessageResponse> messageResponseList = new ArrayList<>();
                     if (messagesMap != null) {
+                        System.out.println("Chat trovate in Firebase: " + messagesMap.size());
                         for (Map.Entry<String, Message> entry : messagesMap.entrySet()) {
                             messageResponseList.add(new MessageResponse(entry.getKey(), entry.getValue()));
                         }
@@ -66,4 +67,16 @@ public class MessageService {
     public CompletableFuture<Void> markChatMessagesAsRead(String chatId, String userId) {
         return chatService.markChatAsRead(chatId, userId);
     }
+
+    public CompletableFuture<List<Message>> getMessagesByChatId(String chatId) {
+        return chatService.getMessagesMap(chatId)
+                .thenApply(messagesMap -> {
+                    if (messagesMap == null) return Collections.emptyList();
+                    //System.out.println("Messages found on Firebase: " + messagesMap.size());
+                    return messagesMap.values().stream()
+                            .sorted(Comparator.comparing(Message::getTimestamp))
+                            .collect(Collectors.toList());
+                });
+    }
+
 }

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard in tempo reale</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { margin-top: 30px; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin: 5px 0; }
+    .chat-title { font-weight: bold; }
+    .message { margin-left: 15px; font-style: italic; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>📡 Dashboard Realtime</h1>
+
+<h2>👥 Utenti</h2>
+<ul id="user-list"></ul>
+
+<h2>💬 Chat</h2>
+<ul id="chat-list"></ul>
+
+<h2>📨 Messaggi (chat selezionata)</h2>
+<select id="chat-selector"></select>
+<ul id="message-list"></ul>
+
+<script>
+  const socket = new SockJS("http://localhost:8080/ws");
+  const stompClient = Stomp.over(socket);
+  let currentChatId = null;
+  let messageSubscription = null;
+
+  // 🧠 Mappa per i lastMessage per utente e chat
+  const chatLastMessagesByUser = {};
+
+  stompClient.connect({}, function () {
+    console.log("Connesso a WebSocket");
+
+    stompClient.subscribe("/topic/users", (message) => {
+      console.log("Aggiornamento utenti:", message.body);
+      updateUsers(JSON.parse(message.body));
+    });
+
+    stompClient.subscribe("/topic/chats", (message) => {
+      console.log("Aggiornamento chat:", message.body);
+      updateChats(JSON.parse(message.body));
+    });
+
+    loadInitialData();
+  });
+
+  function loadInitialData() {
+    fetch("http://localhost:8080/api/users")
+            .then(res => res.json())
+            .then(data => {
+              console.log("📄 Dati iniziali utenti:", data);
+              updateUsers(data);
+            })
+            .catch(err => console.error("Errore caricamento utenti:", err));
+
+    fetch("http://localhost:8080/api/chats")
+            .then(res => res.json())
+            .then(data => {
+              console.log("📄 Dati iniziali chat:", data);
+              updateChats(data);
+            })
+            .catch(err => console.error("Errore caricamento chat:", err));
+  }
+
+  function updateUsers(users) {
+    const userList = document.getElementById("user-list");
+    userList.innerHTML = "";
+
+    if (Array.isArray(users)) {
+      users = Object.fromEntries(users.map(u => [u.id, u.user]));
+    }
+
+    Object.entries(users).forEach(([uid, user]) => {
+      if (user.username) {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${user.username}</strong> – ${user.status || "offline"}`;
+        userList.appendChild(li);
+
+        // 🔄 Riempiamo la mappa con i lastMessage per chat
+        if (user.chatUser) {
+          Object.entries(user.chatUser).forEach(([chatId, chatInfo]) => {
+            if (!chatLastMessagesByUser[chatId]) {
+              chatLastMessagesByUser[chatId] = {};
+            }
+            chatLastMessagesByUser[chatId][user.username] = {
+              message: chatInfo.lastMessage,
+              name: chatInfo.name
+            };
+
+          });
+        }
+      }
+    });
+  }
+
+  function updateChats(chats) {
+    const chatList = document.getElementById("chat-list");
+    const chatSelector = document.getElementById("chat-selector");
+
+    chatList.innerHTML = "";
+    chatSelector.innerHTML = "";
+
+    chats.forEach(chat => {
+      const chatId = chat.id;
+      const chatName = chat.chat?.name || `Chat ${chatId}`;
+      console.log("chatId attuale:", chatId);
+      console.log("Struttura chatLastMessagesByUser:", chatLastMessagesByUser);
+      console.log("Chiavi disponibili:", Object.keys(chatLastMessagesByUser));
+
+
+      let lastMessagePreview = "Nessun messaggio";
+      const matchingKey = Object.keys(chatLastMessagesByUser).find(key => key.toLowerCase() === chatId.toLowerCase());
+      if (matchingKey) {
+        console.log("Ultimi messaggi ricevuti:", chatLastMessagesByUser);
+
+        lastMessagePreview = Object.entries(chatLastMessagesByUser[matchingKey])
+                .map(([_, msgObj]) => {
+                  return `<br/><em>${msgObj.name || "Sconosciuto"}</em>: ${msgObj.message || "[vuoto]"}`;
+                })
+                .join("");
+      }
+      else {
+        console.log("Struttura di chatLastMessagesByUser:", JSON.stringify(chatLastMessagesByUser, null, 2));
+        console.warn(`Nessun ultimo messaggio trovato per la chat ${chatId}`);
+      }
+
+
+      // 🎨 Creazione elementi
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="chat-title">${chatName}</span> – Ultimi: ${lastMessagePreview}`;
+      chatList.appendChild(li);
+
+      const option = document.createElement("option");
+      option.value = chatId;
+      option.text = chatName;
+      chatSelector.appendChild(option);
+    });
+
+    // 🛠 Seleziona la prima chat disponibile
+    if (chats.length > 0) {
+      currentChatId = chats[0].id;
+      chatSelector.value = currentChatId;
+      subscribeToMessages(currentChatId);
+    }
+  }
+
+
+
+
+
+  function subscribeToMessages(chatId) {
+    if (messageSubscription) {
+      messageSubscription.unsubscribe();
+    }
+
+    messageSubscription = stompClient.subscribe(`/topic/messages/${chatId}`, function (message) {
+      console.log("Messaggi ricevuti per chat", chatId, ":", message.body);
+      try {
+        const messages = JSON.parse(message.body);
+        const messageList = document.getElementById("message-list");
+        messageList.innerHTML = "";
+
+        const sortedMessages = Object.values(messages).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        sortedMessages.forEach(msg => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span class="message"><strong>${msg.sender || "Anonimo"}</strong>: ${msg.content || "[Messaggio vuoto]"}</span>`;
+          messageList.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Errore nel parsing JSON messaggi:", error);
+      }
+    });
+
+    fetch(`http://localhost:8080/api/messages/${chatId}`)
+            .then(res => res.json())
+            .then(messages => {
+              console.log(`Dati iniziali messaggi chat ${chatId}:`, messages);
+              const messageList = document.getElementById("message-list");
+              messageList.innerHTML = "";
+
+              const sortedMessages = Object.values(messages).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+              sortedMessages.forEach(msg => {
+                const li = document.createElement("li");
+                li.innerHTML = `<span class="message"><strong>${msg.sender || "Anonimo"}</strong>: ${msg.content || "[Messaggio vuoto]"}</span>`;
+                messageList.appendChild(li);
+              });
+            })
+            .catch(err => console.error(`Errore caricamento messaggi chat ${chatId}:`, err));
+  }
+
+  document.getElementById("chat-selector").addEventListener("change", function (e) {
+    const newChatId = e.target.value;
+    if (newChatId !== currentChatId) {
+      subscribeToMessages(newChatId);
+      currentChatId = newChatId;
+    }
+  });
+</script>
+</body>
+</html>

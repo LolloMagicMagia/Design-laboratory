@@ -17,6 +17,11 @@ public class FirebaseService {
         this.databaseReference = databaseReference;
     }
 
+    public DatabaseReference getDatabaseReference() {
+        return databaseReference;
+    }
+
+
     /**
      * Get data from Firebase at the specified path and convert to the given type
      * @param path Firebase database path
@@ -140,4 +145,10 @@ public class FirebaseService {
 
         return future;
     }
+
+
+    public void listenToUsersChanges(ValueEventListener listener) {
+        databaseReference.child("users").addValueEventListener(listener);
+    }
+
 }
