@@ -18,11 +18,6 @@ public class UserService {
     @Autowired
     private FirebaseService firebaseService;
 
-    /**
-     * Retrieves a specific user from the Firebase Realtime Database.
-     * @param userId ID of the user
-     * @return CompletableFuture with the found user or an empty Optional
-     */
     public CompletableFuture<Optional<UserResponse>> getUserById(String userId) {
         return firebaseService.get(USERS_PATH + "/" + userId, User.class)
                 .thenApply(user -> {
@@ -33,10 +28,6 @@ public class UserService {
                 });
     }
 
-    /**
-     * Retrieves all users from the Firebase Realtime Database.
-     * @return CompletableFuture with the list of users
-     */
     public CompletableFuture<List<UserResponse>> getAllUsers() {
         GenericTypeIndicator<Map<String, User>> typeIndicator = new GenericTypeIndicator<Map<String, User>>() {};
 
@@ -54,52 +45,50 @@ public class UserService {
                 });
     }
 
-    /**
-     * Retrieves the current user, returning a default value if it does not exist.
-     * @return CompletableFuture with the current user
-     */
     public CompletableFuture<UserResponse> getCurrentUser() {
-        Map<String, User.ChatInfo> defaultChats = new HashMap<>();
-        defaultChats.put("welcome", new User.ChatInfo(
-                "Benvenuto su BicoChat!",
-                "System",
-                LocalDateTime.now().toString(),
-                0
-        ));
+        return getUserById("currentUser").thenCompose(userOpt -> {
+            if (userOpt.isPresent()) {
+                UserResponse userResponse = userOpt.get();
+                return getUserChats(userResponse.getId()).thenApply(chats -> {
+                    userResponse.getUser().setChatUser(chats);
+                    return userResponse;
+                });
+            }
 
-        return getUserById("currentUser").thenApply(user -> user.orElse(
-                new UserResponse("currentUser", new User("Tu", "online", defaultChats))
-        ));
+            // Se l'utente non esiste, restituiamo un utente di default con una chat di benvenuto
+            Map<String, User.ChatInfo> defaultChats = new HashMap<>();
+            defaultChats.put("welcome", new User.ChatInfo(
+                    "Welcome on BicoChat!",
+                    "System",
+                    LocalDateTime.now().toString(),
+                    0
+            ));
+
+            return CompletableFuture.completedFuture(new UserResponse("currentUser", new User("You", "online", defaultChats)));
+        });
     }
 
-    /**
-     * Updates a user's status in the Firebase Realtime Database.
-     * @param userId ID of the user
-     * @param status New status (e.g., "online", "offline")
-     * @return CompletableFuture that completes when the operation is finished
-     */
+
     public CompletableFuture<Void> updateUserStatus(String userId, String status) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", status);
         return firebaseService.update(USERS_PATH + "/" + userId, updates);
     }
 
-    /**
-     * Adds a new user to the Firebase Realtime Database.
-     * @param userId ID of the user
-     * @param user User to add
-     * @return CompletableFuture that completes when the operation is finished
-     */
     public CompletableFuture<Void> addUser(String userId, User user) {
         return firebaseService.set(USERS_PATH + "/" + userId, user);
     }
 
-    /**
-     * Deletes a user from the Firebase Realtime Database.
-     * @param userId ID of the user to delete
-     * @return CompletableFuture that completes when the operation is finished
-     */
     public CompletableFuture<Void> deleteUser(String userId) {
         return firebaseService.delete(USERS_PATH + "/" + userId);
     }
+
+    public CompletableFuture<Map<String, User.ChatInfo>> getUserChats(String userId) {
+        return firebaseService.getWithTypeIndicator(USERS_PATH + "/" + userId + "/chatUser", new GenericTypeIndicator<Map<String, User.ChatInfo>>() {})
+                .thenApply(chats -> chats != null ? chats : new HashMap<>());
+    }
+
+
+
+
 }

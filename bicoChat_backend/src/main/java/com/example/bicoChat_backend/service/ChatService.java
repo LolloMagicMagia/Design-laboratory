@@ -4,7 +4,7 @@ import com.example.bicoChat_backend.dto.response.ChatResponse;
 import com.example.bicoChat_backend.model.Chat;
 import com.example.bicoChat_backend.model.Message;
 import com.example.bicoChat_backend.model.User;
-import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,13 +35,18 @@ public class ChatService {
                 .thenApply(chatsMap -> {
                     List<ChatResponse> chatResponseList = new ArrayList<>();
                     if (chatsMap != null) {
+                        //System.out.println("Chats found on Firebase: " + chatsMap.size());
                         for (Map.Entry<String, Chat> entry : chatsMap.entrySet()) {
+                            //System.out.println("Chat ID: " + entry.getKey() + " - Name: " + entry.getValue().getName());
                             chatResponseList.add(new ChatResponse(entry.getKey(), entry.getValue()));
                         }
+                    } else {
+                        System.out.println("No chats found on Firebase!");
                     }
                     return chatResponseList;
                 });
     }
+
 
     /**
      * Retrieves a specific chat from the Firebase Realtime Database.
@@ -208,4 +213,6 @@ public class ChatService {
         GenericTypeIndicator<Map<String, Message>> typeIndicator = new GenericTypeIndicator<Map<String, Message>>() {};
         return firebaseService.getWithTypeIndicator(CHATS_PATH + "/" + chatId + "/messages", typeIndicator);
     }
+
+
 }
