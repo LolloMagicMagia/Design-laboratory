@@ -10,9 +10,24 @@ class DataService {
     return localStorage.getItem("currentUserId");
   }
 
+  /*
   async getCurrentUser() {
     const currentUserId = this.getCurrentUserId();
     return this.data.users[currentUserId] ? { id: currentUserId, ...this.data.users[currentUserId] } : null;
+  }
+   */
+
+  async getCurrentUser() {
+    const currentUserId = this.getCurrentUserId();
+    const email = localStorage.getItem("currentUserEmail");
+
+    if (!this.data.users[currentUserId]) return null;
+
+    return {
+      id: currentUserId,
+      email, // ✅ ora incluso
+      ...this.data.users[currentUserId]
+    };
   }
 
   async getUserById(userId) {

@@ -8,6 +8,10 @@
       <change afterPath="$PROJECT_DIR$/frontend/src/app/redirect-back/page.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/user/RegistrationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/user/RegistrationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/user/RegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/user/RegistrationService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +64,7 @@
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.5\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\eliog\OneDrive\Documents\GitHub\bicochat\bicoChat_backend\src\main\resources\static" />
@@ -84,6 +88,7 @@
         <env name="PRIVATE_KEY" value="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCg6ZC5RQCZt+Hq\nP2plTLeuuN3irWS8blT1IhHhZcR7I11xhezT6iEWjEP9dB8U5hyEzKtT8bwbT8BH\nn2n20/84CXhQpPflMRzelTMOaVIMdYTj++MhXnDG/UKpdd35h4sCv3HiJXD+ivH4\nXdw3XJtlhMuI4Neq0S/dn2VrawQ6xUYcwBXxq9sqL/GtQnu2ef+Mzt/RE0oITVnQ\nDgTROAE8Wuaom9OLkNC2ibO2Eb9oETMUEitaQbEDmg3KL5jNNLSNebDVfYNyI2BY\nvrimew6UjBVScie7lViOdPQ8v1HK8CtVR6hd9Y68qQ+k44sNjVDqQOuSM0QRvVBM\nPbwPJRolAgMBAAECggEADk5Flhsa3w+4j41cxa3I5Mk9vNHik1gRyItjYJEeIz51\nJ8saz4pQr8L/pnBk9QQyQ+I4Vym2Kg1wkE2Na6rUVWSOJElOWrt/kBBerijR6Ran\nnmc9/bD6QM6yVwOKHQ2eX7uqgcsHXTH4KjcaBXf/vspMGBq5QdAAO+lYaHDmuty7\n8Xj1+fFRtlpNCOp7xtbUEoiTlpNv7Xx5jvxMYblgRtgf8MtJHLfLXLSI2gMZlC27\nIZBp3i/17uFyBfK8f0HjuFvq3dDrLcwsUgQiyeL56Q/NI8m+76YCMi+CGwI7nsXL\nhVEkVgKFMEZgYxIbt9LaUr4vw74gT8aj7utN7wKmkQKBgQDQdW3/tMlnLY9wU9wj\niRGkPhWdqIR02rp5oI50k16O6J3kZDoudAAxGKBq9sKQyB6I/+PziYmsjaHzKm+p\nCUVIorRMPko72McEeIimnAa66H3fglYD1miWy01FT2M5kuP5rOcpYhekg5LPhsYG\nEAQeJpBmaZnIidllOSo0xxRKzQKBgQDFnDVxK4nTMO8BBWm9uVfL1jKKq4iX7tXx\noV4nsSxVhD/Rvfe3aehGUIU8mLwN8fyrHs+2Tle+6kxV90LfLeqtZP+OTHj8epx6\n4xzszZb68HTWr1waV/DxeDYPWLozz623VOk+aVe42LrVAEg8V94fVwhOanz3BURl\nJr/sJb88uQKBgQCD1J/aBJUSQUfjO8WOW5LikbjN2dLaq7EeViGBK+my6v1fgNsi\noY21fuOEgcWOFmDpNxsL20FL9M4koAO5nPlJ9EudpA8CRhemhiu1YhsHfRyNizmm\nd6PxKWUWnhwcPv8Z2PTfwP8+tU7VG2CEWQChqLXNbp8oqbToRPyiH/x/SQKBgQCa\nNvr587leqHyM9nV8C4251NKip5U0xL4QERfSsBDiOBA6Fh+g8rTDUwl3rdZsp6HA\nxY3iPyd5JY4nNIzqcQIJCZ3qpkFxABroSB+FqjgeY9M6y6V8JY8yUtcViO/fiT6P\nqWNRQpKj/fdoTQ0SkpwVJy2jTLVzbZffvKrgluC0eQKBgAXL+LO7ByZTG0uttMaU\nXhFKYoQIYzPklR+o/tmp4t2xxEkBY7kXK7u289bhNF4Lq+uI20159B+SY0fbOqj/\neQDW+rgfkIjxf0B/MxfBPHw16ejtXeFT5ftLeW8y9pO3HduVR5vYCMr3st8QUJj/\n6xEFdwf9E7YKsLxBMGk+8R4W\n-----END PRIVATE KEY-----\n" />
         <env name="PRIVATE_KEY_ID" value="74e01b5fc173fbe1eab037210e4d3259ab09286d" />
         <env name="TOKEN_URI" value="https://oauth2.googleapis.com/token" />
+        <env name="FIREBASE_API_KEY" value="AIzaSyAZ3pr2Jb_M2ShCH4J43qYCDeECTxJoiGs" />
       </envs>
       <option name="MAIN_CLASS_NAME" value="com.example.bicoChat_backend.BicoChatBackendApplication" />
       <module name="bicoChat_backend" />
@@ -126,6 +131,10 @@
       <workItem from="1743776091468" duration="8196000" />
       <workItem from="1743872601500" duration="62000" />
       <workItem from="1743893840621" duration="976000" />
+      <workItem from="1743951517470" duration="2851000" />
+      <workItem from="1744015089264" duration="486000" />
+      <workItem from="1744030082422" duration="511000" />
+      <workItem from="1744031093182" duration="889000" />
     </task>
     <servers />
   </component>
