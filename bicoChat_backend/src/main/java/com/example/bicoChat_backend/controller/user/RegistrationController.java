@@ -46,4 +46,11 @@ public class RegistrationController {
             return "Error: " + e.getMessage();
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login (@RequestBody UserRegisterRequest request) {
+         return firebaseService.login(request);
+    }
+
+
 }
