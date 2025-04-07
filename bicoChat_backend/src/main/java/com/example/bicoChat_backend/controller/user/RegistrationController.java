@@ -52,5 +52,8 @@ public class RegistrationController {
          return firebaseService.login(request);
     }
 
-
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestParam String email) {
+        return firebaseService.logout(email);
+    }
 }

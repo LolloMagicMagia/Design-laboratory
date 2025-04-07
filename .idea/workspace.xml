@@ -4,39 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/redirect-back/page.jsx" afterDir="false" />
+    <list default="true" id="e6854561-342f-42e7-959b-c345d3763f81" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/user/RegistrationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/user/RegistrationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/user/RegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/service/user/RegistrationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/profile/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/profile/page.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="C13_User_login" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;e.oltolini2&quot;,
+      &quot;fullname&quot;: &quot;Edoardo Oltolini&quot;
+    }
+  }
 }</component>
-  <component name="ProjectId" id="2vBiN0nas1p1QLRkkNyYnsYhRHm" />
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;https://gitlab.com/ElioGargiulo/bicochat.git&quot;,
+    &quot;second&quot;: &quot;1c946a7c-35a8-49d5-8217-9489af11b18d&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2vP4axr04dqJ9ZQQkWq6N6nch13" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -44,36 +45,20 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.BicoChat.executor": "Run",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "Application.BicoBack.executor": "Run",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Spring Boot.BicoChatBackendApplication.executor": "Run",
-    "git-widget-placeholder": "sprint1",
+    "git-widget-placeholder": "C14__User__logout",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/eliog/OneDrive/Documents/GitHub/bicochat",
     "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.5\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\eliog\OneDrive\Documents\GitHub\bicochat\bicoChat_backend\src\main\resources\static" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Application.BicoChat">
-    <configuration name="BicoChat" type="Application" factoryName="Application">
-      <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+}]]></component>
+  <component name="RunManager" selected="Application.BicoBack">
+    <configuration name="BicoBack" type="Application" factoryName="Application">
       <envs>
         <env name="AUTH_PROVIDER_X509_CERT_URL" value="https://www.googleapis.com/oauth2/v1/certs" />
         <env name="AUTH_URI" value="https://accounts.google.com/o/oauth2/auth" />
@@ -104,7 +89,7 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.BicoChat" />
+      <item itemvalue="Application.BicoBack" />
       <item itemvalue="Spring Boot.BicoChatBackendApplication" />
     </list>
   </component>
@@ -119,22 +104,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f71b8618-b219-4896-9d36-a49ac1437ced" name="Changes" comment="" />
-      <created>1743624823730</created>
+      <changelist id="e6854561-342f-42e7-959b-c345d3763f81" name="Changes" comment="" />
+      <created>1744033725949</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1743624823730</updated>
-      <workItem from="1743624824833" duration="1993000" />
-      <workItem from="1743626831416" duration="6248000" />
-      <workItem from="1743713594045" duration="915000" />
-      <workItem from="1743715559955" duration="921000" />
-      <workItem from="1743776091468" duration="8196000" />
-      <workItem from="1743872601500" duration="62000" />
-      <workItem from="1743893840621" duration="976000" />
-      <workItem from="1743951517470" duration="2851000" />
-      <workItem from="1744015089264" duration="486000" />
-      <workItem from="1744030082422" duration="511000" />
-      <workItem from="1744031093182" duration="889000" />
+      <updated>1744033725949</updated>
+      <workItem from="1744033727511" duration="764000" />
     </task>
     <servers />
   </component>
