@@ -6,14 +6,14 @@
       "chatUser": {
         "CHATID1": {
           "name": "Luigi Casamonica",
-          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "lastMessage": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
           "unreadCount": 1
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 0
@@ -47,7 +47,7 @@
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 1
@@ -70,7 +70,7 @@
       "chatUser": {
         "CHATID1": {
           "name": "Marco Rossi",
-          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "lastMessage": "Eccomi.",
           "timestamp": "2025-03-28T10:27:00",
           "unreadCount": 1
@@ -84,7 +84,7 @@
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 1
@@ -118,13 +118,13 @@
     "CHATID1": {
       "type": "individual",
       "participants": [
-        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+        "nawwGkxAExPU0hRX35Y8HkiBNl52",
         "arhUqPTzttgLSgSdyalBVvnRZDW2"
       ],
       "messages": {
         "MSG1": {
           "chatId": "CHATID1",
-          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "content": "Ciao! Come stai oggi?",
           "timestamp": "2025-03-28T10:15:00",
           "read": true
@@ -152,7 +152,7 @@
         },
         "MSG5": {
           "chatId": "CHATID1",
-          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "content": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
           "read": false
@@ -186,14 +186,14 @@
       "type": "group",
       "name": "Team Progetto",
       "participants": [
-        "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+        "nawwGkxAExPU0hRX35Y8HkiBNl52",
         "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
         "arhUqPTzttgLSgSdyalBVvnRZDW2"
       ],
       "messages": {
         "MSG1": {
           "chatId": "CHATID3",
-          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "content": "Ciao a tutti, iniziamo la riunione?",
           "timestamp": "2025-04-01T09:00:00",
           "read": true
@@ -214,7 +214,7 @@
         },
         "MSG4": {
           "chatId": "CHATID3",
-          "sender": "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1",
+          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
           "content": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "read": false
