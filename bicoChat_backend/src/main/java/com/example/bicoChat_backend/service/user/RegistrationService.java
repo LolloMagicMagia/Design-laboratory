@@ -110,5 +110,16 @@ public class RegistrationService {
         }
     }
 
+    public ResponseEntity<String> logout(@RequestParam String email) {
+        try {
+            UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmail(email);
+            String uid = userRecord.getUid();
+            FirebaseAuth.getInstance().revokeRefreshTokens(uid);
+            return ResponseEntity.ok("User logged out successfully.");
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed: " + e.getMessage());
+        }
+    }
+
 
 }
