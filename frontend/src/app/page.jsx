@@ -48,8 +48,9 @@ export default function Home() {
   useEffect(() => {
     const id = localStorage.getItem("currentUserId");
     if (!id) {
-      setError("Utente non autenticato");
-      return;
+      router.push("/login");
+      //setError("Utente non autenticato");
+      //return;
     }
     setCurrentUser(id);
 
@@ -250,7 +251,7 @@ export default function Home() {
                     }
 
                     localStorage.setItem("currentUserId", newId);
-                    router.push('/redirect-back');
+                    router.push("/redirect-back");
                   }}
                   className="w-full bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600"
               >

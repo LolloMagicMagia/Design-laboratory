@@ -1,19 +1,58 @@
+// src/app/login/page.jsx
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import "./styles.css";
 
+/**
+ * LoginPage - Login view ("/login").
+ * @module frontend/page/src/app/login/page.jsx
+ * @description Allows users to log in with email and password. Handles form state, validation, and authentication logic.
+ */
 export default function LoginPage() {
+  /**
+   * React router instance for navigation.
+   */
   const router = useRouter();
+
+  /**
+   * Form data for login (email and password).
+   * @type {{ email: string, password: string }}
+   */
   const [form, setForm] = useState({ email: "", password: "" });
+
+  /**
+   * Tracks whether login is in progress.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState(false);
+
+  /**
+   * Stores any error message encountered during login.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
 
+  /**
+   * Handles form input changes.
+   * Updates form state based on user input.
+   * @function handleChange
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+   */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handles form submission and login logic.
+   * Sends credentials to the backend and stores the user UID in localStorage.
+   * @async
+   * @function handleSubmit
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

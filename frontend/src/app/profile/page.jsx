@@ -6,12 +6,37 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import API from "@/lib/api";
 
+/**
+ * ProfilePage - User profile view ("/profile").
+ * @module frontend/page/src/app/profile/page.jsx
+ * @description Displays the logged-in user's profile information and allows logout.
+ */
 export default function ProfilePage() {
+  /**
+   * Stores the current user's data.
+   * @type {Object|null}
+   */
   const [currentUser, setCurrentUser] = useState(null);
+
+  /**
+   * Tracks whether data is still being loaded.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Stores any error message encountered during loading or user actions.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
+
   const router = useRouter();
 
+  /**
+   * Fetches the current user data on component mount.
+   * @async
+   * @returns {Promise<void>}
+   */
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -28,6 +53,13 @@ export default function ProfilePage() {
     fetchCurrentUser();
   }, []);
 
+  /**
+   * Handles the logout process for the current user.
+   * Sends a request to the backend and clears localStorage.
+   * @async
+   * @function handleLogout
+   * @returns {Promise<void>}
+   */
   const handleLogout = async () => {
     try {
       const email = currentUser?.email;
@@ -52,6 +84,7 @@ export default function ProfilePage() {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
         <div className="flex items-center justify-center min-h-screen">
@@ -60,6 +93,7 @@ export default function ProfilePage() {
     );
   }
 
+  // Error state
   if (error) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -71,6 +105,7 @@ export default function ProfilePage() {
     );
   }
 
+  // Null user fallback
   if (!currentUser) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
