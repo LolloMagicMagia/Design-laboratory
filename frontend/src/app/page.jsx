@@ -225,6 +225,26 @@ export default function Home() {
             </svg>
           </Link>
         </main>
+
+        {/* DEBUG: Switch utente (solo in sviluppo) */}
+        {process.env.NODE_ENV === "development" && (
+            <div className="fixed bottom-4 right-4 z-50">
+              <button
+                  onClick={() => {
+                    const currentId = localStorage.getItem("currentUserId");
+                    const newId = currentId === "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1"
+                        ? "arhUqPTzttgLSgSdyalBVvnRZDW2"
+                        : "R3kLQzaBVnT1TFgQ0BCJN5v5R4p1";
+
+                    localStorage.setItem("currentUserId", newId);
+                    router.push('/redirect-back'); // 👈 evita reload completo
+                  }}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600"
+              >
+                🔄 Switch utente
+              </button>
+            </div>
+        )}
       </div>
   );
 }
