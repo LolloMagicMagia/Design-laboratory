@@ -101,14 +101,14 @@ export default function NewChatPage() {
    * @function useEffect
    * @returns {void}
    */
-  useEffect(() => {
+  /*useEffect(() => {
     if (chatType === "individual" && selectedUsers.length === 1) {
       const user = friends.find(u => u.id === selectedUsers[0]);
       if (user) {
         setChatName(user.username || user.name);
       }
     }
-  }, [selectedUsers, chatType, friends]);
+  }, [selectedUsers, chatType, friends]);*/
 
   /**
    * Toggles the selection of a user for chat creation.
