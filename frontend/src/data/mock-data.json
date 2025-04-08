@@ -1,19 +1,19 @@
 {
   "users": {
-    "nawwGkxAExPU0hRX35Y8HkiBNl52": {
+    "bQWe6y1TE6UO85TpiXsWVx8ID353": {
       "username": "Marco Rossi",
       "status": "online",
       "chatUser": {
         "CHATID1": {
           "name": "Luigi Casamonica",
-          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "lastUser": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "lastMessage": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
           "unreadCount": 1
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "lastUser": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 0
@@ -47,14 +47,14 @@
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "lastUser": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 1
         }
       },
       "friends": {
-        "nawwGkxAExPU0hRX35Y8HkiBNl52": {
+        "bQWe6y1TE6UO85TpiXsWVx8ID353": {
           "since": "2025-02-20T09:15:00",
           "status": "received"
         },
@@ -70,7 +70,7 @@
       "chatUser": {
         "CHATID1": {
           "name": "Marco Rossi",
-          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "lastUser": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "lastMessage": "Eccomi.",
           "timestamp": "2025-03-28T10:27:00",
           "unreadCount": 1
@@ -84,14 +84,14 @@
         },
         "CHATID3": {
           "name": "Team Progetto",
-          "lastUser": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "lastUser": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "lastMessage": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "unreadCount": 1
         }
       },
       "friends": {
-        "nawwGkxAExPU0hRX35Y8HkiBNl52": {
+        "bQWe6y1TE6UO85TpiXsWVx8ID353": {
           "since": "2025-01-15T14:30:00",
           "status": "active"
         },
@@ -107,7 +107,7 @@
       "chatUser": {
       },
       "friends": {
-        "nawwGkxAExPU0hRX35Y8HkiBNl52": {
+        "bQWe6y1TE6UO85TpiXsWVx8ID353": {
           "since": "2025-02-20T09:15:00",
           "status": "active"
         }
@@ -118,13 +118,13 @@
     "CHATID1": {
       "type": "individual",
       "participants": [
-        "nawwGkxAExPU0hRX35Y8HkiBNl52",
+        "bQWe6y1TE6UO85TpiXsWVx8ID353",
         "arhUqPTzttgLSgSdyalBVvnRZDW2"
       ],
       "messages": {
         "MSG1": {
           "chatId": "CHATID1",
-          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "sender": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "content": "Ciao! Come stai oggi?",
           "timestamp": "2025-03-28T10:15:00",
           "read": true
@@ -152,7 +152,7 @@
         },
         "MSG5": {
           "chatId": "CHATID1",
-          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "sender": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "content": "Eccomi",
           "timestamp": "2025-03-28T10:28:00",
           "read": false
@@ -186,14 +186,14 @@
       "type": "group",
       "name": "Team Progetto",
       "participants": [
-        "nawwGkxAExPU0hRX35Y8HkiBNl52",
+        "bQWe6y1TE6UO85TpiXsWVx8ID353",
         "ZzfGIYCT4yfvnEAjBCLVLrEVkch2",
         "arhUqPTzttgLSgSdyalBVvnRZDW2"
       ],
       "messages": {
         "MSG1": {
           "chatId": "CHATID3",
-          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "sender": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "content": "Ciao a tutti, iniziamo la riunione?",
           "timestamp": "2025-04-01T09:00:00",
           "read": true
@@ -214,7 +214,7 @@
         },
         "MSG4": {
           "chatId": "CHATID3",
-          "sender": "nawwGkxAExPU0hRX35Y8HkiBNl52",
+          "sender": "bQWe6y1TE6UO85TpiXsWVx8ID353",
           "content": "Parliamo del backend prima?",
           "timestamp": "2025-04-01T09:03:00",
           "read": false
