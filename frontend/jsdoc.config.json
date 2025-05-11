@@ -1,0 +1,20 @@
+{
+  "source": {
+    "include": ["src/app"],
+    "includePattern": ".+\\.(js|jsx)$",
+    "exclude": ["**/node_modules/**"]
+  },
+  "opts": {
+    "destination": "docs",
+    "recurse": true,
+    "encoding": "utf8"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "default": {
+      "outputSourceFiles": false,
+      "includeDate": false,
+      "useLongnameInNav": true
+    }
+  }
+}

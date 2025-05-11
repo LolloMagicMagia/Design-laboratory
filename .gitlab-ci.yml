@@ -1,0 +1,107 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  # Variabili per Docker
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+  # Variabili per il progetto
+  FRONTEND_DIR: "./frontend"
+  BACKEND_DIR: "./bicoChat_backend"
+
+# Job per costruire il frontend Next.js
+build-frontend:
+  stage: build
+  image: node:20
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npm run build -- --no-lint
+  artifacts:
+    paths:
+      - $FRONTEND_DIR/.next/
+    expire_in: 1 hour
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
+
+# Job per costruire il backend Spring Boot
+build-backend:
+  stage: build
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - mvn package -B -DskipTests
+  artifacts:
+    paths:
+      - $BACKEND_DIR/target/*.jar
+    expire_in: 1 hour
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+
+# Job per testare il frontend
+test-frontend:
+  stage: test
+  image: node:20
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npm run lint
+  dependencies:
+    - build-frontend
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
+
+# Job per testare il backend
+test-backend:
+  stage: test
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - mvn test
+  dependencies:
+    - build-backend
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+
+# Job per deploy del frontend (placeholder)
+deploy-frontend:
+  stage: deploy
+  image: node:20
+  script:
+    - cd $FRONTEND_DIR
+    - echo "Frontend build successfully completed"
+    - echo "Deployment step will be configured in the future"
+  dependencies:
+    - build-frontend
+  environment:
+    name: staging
+  only:
+    - develop
+  when: manual
+
+# Job per deploy del backend (placeholder)
+deploy-backend:
+  stage: deploy
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Backend build successfully completed"
+    - echo "Deployment step will be configured in the future"
+  dependencies:
+    - build-backend
+  environment:
+    name: staging
+  only:
+    - develop
+  when: manual
