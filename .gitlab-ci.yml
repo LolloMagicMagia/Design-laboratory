@@ -1,82 +1,58 @@
 stages:
-  - validate  # Added validation stage
+  - validate  # Nuovo stage aggiunto
   - build
   - test
   - deploy
 
 variables:
-  # Docker-related variables
+  # Variabili per Docker
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-  # Project directory paths
+  # Variabili per il progetto
   FRONTEND_DIR: "./frontend"
   BACKEND_DIR: "./bicoChat_backend"
 
-  # Added version variables for consistency
-  NODE_VERSION: "20"
-  MAVEN_VERSION: "3-eclipse-temurin-21"
-
-# Template for Node.js jobs
-.node_template:
-  image: node:${NODE_VERSION}
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-frontend-${CI_JOB_NAME}
-    paths:
-      - ${FRONTEND_DIR}/node_modules/
-    policy: pull-push
-  tags:
-    - docker
-
-# Template for Maven jobs
-.maven_template:
-  image: maven:${MAVEN_VERSION}
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-backend-${CI_JOB_NAME}
-    paths:
-      - .m2/repository/
-    policy: pull-push
-  tags:
-    - docker
-  variables:
-    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-
-# Frontend validation (syntax and dependencies)
+# Job per validare il frontend
 validate-frontend:
-  extends: .node_template
   stage: validate
+  image: node:20
   script:
-    - cd ${FRONTEND_DIR}
+    - cd $FRONTEND_DIR
     - echo "Checking Node.js and npm versions"
     - node --version
     - npm --version
     - echo "Installing dependencies"
     - npm ci
-    - echo "Verifying package.json"
+    - echo "Checking package.json"
     - npm ls --depth=0
-    - echo "Checking for vulnerabilities"
-    - npm audit --production
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
   allow_failure: true
 
-# Backend validation (syntax and dependencies)
+# Job per validare il backend
 validate-backend:
-  extends: .maven_template
   stage: validate
+  image: maven:3-eclipse-temurin-21
   script:
-    - cd ${BACKEND_DIR}
+    - cd $BACKEND_DIR
     - echo "Checking Java and Maven versions"
     - java -version
     - mvn --version
     - echo "Validating project structure"
     - mvn validate
-    - echo "Checking dependencies"
-    - mvn dependency:analyze
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
   allow_failure: true
 
 # Job per costruire il frontend Next.js
 build-frontend:
-  extends: .node_template
   stage: build
+  image: node:20
   script:
     - cd $FRONTEND_DIR
     - npm ci
@@ -89,13 +65,11 @@ build-frontend:
     key: ${CI_COMMIT_REF_SLUG}-frontend
     paths:
       - $FRONTEND_DIR/node_modules/
-  needs:
-    - validate-frontend  # Added dependency on validation
 
 # Job per costruire il backend Spring Boot
 build-backend:
-  extends: .maven_template
   stage: build
+  image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
     - mvn package -B -DskipTests
@@ -107,8 +81,6 @@ build-backend:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
-  needs:
-    - validate-backend  # Added dependency on validation
 
 # Job per testare il frontend
 test-frontend:
