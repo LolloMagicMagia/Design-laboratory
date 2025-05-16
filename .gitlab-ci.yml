@@ -70,10 +70,6 @@ build-frontend:
       - $FRONTEND_DIR/node_modules/
   needs:
     - validate-frontend  # Esplicita dipendenza
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-    - when: manual  # Esecuzione manuale per altri branch
 
 # Job per costruire il backend Spring Boot
 build-backend:
@@ -85,24 +81,17 @@ build-backend:
     - mvn package -B -DskipTests
     - echo "Backend build completed successfully! JAR location: target/"
     - ls -la target/*.jar
+    - echo "JAR_FILE=$(find $BACKEND_DIR/target -name '*.jar' | head -1)" > build.env
   artifacts:
     paths:
       - $BACKEND_DIR/target/*.jar
     expire_in: 1 day  # Aumentato il tempo di scadenza
-    reports:
-      dotenv: build.env  # Per passare variabili di ambiente tra job
   cache:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
   needs:
     - validate-backend  # Esplicita dipendenza
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-    - when: manual  # Esecuzione manuale per altri branch
-  after_script:
-    - echo "JAR_FILE=$(find $BACKEND_DIR/target -name '*.jar' | head -1)" > build.env
 
 # Job per testare il frontend
 test-frontend:
