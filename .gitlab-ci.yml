@@ -1,5 +1,6 @@
 stages:
   - validate
+  - static-analysis
   - build
   - test
   - deploy
@@ -48,6 +49,27 @@ validate-backend:
     paths:
       - $BACKEND_DIR/.m2/
   allow_failure: true
+
+static-backend:
+  stage: static-analysis
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Eseguo Checkstyle..."
+    - mvn checkstyle:check
+    - echo "Eseguo PMD..."
+    - mvn pmd:check
+    - echo "Eseguo SpotBugs..."
+    - mvn spotbugs:check
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+  allow_failure: false
+  needs:
+    - validate-backend
+
+
 
 # Job per costruire il frontend Next.js
 build-frontend:
