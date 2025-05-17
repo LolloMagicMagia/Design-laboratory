@@ -55,7 +55,6 @@ build-frontend:
   image: node:20
   script:
     - cd $FRONTEND_DIR
-    - echo "Installing dependencies..."
     - npm ci
     - echo "Building frontend application..."
     - npm run build -- --no-lint
@@ -63,13 +62,13 @@ build-frontend:
   artifacts:
     paths:
       - $FRONTEND_DIR/.next/
-    expire_in: 1 day  # Aumentato il tempo di scadenza
+    expire_in: 1 day
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend
     paths:
       - $FRONTEND_DIR/node_modules/
   needs:
-    - validate-frontend  # Esplicita dipendenza
+    - validate-frontend
 
 # Job per costruire il backend Spring Boot
 build-backend:
@@ -77,21 +76,21 @@ build-backend:
   image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
-    - echo "Building backend application..."
     - mvn package -B -DskipTests
-    - echo "Backend build completed successfully! JAR location: target/"
+    - echo "Backend build completed successfully!"
     - ls -la target/*.jar
-    - echo "JAR_FILE=$(find $BACKEND_DIR/target -name '*.jar' | head -1)" > build.env
+    - echo "JAR_FILE=$(find \"$BACKEND_DIR/target\" -name '*.jar' | head -1)" > build.env
+
   artifacts:
     paths:
       - $BACKEND_DIR/target/*.jar
-    expire_in: 1 day  # Aumentato il tempo di scadenza
+    expire_in: 1 day
   cache:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
   needs:
-    - validate-backend  # Esplicita dipendenza
+    - validate-backend
 
 # Job per testare il frontend
 test-frontend:
