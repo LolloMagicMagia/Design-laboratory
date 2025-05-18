@@ -1,20 +1,17 @@
+variables:
+  # Docker vars
+  DOCKER_DRIVER: "overlay2"
+  DOCKER_TLS_CERTDIR: ""
+  # Project dirs
+  FRONTEND_DIR: "./frontend"
+  BACKEND_DIR: "./bicoChat_backend"
+
 stages:
   - validate
   - static-analysis
   - build
   - test
   - deploy
-
-variables:
-  # Variabili per Docker
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-    FRONTEND_DIR: "./frontend"
-    BACKEND_DIR: "./bicoChat_backend"
 
 # Job per validare il frontend
 validate-frontend:
