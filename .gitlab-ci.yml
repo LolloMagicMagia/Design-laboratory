@@ -10,9 +10,11 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-  # Variabili per il progetto
-  FRONTEND_DIR: "./frontend"
-  BACKEND_DIR: "./bicoChat_backend"
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    FRONTEND_DIR: "./frontend"
+    BACKEND_DIR: "./bicoChat_backend"
 
 # Job per validare il frontend
 validate-frontend:
@@ -68,8 +70,6 @@ static-backend:
   allow_failure: false
   needs:
     - validate-backend
-
-
 
 # Job per costruire il frontend Next.js
 build-frontend:
@@ -143,6 +143,36 @@ test-backend:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
+
+
+# Selenium E2E tests
+selenium-e2e:
+  stage: test
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    SELENIUM_IMAGE: selenium/standalone-chrome:latest
+  needs:
+    - build-frontend
+    - build-backend
+  script:
+    - docker-compose up -d --build
+    - |
+      for i in $(seq 1 30); do
+        if curl -s http://localhost:3000; then break; fi
+        sleep 2
+      done
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npm run test_selenium
+    - docker-compose down
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
 
 # Job per deploy del frontend (placeholder)
 deploy-frontend:

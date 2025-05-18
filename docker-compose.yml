@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./bicoChat_backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - '8080:8080'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - '3000:3000'
+    environment:
+      - API_URL=http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  selenium:
+    image: "${SELENIUM_IMAGE:-selenium/standalone-chrome:latest}"
+    container_name: selenium
+    ports:
+      - '4444:4444'
+    depends_on:
+      frontend:
+        condition: service_started
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
