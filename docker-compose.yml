@@ -26,8 +26,7 @@ services:
     environment:
       - API_URL=http://backend:8080
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 10s
@@ -42,8 +41,7 @@ services:
     ports:
       - "4444:4444"
     depends_on:
-      frontend:
-        condition: service_healthy
+      - frontend
     networks:
       - app-network
 
