@@ -187,12 +187,11 @@ selenium-e2e:
     - docker-compose up -d --build
     - |
       for i in $(seq 1 30); do
-        if curl -s http://localhost:3000; then break; fi
+        docker-compose exec frontend curl -s http://localhost:3000 && break
         sleep 2
       done
-    - cd $FRONTEND_DIR
-    - npm ci
-    - npm run test_selenium
+    - docker-compose exec frontend npm ci
+    - docker-compose exec frontend npm run test_selenium
     - docker-compose down
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend
