@@ -152,9 +152,9 @@ selenium-e2e:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
     SELENIUM_IMAGE: selenium/standalone-chrome:latest
-  needs:
-    - build-frontend
-    - build-backend
+#  needs:
+#    - build-frontend
+#    - build-backend
   script:
     - docker-compose up -d --build
     - |
