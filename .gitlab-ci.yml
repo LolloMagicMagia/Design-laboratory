@@ -114,7 +114,7 @@ build-backend:
 # Job per testare il frontend
 test-frontend:
   stage: test
-  when: manual
+  when: always
   image: node:20
   script:
     - cd $FRONTEND_DIR
@@ -131,7 +131,7 @@ test-frontend:
 # Job per testare il backend
 test-backend:
   stage: test
-  when: manual
+  when: always
   image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
@@ -147,7 +147,6 @@ test-backend:
 # Selenium E2E tests
 selenium-e2e:
   stage: test
-  when: manual
   image: docker/compose:latest
   services:
     - docker:dind
@@ -155,9 +154,8 @@ selenium-e2e:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
     SELENIUM_IMAGE: selenium/standalone-chrome:latest
-#  needs:
-#    - build-frontend
-#    - build-backend
+  when: always
+  allow_failure: true
   script:
     - docker-compose up -d --build
     - |
