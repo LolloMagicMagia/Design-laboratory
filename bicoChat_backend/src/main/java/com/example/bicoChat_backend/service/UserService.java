@@ -57,14 +57,9 @@ public class UserService {
 
             // Se l'utente non esiste, restituiamo un utente di default con una chat di benvenuto
             Map<String, User.ChatInfo> defaultChats = new HashMap<>();
-            defaultChats.put("welcome", new User.ChatInfo(
-                    "Welcome on BicoChat!",
-                    "System",
-                    LocalDateTime.now().toString(),
-                    0
-            ));
+            //defaultChats.put("welcome", new User.ChatInfo()
 
-            return CompletableFuture.completedFuture(new UserResponse("currentUser", new User("You", "online", defaultChats)));
+            return CompletableFuture.completedFuture(new UserResponse("currentUser", new User("0", "test", "test", "test", "test")));
         });
     }
 
@@ -88,6 +83,53 @@ public class UserService {
                 .thenApply(chats -> chats != null ? chats : new HashMap<>());
     }
 
+    public CompletableFuture<Void> hideChat(String userId, String chatId, String pin) {
+        return getUserById(userId)
+                .thenCompose(optionalUser -> {
+                    if (optionalUser.isEmpty()) {
+                        return CompletableFuture.failedFuture(new IllegalArgumentException("User not found"));
+                    }
+                    User user = optionalUser.get().getUser();
+                    Map<String, Map<String, Object>> hiddenChats = user.getHiddenChats();
+                    if (hiddenChats == null) hiddenChats = new HashMap<>();
+                    Map<String, Object> chatPinInfo = new HashMap<>();
+                    chatPinInfo.put("pin", pin);
+                    hiddenChats.put(chatId, chatPinInfo);
+                    user.setHiddenChats(hiddenChats);
+                    return firebaseService.set(USERS_PATH + "/" + userId, user);
+                });
+    }
+
+    public CompletableFuture<Void> unhideChat(String userId, String chatId) {
+        return getUserById(userId)
+                .thenCompose(optionalUser -> {
+                    if (optionalUser.isEmpty()) {
+                        return CompletableFuture.failedFuture(new IllegalArgumentException("User not found"));
+                    }
+                    User user = optionalUser.get().getUser();
+                    Map<String, Map<String, Object>> hiddenChats = user.getHiddenChats();
+                    if (hiddenChats != null && hiddenChats.containsKey(chatId)) {
+                        hiddenChats.remove(chatId);
+                        user.setHiddenChats(hiddenChats);
+                        return firebaseService.set(USERS_PATH + "/" + userId, user);
+                    }
+                    return CompletableFuture.completedFuture(null);
+                });
+    }
+
+    public CompletableFuture<Boolean> verifyHiddenChatPin(String userId, String chatId, String pin) {
+        return getUserById(userId)
+                .thenApply(optionalUser -> {
+                    if (optionalUser.isEmpty()) return false;
+                    User user = optionalUser.get().getUser();
+                    Map<String, Map<String, Object>> hiddenChats = user.getHiddenChats();
+                    if (hiddenChats != null && hiddenChats.containsKey(chatId)) {
+                        Object storedPin = hiddenChats.get(chatId).get("pin");
+                        return storedPin != null && storedPin.toString().equals(pin);
+                    }
+                    return false;
+                });
+    }
 
 
 
