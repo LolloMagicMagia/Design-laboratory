@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e6854561-342f-42e7-959b-c345d3763f81" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_2_2025_12_09_PM_[Changes]/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/profile/page.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/profile/page.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/bicoChat_backend/src/main/java/com/example/bicoChat_backend/controller/ChatController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +47,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.BicoBack.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "C14__User__logout",
+    "git-widget-placeholder": "C5__Chat__list",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Matteo/Desktop/bicochat",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -110,6 +113,8 @@
       <option name="presentableId" value="Default" />
       <updated>1744033725949</updated>
       <workItem from="1744033727511" duration="764000" />
+      <workItem from="1747663725894" duration="39000" />
+      <workItem from="1747663777585" duration="1790000" />
     </task>
     <servers />
   </component>
