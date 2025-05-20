@@ -35,10 +35,10 @@ services:
       - app-network
 
   selenium:
-    image: "${SELENIUM_IMAGE:-selenium/standalone-chrome:latest}"
+    image: "${SELENIUM_IMAGE}"
     container_name: selenium
     ports:
-      - '4444:4444'
+      - "4444:4444"
     depends_on:
       frontend:
         condition: service_healthy
