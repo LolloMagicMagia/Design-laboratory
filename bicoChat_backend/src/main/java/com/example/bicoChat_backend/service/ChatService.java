@@ -214,5 +214,23 @@ public class ChatService {
         return firebaseService.getWithTypeIndicator(CHATS_PATH + "/" + chatId + "/messages", typeIndicator);
     }
 
+    public CompletableFuture<Void> deleteChat(String chatId) {
+        return firebaseService.getWithTypeIndicator(
+                        "chats/" + chatId + "/participants",
+                        new GenericTypeIndicator<List<String>>() {})
+                .thenCompose(participants -> {
+                    List<CompletableFuture<Void>> deletes = new ArrayList<>();
+
+                    deletes.add(firebaseService.delete("chats/" + chatId));
+
+                    for (String uid : participants) {
+                        String userChatPath = String.format("users/%s/chatUser/%s", uid, chatId);
+                        deletes.add(firebaseService.delete(userChatPath));
+                    }
+
+                    return CompletableFuture.allOf(deletes.toArray(new CompletableFuture[0]));
+                });
+    }
+
 
 }
