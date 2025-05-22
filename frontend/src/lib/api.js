@@ -11,14 +11,9 @@ function getCurrentUserId() {
     return localStorage.getItem("currentUserId");
 }
 
-const API = {
+const API= {
 
     getCurrentUser: () => DataService.getCurrentUser(),
-
-    //Post per cambiare dati
-    markChatAsRead: (chatId) => {
-        return DataService.markChatAsRead(chatId);
-    },
 
     getChatById: (chatId) => DataService.getChatById(chatId),
 
@@ -82,6 +77,27 @@ const API = {
         const res = await fetch(`/api/chats/${chatId}/verify-pin?userId=${userId}&pin=${pin}`);
         if (!res.ok) throw new Error("Error while verifying the pin");
         return res.json();
+    },
+
+    /**
+     * Marks a specified chat as read for the current user.
+     *
+     * @function markChatAsRead
+     * @async
+     * @param {string} chatId - The ID of the chat to be marked as read.
+     * @returns {Promise<void>}
+     */
+    markChatAsRead: async (chatId) => {
+        const currentUserId = localStorage.getItem("currentUserId");
+        if (!currentUserId) throw new Error("User not authenticated");
+
+        try {
+            await fetch(`${API_BASE}/api/users/markChatAsRead/${chatId}`, {
+                method: "PUT",
+            });
+        } catch (err) {
+            console.error("Error marking chat as read:", err);
+        }
     },
 };
 

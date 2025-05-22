@@ -80,37 +80,69 @@ public class ChatService {
     }
 
     /**
-     * Updates the chat references in the profiles of the participating users.
-     * @param chatId ID of the chat
-     * @param chat Chat to reference
+     * Updates the chat references in user profiles for all participants.
+     *
+     * @param chatId The ID of the chat.
+     * @param chat The chat object.
+     * @return A CompletableFuture that completes when all user profiles are updated.
      */
-    private void updateChatReferencesInUserProfiles(String chatId, Chat chat) {
-        for (String userId : chat.getParticipants()) {
-            userService.getUserById(userId).thenAccept(optionalUser -> {
-                optionalUser.ifPresent(userResponse -> {
-                    User user = userResponse.getUser();
+    private CompletableFuture<Void> updateChatReferencesInUserProfiles(String chatId, Chat chat) {
+        List<String> participants = chat.getParticipants();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-                    // Creates a ChatInfo for the user
-                    User.ChatInfo chatInfo = new User.ChatInfo(
-                            "", // Empty last message initially
-                            chat.getName() != null ? chat.getName() : userId,
-                            LocalDateTime.now().toString(),
-                            0
-                    );
+        // Loop through each participant and update their chat references
+        for (String userId : participants) {
+            CompletableFuture<Void> future = userService.getUserById(userId)
+                    .thenCompose(optionalUser -> {
+                        if (optionalUser.isEmpty()) return CompletableFuture.completedFuture(null);
+                        User user = optionalUser.get().getUser();
 
-                    // Adds the chat to the user's chats
-                    Map<String, User.ChatInfo> userChats = user.getChatUser();
-                    if (userChats == null) {
-                        userChats = new HashMap<>();
-                    }
-                    userChats.put(chatId, chatInfo);
-                    user.setChatUser(userChats);
+                        if ("individual".equals(chat.getType()) && participants.size() == 2) {
+                            // For individual chats, update the references to the other participant's info
+                            String otherId = participants.stream().filter(id -> !id.equals(userId)).findFirst().orElse(null);
+                            if (otherId != null) {
+                                return userService.getUserById(otherId).thenCompose(optOther -> {
+                                    if (optOther.isEmpty()) return CompletableFuture.completedFuture(null);
+                                    User otherUser = optOther.get().getUser();
+                                    String displayName = otherUser.getUsername() != null ? otherUser.getUsername() : otherUser.getEmail();
+                                    String avatar = otherUser.getAvatar() != null ? otherUser.getAvatar() : null;
 
-                    // Updates the user on Firebase
-                    firebaseService.set(USERS_PATH + "/" + userId, user);
-                });
-            });
+                                    User.ChatInfo chatInfo = new User.ChatInfo(
+                                            "", displayName, LocalDateTime.now().toString(), 0, "system",
+                                            displayName, avatar,
+                                            "individual"  // Individual chat type
+                                    );
+
+                                    Map<String, User.ChatInfo> userChats = user.getChatUser();
+                                    if (userChats == null) userChats = new HashMap<>();
+                                    userChats.put(chatId, chatInfo);
+                                    user.setChatUser(userChats);
+
+                                    return firebaseService.set(USERS_PATH + "/" + userId, user);
+                                });
+                            }
+                        }
+
+                        // Fallback for group chats or incomplete chat types
+                        String title = chat.getName() != null ? chat.getName() : "Chat";
+                        User.ChatInfo chatInfo = new User.ChatInfo(
+                                "", title, LocalDateTime.now().toString(), 0, "system",
+                                title, null,
+                                "group" // Group chat type
+                        );
+
+                        Map<String, User.ChatInfo> userChats = user.getChatUser();
+                        if (userChats == null) userChats = new HashMap<>();
+                        userChats.put(chatId, chatInfo);
+                        user.setChatUser(userChats);
+
+                        return firebaseService.set(USERS_PATH + "/" + userId, user);
+                    });
+
+            futures.add(future);
         }
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])); // Wait for all futures to complete
     }
 
     /**
@@ -229,6 +261,48 @@ public class ChatService {
                     }
 
                     return CompletableFuture.allOf(deletes.toArray(new CompletableFuture[0]));
+                });
+    }
+
+    public CompletableFuture<ChatResponse> createIndividualChatIfNotExists(String user1Id, String user2Id, String initialMessage) {
+        List<String> participants = Arrays.asList(user1Id, user2Id);
+        Collections.sort(participants);
+
+        String chatId = participants.get(0) + "_" + participants.get(1);
+        System.out.println("Checking if chat already exists with ID: " + chatId);
+
+        return firebaseService.get(CHATS_PATH + "/" + chatId, Chat.class)
+                .thenCompose(existingChat -> {
+                    if (existingChat != null) {
+                        System.out.println("Chat already exists: " + chatId);
+                        return CompletableFuture.completedFuture(new ChatResponse(chatId, existingChat));
+                    }
+
+                    System.out.println("Creating new chat with ID: " + chatId);
+                    Chat chat = new Chat();
+                    chat.setParticipants(participants);
+                    chat.setType("individual");
+
+                    return firebaseService.set(CHATS_PATH + "/" + chatId, chat)
+                            .thenCompose(v -> {
+                                System.out.println("Chat saved to Firebase: " + chatId);
+                                return updateChatReferencesInUserProfiles(chatId, chat);
+                            })
+                            .thenCompose(v -> {
+                                System.out.println("Chat references updated for participants");
+
+                                Message message = new Message();
+                                message.setSender(user1Id);
+                                message.setContent(initialMessage);
+                                message.setTimestamp(LocalDateTime.now().toString());
+                                message.setRead(false);
+
+                                return addMessage(chatId, message)
+                                        .thenApply(entry -> {
+                                            System.out.println("✉️ Initial message sent: " + initialMessage);
+                                            return new ChatResponse(chatId, chat);
+                                        });
+                            });
                 });
     }
 
