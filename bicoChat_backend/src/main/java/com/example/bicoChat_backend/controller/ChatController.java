@@ -148,6 +148,23 @@ public class ChatController {
                 .thenApply(v -> ResponseEntity.ok().build());
     }
 
+    @Operation(
+            summary = "Hide chat",
+            description = "Hides a chat for a user, secured by a PIN."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Chat hidden successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error while hiding chat")
+    })
+    @PostMapping("/{chatId}/hide")
+    public CompletableFuture<ResponseEntity<Object>> hideChat(
+            @PathVariable String chatId,
+            @RequestParam String userId,
+            @RequestParam String pin) {
+        return userService.hideChat(userId, chatId, pin)
+                .thenApply(v -> ResponseEntity.ok().build())
+                .exceptionally(e -> new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 
     @Operation(
             summary = "Unhide chat",

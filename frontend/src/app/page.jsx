@@ -15,22 +15,87 @@ import { Plus, Trash, Search, Edit, Check, X, Menu, EyeOff, Eye, Lock, User } fr
 export default function Home() {
 
   /**
-   * Stores the list of chats.
+   * Stores the list of visible chats.
    * @type {Array<Object>}
    */
   const [chats, setChats] = useState([]);
+
+  /**
+   * Stores the currently filtered chat list based on search and tab selection.
+   * @type {Array<Object>}
+   */
   const [filteredChats, setFilteredChats] = useState([]);
+
+  /**
+   * Stores the list of hidden chats that require PIN access.
+   * @type {Array<Object>}
+   */
   const [hiddenChats, setHiddenChats] = useState([]);
+
+  /**
+   * Controls the visibility of the chat hiding dialog.
+   * @type {boolean}
+   */
   const [showHideDialog, setShowHideDialog] = useState(false);
+
+  /**
+   * Stores the PIN value entered by the user to hide a chat.
+   * @type {string}
+   */
   const [pin, setPin] = useState("");
+
+  /**
+   * References the chat that the user wants to hide.
+   * @type {Object|null}
+   */
   const [chatToHide, setChatToHide] = useState(null);
+
+  /**
+   * Controls the visibility of the PIN verification dialog for hidden chats.
+   * @type {boolean}
+   */
   const [showPinDialog, setShowPinDialog] = useState(false);
+
+  /**
+   * References the selected hidden chat that the user wants to access.
+   * @type {Object|null}
+   */
   const [selectedHiddenChat, setSelectedHiddenChat] = useState(null);
+
+  /**
+   * Stores the PIN value entered by the user to access a hidden chat.
+   * @type {string}
+   */
   const [enteredPin, setEnteredPin] = useState("");
+
+  /**
+   * Stores any error message related to incorrect PIN entry.
+   * @type {string}
+   */
   const [pinError, setPinError] = useState("");
+
+  /**
+   * Controls the visibility of the unhide chat dialog.
+   * @type {boolean}
+   */
   const [showUnhidePinDialog, setShowUnhidePinDialog] = useState(false);
+
+  /**
+   * References the chat that the user wants to unhide.
+   * @type {Object|null}
+   */
   const [chatToUnhide, setChatToUnhide] = useState(null);
+
+  /**
+   * Stores the PIN value entered by the user to unhide a chat.
+   * @type {string}
+   */
   const [unhidePin, setUnhidePin] = useState("");
+
+  /**
+   * Stores any error message related to incorrect PIN entry for unhiding.
+   * @type {string}
+   */
   const [unhidePinError, setUnhidePinError] = useState("");
 
   /**
@@ -50,15 +115,37 @@ export default function Home() {
    * @type {string|null}
    */
   const [error, setError] = useState(null);
+
+  /**
+   * Indicates whether the user has any pending friend requests.
+   * @type {boolean}
+   */
   const [hasFriendRequests, setHasFriendRequests] = useState(false);
+
+  /**
+   * Stores the current search query for filtering chats.
+   * @type {string}
+   */
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Nuovi stati per la gestione della bio
+  /**
+   * Stores the user's bio text for display and editing.
+   * @type {string}
+   */
   const [bio, setBio] = useState("");
+
+  /**
+   * Indicates whether the user is currently editing their bio.
+   * @type {boolean}
+   */
   const [editingBio, setEditingBio] = useState(false);
 
-  // For tabs
-  const [activeTab, setActiveTab] = useState("all"); // Opzioni: "all", "dm", "groups"
+  /**
+   * Controls which tab of chats is currently active.
+   * Possible values: "all", "dm", "groups", "hidden"
+   * @type {string}
+   */
+  const [activeTab, setActiveTab] = useState("all");
 
   const router = useRouter();
 
@@ -72,10 +159,10 @@ export default function Home() {
   useEffect(() => {
     const id = localStorage.getItem("currentUserId");
     if (!id) {
-      setError("Unauthenticated user");
+      // No user ID found, redirect to login page immediately
+      router.push("/login");
       return;
     }
-
     setCurrentUser(id);
     let client = null;
 
@@ -98,16 +185,24 @@ export default function Home() {
     };
   }, []);
 
-
+  /**
+   * Fetches and updates the chat lists (visible and hidden) from the backend.
+   * Processes chat data and prepares it for display.
+   * @async
+   * @function fetchAndUpdateChats
+   * @returns {Promise<void>}
+   */
   const fetchAndUpdateChats = async () => {
     try {
       const user = await API.getCurrentUser();
-      const requests = await API.getFriendRequestsList();
-      setHasFriendRequests(requests.length > 0);
-      if (!user) {
-        router.push("/new-user");
+      // If no user data is returned, redirect to login
+      if (!user || !user.id) {
+        router.push("/login");
         return;
       }
+
+      const requests = await API.getFriendRequestsList();
+      setHasFriendRequests(requests.length > 0);
 
       setCurrentUser(user);
       setBio(user.bio || "");
@@ -142,7 +237,6 @@ export default function Home() {
         };
       }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-      // --- AGGIUNTA: gestione chat nascoste ---
       const hidden = [];
       const visible = [];
       if (user.hiddenChats) {
@@ -156,22 +250,33 @@ export default function Home() {
       setChats(visible);
       setFilteredChats(visible);
       setHiddenChats(hidden);
-      // --- FINE AGGIUNTA ---
 
     } catch (err) {
       console.error("Error in data loading:", err);
-      setError("Error loading chats.");
+      // If the error is due to auth issues, redirect to login
+      if (err.message?.includes("auth") || err.status === 401) {
+        router.push("/login");
+      } else {
+        setError("Error loading chats.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Updates filtered chats based on the active tab selection and search query.
+   * Handles filtering logic for all, direct messages, groups, and hidden chats.
+   *
+   * @function filterChats
+   * @returns {void}
+   */
   useEffect(() => {
     if (activeTab === "hidden") {
       setFilteredChats(hiddenChats);
     } else if (searchQuery) {
       const filtered = chats.filter(chat =>
-        chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+          chat.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       if (activeTab === "dm") {
         setFilteredChats(filtered.filter(chat => chat.type === "individual"));
@@ -191,21 +296,43 @@ export default function Home() {
     }
   }, [searchQuery, chats, activeTab, hiddenChats]);
 
-
-
-
+  /**
+   * Initiates the process of hiding a chat with PIN protection.
+   * Opens the PIN entry dialog and stores the selected chat.
+   *
+   * @function handleHideChat
+   * @param {Object} chat - The chat to be hidden
+   * @returns {void}
+   */
   const handleHideChat = (chat) => {
     setChatToHide(chat);
     setPin("");
     setShowHideDialog(true);
   };
 
+  /**
+   * Confirms the hiding of a chat with the entered PIN.
+   * Calls the API to hide the chat and updates the local state.
+   *
+   * @async
+   * @function confirmHideChat
+   * @returns {Promise<void>}
+   */
   const confirmHideChat = async () => {
     await API.hideChat(chatToHide.chatId, pin);
     setShowHideDialog(false);
     fetchAndUpdateChats();
   };
 
+  /**
+   * Initiates the process of unhiding a chat with PIN verification.
+   * Opens the PIN entry dialog and stores the selected chat.
+   *
+   * @function handleOpenHiddenChat
+   * @param {Object} chat - The hidden chat to be accessed
+   * @returns {void}
+   *
+   */
   const handleOpenHiddenChat = (chat) => {
     setSelectedHiddenChat(chat);
     setEnteredPin("");
@@ -213,6 +340,14 @@ export default function Home() {
     setShowPinDialog(true);
   };
 
+  /**
+   * Verifies the entered PIN to access a hidden chat.
+   * If verified, navigates to the chat; otherwise, shows an error.
+   *
+   * @async
+   * @function confirmPin
+   * @returns {Promise<void>}
+   */
   const confirmPin = async () => {
     const ok = await API.verifyPin(selectedHiddenChat.chatId, enteredPin);
     if (ok) {
@@ -222,6 +357,14 @@ export default function Home() {
     }
   };
 
+  /**
+   * Initiates the process of unhiding a chat.
+   * Opens the PIN verification dialog for the selected chat.
+   *
+   * @function handleUnhide
+   * @param {Object} chat - The chat to be unhidden
+   * @returns {void}
+   */
   const handleUnhide = (chat) => {
     setChatToUnhide(chat);
     setUnhidePin("");
@@ -229,6 +372,14 @@ export default function Home() {
     setShowUnhidePinDialog(true);
   };
 
+  /**
+   * Verifies the PIN and unhides the chat if correct.
+   * Updates the chat lists after successful unhiding.
+   *
+   * @async
+   * @function confirmUnhide
+   * @returns {Promise<void>}
+   */
   const confirmUnhide = async () => {
     const ok = await API.verifyPin(chatToUnhide.chatId, unhidePin);
     if (ok) {
@@ -288,9 +439,10 @@ export default function Home() {
    * Asks for user confirmation before proceeding.
    * If confirmed, deletes the chat via API and updates the local state.
    *
+   * @async
    * @function handleDeleteChat
-   * @param {string} chatId - The ID of the chat to be deleted.
-   * @returns {Promise<void>} This function does not return anything.
+   * @param {string} chatId - The ID of the chat to be deleted
+   * @returns {Promise<void>}
    */
   const handleDeleteChat = async (chatId) => {
     if (!confirm("Are you sure you want to delete this chat?")) return;
@@ -329,7 +481,11 @@ export default function Home() {
   };
 
   /**
-   * Cancels bio editing and restores the original bio
+   * Cancels bio editing and restores the original bio.
+   * Resets the bio input to the current user's bio.
+   *
+   * @function handleBioCancel
+   * @returns {void}
    */
   const handleBioCancel = () => {
     setBio(currentUser?.bio || "");
@@ -338,10 +494,14 @@ export default function Home() {
 
   /**
    * Renders the visual status of message read/unread indicators.
+   * Shows different status indicators based on whether the user is sender or recipient.
+   *
    * @function renderReadStatus
-   * @param {string} lastUser - ID of the last user who sent a message.
-   * @param {number} unreadCount - Number of unread messages.
-   * @returns {JSX.Element|null}
+   * @param {string} lastUser - ID of the last user who sent a message
+   * @param {number} unreadCount - Number of unread messages
+   * @param {string} chatId - ID of the chat
+   * @param {string} chatType - Type of chat (individual or group)
+   * @returns {JSX.Element|null} The rendered read status indicator or null
    */
   const renderReadStatus = (lastUser, unreadCount, chatId, chatType) => {
     if (!currentUser) return null;
@@ -369,8 +529,6 @@ export default function Home() {
         );
       }
     }
-
-
     if (unreadCount > 0) {
       return (
           <span
@@ -391,11 +549,16 @@ export default function Home() {
     </span>
       );
     }
-
-
     return null;
   };
 
+  /**
+   * Formats a timestamp into a localized date-time string.
+   *
+   * @function formatTimestamp
+   * @param {string|number|Date} timestamp - The timestamp to format
+   * @returns {string} The formatted timestamp string
+   */
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);
@@ -782,171 +945,69 @@ export default function Home() {
             {/* Lista chat con stile migliorato */}
             <div style={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
               {activeTab === "hidden" && (
-                <div>
-                  {filteredChats.length === 0 ? (
-                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"}}>
-                      No Hidden Chats found
-                    </div>
-                  ) : (
-                    <div className="divide-y" style={{
-                      marginBottom: "3.5px"
-                    }}>
-                      {filteredChats.map(chat => (
-                        <div
-                          key={chat.chatId}
-                          className={clsx("hover:bg-gray-100 transition-colors duration-200", { "bg-gray-50": chat.unreadCount > 0 })}
-                          style={{
-                            padding: "12px 16px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "12px",
-                            cursor: "pointer"
-                          }}
-                          onClick={() => handleOpenHiddenChat(chat)}
-                        >
-                          <div style={{
-                            position: "relative",
-                            width: "48px",
-                            height: "48px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background: "#f3f4f6",
-                            borderRadius: "50%",
-                            border:  "2px solid transparent"
-                          }}>
-                            <User size={40} color="#6b7280" />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0}}>
-                            <div style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              marginBottom: "16px"
-                            }}>
-                              <h3 style={{
-                                fontSize: "0.95rem",
-                                fontWeight: chat.unreadCount > 0 ? 600 : 500,
-                                margin: 0,
-                                color: "#111827",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                display: "flex",
-                                alignItems: "center"
-                              }}>
-                                {chat.name}
-                                <Lock size={18} color="#990033" style={{ marginLeft: 6, verticalAlign: "middle" }} />
-                              </h3>
-                              <div style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                minWidth: "180px",
-                                justifyContent: "flex-end"
-                              }}>
-                                <span style={{
-                                  fontSize: "0.75rem",
-                                  color: "#6b7280",
-                                  whiteSpace: "nowrap"
-                                }}>
-                                  {formatTimestamp(chat.timestamp)}
-                                </span>
-                                <button
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    handleUnhide(chat);
-                                  }}
-                                  title="Rendi visibile"
+                  <div>
+                    {filteredChats.length === 0 ? (
+                        <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"}}>
+                          No Hidden Chats found
+                        </div>
+                    ) : (
+                        <div className="divide-y" style={{
+                          marginBottom: "3.5px"
+                        }}>
+                          {filteredChats.map(chat => (
+                              <div
+                                  key={chat.chatId}
+                                  className={clsx("hover:bg-gray-100 transition-colors duration-200", { "bg-gray-50": chat.unreadCount > 0 })}
                                   style={{
-                                    color: "#22c55e",
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    padding: "3px",
-                                    borderRadius: "50%",
+                                    padding: "12px 16px",
                                     display: "flex",
                                     alignItems: "center",
-                                    justifyContent: "center"
+                                    gap: "12px",
+                                    cursor: "pointer"
                                   }}
-                                  onMouseEnter={e => {
-                                    e.currentTarget.style.backgroundColor = "lightgray";
-                                  }}
-                                  onMouseLeave={e => {
-                                    e.currentTarget.style.backgroundColor = "transparent";
-                                  }}
-                                >
-                                  <Eye size={18} />
-                                </button>
-                              </div>
-                            </div>
-                            {/* Non mostrare l'ultimo messaggio */}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {activeTab !== "hidden" && (
-                filteredChats.length === 0 ? (
-                  <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"}}>
-                    No Chats found
-                  </div>
-                ) : (
-                  <div className="divide-y">
-                    {filteredChats.map(chat => (
-                        <div
-                            key={chat.chatId}
-                            className={clsx("hover:bg-gray-100 transition-colors duration-200", { "bg-gray-50": chat.unreadCount > 0 })}
-                            data-testid={`chat-${chat.name.replace(/\s+/g, "-")}`}
-                            onClick={() => handleChatClick(chat.chatId, chat.name, chat.lastUser, chat.unreadCount)}
-                            style={{
-                              padding: "12px 16px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "12px",
-                              cursor: "pointer"
-                            }}
-                        >
-                          <div style={{ position: "relative" }}>
-                            <img
-                                src={chat.avatar || "https://dummyimage.com/48x48/000/fff&text=U"}
-                                alt={chat.name}
-                                style={{
+                                  onClick={() => handleOpenHiddenChat(chat)}
+                              >
+                                <div style={{
+                                  position: "relative",
                                   width: "48px",
                                   height: "48px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  background: "#f3f4f6",
                                   borderRadius: "50%",
-                                  objectFit: "cover",
-                                  border: "2px solid transparent"
-                                }}
-                            />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              marginBottom: "2px"
-                            }}>
-                              <h3 style={{
-                                fontSize: "0.95rem",
-                                fontWeight: chat.unreadCount > 0 ? 600 : 500,
-                                margin: 0,
-                                color: "#111827",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap"
-                              }}>
-                                {chat.name}
-                              </h3>
-                              <div style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                minWidth: "180px",
-                                justifyContent: "flex-end"
-                              }}>
+                                  border:  "2px solid transparent"
+                                }}>
+                                  <User size={40} color="#6b7280" />
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0}}>
+                                  <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "16px"
+                                  }}>
+                                    <h3 style={{
+                                      fontSize: "0.95rem",
+                                      fontWeight: chat.unreadCount > 0 ? 600 : 500,
+                                      margin: 0,
+                                      color: "#111827",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      display: "flex",
+                                      alignItems: "center"
+                                    }}>
+                                      {chat.name}
+                                      <Lock size={18} color="#990033" style={{ marginLeft: 6, verticalAlign: "middle" }} />
+                                    </h3>
+                                    <div style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "8px",
+                                      minWidth: "180px",
+                                      justifyContent: "flex-end"
+                                    }}>
                                 <span style={{
                                   fontSize: "0.75rem",
                                   color: "#6b7280",
@@ -954,94 +1015,196 @@ export default function Home() {
                                 }}>
                                   {formatTimestamp(chat.timestamp)}
                                 </span>
-                                {chat.type === "individual" && (
+                                      <button
+                                          onClick={e => {
+                                            e.stopPropagation();
+                                            handleUnhide(chat);
+                                          }}
+                                          title="Rendi visibile"
+                                          style={{
+                                            color: "#22c55e",
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            padding: "3px",
+                                            borderRadius: "50%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center"
+                                          }}
+                                          onMouseEnter={e => {
+                                            e.currentTarget.style.backgroundColor = "lightgray";
+                                          }}
+                                          onMouseLeave={e => {
+                                            e.currentTarget.style.backgroundColor = "transparent";
+                                          }}
+                                      >
+                                        <Eye size={18} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {/* Non mostrare l'ultimo messaggio */}
+                                </div>
+                              </div>
+                          ))}
+                        </div>
+                    )}
+                  </div>
+              )}
+              {activeTab !== "hidden" && (
+                  filteredChats.length === 0 ? (
+                      <div style={{display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"}}>
+                        No Chats found
+                      </div>
+                  ) : (
+                      <div className="divide-y">
+                        {filteredChats.map(chat => (
+                            <div
+                                key={chat.chatId}
+                                className={clsx("hover:bg-gray-100 transition-colors duration-200", { "bg-gray-50": chat.unreadCount > 0 })}
+                                data-testid={`chat-${chat.name.replace(/\s+/g, "-")}`}
+                                onClick={() => handleChatClick(chat.chatId, chat.name, chat.lastUser, chat.unreadCount)}
+                                style={{
+                                  padding: "12px 16px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "12px",
+                                  cursor: "pointer"
+                                }}
+                            >
+                              <div style={{ position: "relative" }}>
+                                <img
+                                    src={chat.avatar || "https://dummyimage.com/48x48/000/fff&text=U"}
+                                    alt={chat.name}
+                                    style={{
+                                      width: "48px",
+                                      height: "48px",
+                                      borderRadius: "50%",
+                                      objectFit: "cover",
+                                      border: "2px solid transparent"
+                                    }}
+                                />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  marginBottom: "2px"
+                                }}>
+                                  <h3 style={{
+                                    fontSize: "0.95rem",
+                                    fontWeight: chat.unreadCount > 0 ? 600 : 500,
+                                    margin: 0,
+                                    color: "#111827",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap"
+                                  }}>
+                                    {chat.name}
+                                  </h3>
+                                  <div style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    minWidth: "180px",
+                                    justifyContent: "flex-end"
+                                  }}>
+                                <span style={{
+                                  fontSize: "0.75rem",
+                                  color: "#6b7280",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  {formatTimestamp(chat.timestamp)}
+                                </span>
+                                    {chat.type === "individual" && (
+                                        <button
+                                            onClick={e => {
+                                              e.stopPropagation();
+                                              handleDeleteChat(chat.chatId);
+                                            }}
+                                            title="Delete Chat"
+                                            style={{
+                                              color: "#f43f5e",
+                                              background: "none",
+                                              border: "none",
+                                              cursor: "pointer",
+                                              padding: "3px",
+                                              borderRadius: "50%",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center"
+                                            }}
+                                            onMouseEnter={e => {
+                                              e.currentTarget.style.backgroundColor = "#fee2e2";
+                                            }}
+                                            onMouseLeave={e => {
+                                              e.currentTarget.style.backgroundColor = "transparent";
+                                            }}
+                                        >
+                                          <Trash size={16} />
+                                        </button>
+                                    )}
                                     <button
                                         onClick={e => {
                                           e.stopPropagation();
-                                          handleDeleteChat(chat.chatId);
+                                          handleHideChat(chat);
                                         }}
-                                        title="Delete Chat"
+                                        title="Nascondi Chat"
                                         style={{
-                                          color: "#f43f5e",
+                                          color: "#6366f1",
                                           background: "none",
                                           border: "none",
                                           cursor: "pointer",
                                           padding: "3px",
                                           borderRadius: "50%",
+                                          marginLeft: "4px",
                                           display: "flex",
                                           alignItems: "center",
                                           justifyContent: "center"
                                         }}
                                         onMouseEnter={e => {
-                                          e.currentTarget.style.backgroundColor = "#fee2e2";
+                                          e.currentTarget.style.backgroundColor = "lightgray";
                                         }}
                                         onMouseLeave={e => {
                                           e.currentTarget.style.backgroundColor = "transparent";
                                         }}
                                     >
-                                      <Trash size={16} />
+                                      <EyeOff size={18} />
                                     </button>
-                                )}
-                                <button
-                                    onClick={e => {
-                                      e.stopPropagation();
-                                      handleHideChat(chat);
-                                    }}
-                                    title="Nascondi Chat"
-                                    style={{
-                                      color: "#6366f1",
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "pointer",
-                                      padding: "3px",
-                                      borderRadius: "50%",
-                                      marginLeft: "4px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center"
-                                    }}
-                                    onMouseEnter={e => {
-                                      e.currentTarget.style.backgroundColor = "lightgray";
-                                    }}
-                                    onMouseLeave={e => {
-                                      e.currentTarget.style.backgroundColor = "transparent";
-                                    }}
-                                >
-                                  <EyeOff size={18} />
-                                </button>
-                              </div>
-                            </div>
-                            <div style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "4px"
-                            }}>
-                              {renderReadStatus(chat.lastUser, chat.unreadCount, chat.chatId, chat.type) && (
-                                  <span style={{
-                                    fontSize: chat.unreadCount > 0 ? "0.75rem" : "0.7rem",
-                                    color: chat.unreadCount > 0 ? "#ef4444" : "#64748b",
-                                    fontWeight: chat.unreadCount > 0 ? 600 : 400
-                                  }}>
+                                  </div>
+                                </div>
+                                <div style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "4px"
+                                }}>
+                                  {renderReadStatus(chat.lastUser, chat.unreadCount, chat.chatId, chat.type) && (
+                                      <span style={{
+                                        fontSize: chat.unreadCount > 0 ? "0.75rem" : "0.7rem",
+                                        color: chat.unreadCount > 0 ? "#ef4444" : "#64748b",
+                                        fontWeight: chat.unreadCount > 0 ? 600 : 400
+                                      }}>
                             {renderReadStatus(chat.lastUser, chat.unreadCount, chat.chatId, chat.type)}
                           </span>
-                              )}
-                              <span style={{
-                                fontSize: "0.85rem",
-                                color: "#6b7280",
-                                fontWeight: chat.unreadCount > 0 ? 500 : 400,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                flex: 1
-                              }}>
+                                  )}
+                                  <span style={{
+                                    fontSize: "0.85rem",
+                                    color: "#6b7280",
+                                    fontWeight: chat.unreadCount > 0 ? 500 : 400,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    flex: 1
+                                  }}>
                           {chat.lastMessage || "No messages yet"}
                         </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                    ))}
-                  </div>
-                )
+                        ))}
+                      </div>
+                  )
               )}
             </div>
           </div>
@@ -1100,57 +1263,57 @@ export default function Home() {
               <div style={{ background: "white", padding: "24px", borderRadius: "8px", minWidth: "300px" }}>
                 <h3 style={{ marginBottom: "16px" }}>Enter PIN to hide the Chat</h3>
                 <input
-                  type="password"
-                  value={pin}
-                  onChange={e => setPin(e.target.value)}
-                  style={{
-                    width: "100%",
-                    margin: "5px 0 10px -6px",
-                    padding: "5px",
-                    borderRadius: "6px",
-                    border: "1px solid #d1d5db",
-                    fontSize: "1rem",
-                    outline: "none"
-                  }}
+                    type="password"
+                    value={pin}
+                    onChange={e => setPin(e.target.value)}
+                    style={{
+                      width: "100%",
+                      margin: "5px 0 10px -6px",
+                      padding: "5px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "1rem",
+                      outline: "none"
+                    }}
                 />
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                   <button
-                    onClick={() => setShowHideDialog(false)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      fontSize: "0.95rem",
-                      color: "#374151",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                      onClick={() => setShowHideDialog(false)}
+                      style={{
+                        backgroundColor: "transparent",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        fontSize: "0.95rem",
+                        color: "#374151",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     Undo
                   </button>
                   <button
-                    onClick={confirmHideChat}
-                    disabled={!pin}
-                    style={{
-                      backgroundColor: "#990033",
-                      border: "none",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      color: "white",
-                      fontSize: "0.95rem",
-                      cursor: !pin ? "not-allowed" : "pointer",
-                      opacity: !pin ? 0.7 : 1,
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => { if (pin) e.currentTarget.style.backgroundColor = "#660022"; }}
-                    onMouseLeave={e => { if (pin) e.currentTarget.style.backgroundColor = "#990033"; }}
+                      onClick={confirmHideChat}
+                      disabled={!pin}
+                      style={{
+                        backgroundColor: "#990033",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        color: "white",
+                        fontSize: "0.95rem",
+                        cursor: !pin ? "not-allowed" : "pointer",
+                        opacity: !pin ? 0.7 : 1,
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => { if (pin) e.currentTarget.style.backgroundColor = "#660022"; }}
+                      onMouseLeave={e => { if (pin) e.currentTarget.style.backgroundColor = "#990033"; }}
                   >
                     Confirm
                   </button>
@@ -1166,56 +1329,56 @@ export default function Home() {
               <div style={{ background: "white", padding: "24px", borderRadius: "8px", minWidth: "300px" }}>
                 <h3 style={{ marginBottom: "16px" }}>Enter PIN to access the Chat</h3>
                 <input
-                  type="password"
-                  value={enteredPin}
-                  onChange={e => setEnteredPin(e.target.value)}
-                  style={{
-                    width: "100%",
-                    margin: "5px 0 10px -6px",
-                    padding: "5px",
-                    borderRadius: "6px",
-                    border: "1px solid #d1d5db",
-                    fontSize: "1rem",
-                    outline: "none"
-                  }}
+                    type="password"
+                    value={enteredPin}
+                    onChange={e => setEnteredPin(e.target.value)}
+                    style={{
+                      width: "100%",
+                      margin: "5px 0 10px -6px",
+                      padding: "5px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "1rem",
+                      outline: "none"
+                    }}
                 />
                 {pinError && <div style={{ color: "red", marginBottom: "8px" }}>{pinError}</div>}
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                   <button
-                    onClick={() => setShowPinDialog(false)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      fontSize: "0.95rem",
-                      color: "#374151",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                      onClick={() => setShowPinDialog(false)}
+                      style={{
+                        backgroundColor: "transparent",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        fontSize: "0.95rem",
+                        color: "#374151",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     Undo
                   </button>
                   <button
-                    onClick={confirmPin}
-                    style={{
-                      backgroundColor: "#990033",
-                      border: "none",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      color: "white",
-                      fontSize: "0.95rem",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#660022"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#990033"}
+                      onClick={confirmPin}
+                      style={{
+                        backgroundColor: "#990033",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        color: "white",
+                        fontSize: "0.95rem",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#660022"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "#990033"}
                   >
                     Access
                   </button>
@@ -1231,56 +1394,56 @@ export default function Home() {
               <div style={{ background: "white", padding: "24px", borderRadius: "8px", minWidth: "300px" }}>
                 <h3 style={{ marginBottom: "16px" }}>Enter PIN to unhide the Chat</h3>
                 <input
-                  type="password"
-                  value={unhidePin}
-                  onChange={e => setUnhidePin(e.target.value)}
-                  style={{
-                    width: "100%",
-                    margin: "5px 0 10px -6px",
-                    padding: "5px",
-                    borderRadius: "6px",
-                    border: "1px solid #d1d5db",
-                    fontSize: "1rem",
-                    outline: "none"
-                  }}
+                    type="password"
+                    value={unhidePin}
+                    onChange={e => setUnhidePin(e.target.value)}
+                    style={{
+                      width: "100%",
+                      margin: "5px 0 10px -6px",
+                      padding: "5px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "1rem",
+                      outline: "none"
+                    }}
                 />
                 {unhidePinError && <div style={{ color: "red", marginBottom: "8px" }}>{unhidePinError}</div>}
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                   <button
-                    onClick={() => setShowUnhidePinDialog(false)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      fontSize: "0.95rem",
-                      color: "#374151",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                      onClick={() => setShowUnhidePinDialog(false)}
+                      style={{
+                        backgroundColor: "transparent",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        fontSize: "0.95rem",
+                        color: "#374151",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     Undo
                   </button>
                   <button
-                    onClick={confirmUnhide}
-                    style={{
-                      backgroundColor: "#990033",
-                      border: "none",
-                      borderRadius: "4px",
-                      padding: "6px 14px",
-                      color: "white",
-                      fontSize: "0.95rem",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#660022"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#990033"}
+                      onClick={confirmUnhide}
+                      style={{
+                        backgroundColor: "#990033",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "6px 14px",
+                        color: "white",
+                        fontSize: "0.95rem",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "background-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "#660022"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "#990033"}
                   >
                     Unhide
                   </button>
