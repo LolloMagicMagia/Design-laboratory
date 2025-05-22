@@ -1,9 +1,11 @@
 package com.example.bicoChat_backend.service;
 
+import com.google.firebase.auth.UserRecord;
 import com.google.firebase.database.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -147,8 +149,64 @@ public class FirebaseService {
     }
 
 
+    /**
+     * Initializes a user in Firebase if they do not already exist.
+     *
+     * @param userRecord Firebase user record.
+     */
+    public void initializeUserIfMissing(UserRecord userRecord) {
+        String uid = userRecord.getUid();
+        DatabaseReference userRef = databaseReference.child("users/" + uid);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Map<String, Object> userData = getStringObjectMap(userRecord);
+                    userData.put("email", userRecord.getEmail());
+                    userRef.setValueAsync(userData);
+                    System.out.println("User created on Realtime DB: " + uid);
+                } else {
+                    String dbEmail = snapshot.child("email").getValue(String.class);
+                    String authEmail = userRecord.getEmail();
+                    if (authEmail != null && (dbEmail == null || !authEmail.equals(dbEmail))) {
+                        userRef.child("email").setValueAsync(authEmail);
+                    }
+                    System.out.println("User already present on Realtime DB: " + uid);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.err.println("Error during user handling: " + error.getMessage());
+            }
+        });
+    }
+
+
     public void listenToUsersChanges(ValueEventListener listener) {
         databaseReference.child("users").addValueEventListener(listener);
     }
 
+
+    /**
+     * Converts user data from FirebaseUserRecord to a map format for Firebase Realtime Database.
+     *
+     * @param userRecord Firebase user record.
+     * @return Map containing user data.
+     */
+    private static Map<String, Object> getStringObjectMap(UserRecord userRecord) {
+        String username;
+        if (userRecord.getDisplayName() != null && !userRecord.getDisplayName().isEmpty()) {
+            username = userRecord.getDisplayName(); // Google Auth
+        } else if (userRecord.getEmail() != null) {
+            username = userRecord.getEmail(); // Email/pass
+        } else {
+            username = "Unknown User";
+        }
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("status", "offline");
+        userData.put("username", username);
+        return userData;
+    }
 }
