@@ -131,6 +131,83 @@ public class UserService {
                 });
     }
 
+    /**
+     * Updates the profile of a user, including their first name, last name, and avatar.
+     *
+     * @param userId The ID of the user to update
+     * @param firstName The user's first name
+     * @param lastName The user's last name
+     * @param avatar The user's avatar
+     */
+    public void updateUserProfile(String userId, String firstName, String lastName, String avatar) {
+        String username = firstName + " " + lastName;
+
+        firebaseService.get("users/" + userId, User.class).thenAccept(existingUser -> {
+            if (existingUser != null) {
+                existingUser.setFirstName(firstName);
+                existingUser.setLastName(lastName);
+                existingUser.setUsername(username);
+                existingUser.setAvatar(avatar);
+
+                firebaseService.set("users/" + userId, existingUser);
+
+                // Retrieve all user's chats
+                firebaseService.getWithTypeIndicator("users/" + userId + "/chatUser", new GenericTypeIndicator<Map<String, User.ChatInfo>>() {})
+                        .thenAccept(chatUserMap -> {
+                            if (chatUserMap != null) {
+                                chatUserMap.keySet().forEach(chatId -> {
+
+                                    // For each chat, check if it's an individual chat
+                                    firebaseService.get("chats/" + chatId + "/type", String.class)
+                                            .thenAccept(chatType -> {
+                                                if (!"group".equals(chatType)) {
+                                                    // Retrieve the participants of the chat
+                                                    firebaseService.getWithTypeIndicator("chats/" + chatId + "/participants", new GenericTypeIndicator<List<String>>() {})
+                                                            .thenAccept(participants -> {
+                                                                if (participants != null) {
+                                                                    for (String otherUid : participants) {
+                                                                        if (!otherUid.equals(userId)) {
+                                                                            String path = "users/" + otherUid + "/chatUser/" + chatId + "/title";
+                                                                            firebaseService.set(path, username);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            });
+                                                }
+                                            });
+                                });
+                            }
+                        });
+            }
+        });
+    }
+
+    /**
+     * Updates the bio of a user.
+     *
+     * @param uid The ID of the user to update
+     * @param bio The new bio for the user
+     * @return A CompletableFuture indicating the success or failure of the operation
+     */
+    public CompletableFuture<Void> updateUserBio(String uid, String bio) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("bio", bio);
+        return firebaseService.update("users/" + uid, updates);
+    }
+
+    /**
+     * Updates the status of a user.
+     *
+     * @param userId The ID of the user to update
+     * @param status The new status for the user
+     * @return A CompletableFuture indicating the success or failure of the operation
+     */
+    public CompletableFuture<Void> updateUserStatus(String userId, String status) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", status);
+        return firebaseService.update(USERS_PATH + "/" + userId, updates);
+    }
+
 
 
 }
