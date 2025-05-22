@@ -1,16 +1,99 @@
+variables:
+  # Docker vars
+  DOCKER_DRIVER: "overlay2"
+  DOCKER_TLS_CERTDIR: ""
+  # Project dirs
+  FRONTEND_DIR: "./frontend"
+  BACKEND_DIR: "./bicoChat_backend"
+
 stages:
+  - validate
+  - static-analysis
   - build
   - test
   - deploy
 
-variables:
-  # Variabili per Docker
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
+# Job per validare il frontend
+validate-frontend:
+  stage: validate
+  image: node:20
+  script:
+    - cd $FRONTEND_DIR
+    - echo "Checking Node.js and npm versions"
+    - node --version
+    - npm --version
+    - echo "Installing dependencies"
+    - npm ci
+    - echo "Checking package.json"
+    - npm ls --depth=0
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
+  allow_failure: true
 
-  # Variabili per il progetto
-  FRONTEND_DIR: "./frontend"
-  BACKEND_DIR: "./bicoChat_backend"
+# Job per validare il backend
+validate-backend:
+  stage: validate
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Checking Java and Maven versions"
+    - java -version
+    - mvn --version
+    - echo "Validating project structure"
+    - mvn validate
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+  allow_failure: true
+
+static-checkstyle:
+  stage: static-analysis
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Eseguo Checkstyle..."
+    - mvn checkstyle:check
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+  needs:
+    - validate-backend
+  allow_failure: false
+
+static-pmd:
+  stage: static-analysis
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Eseguo PMD..."
+    - mvn pmd:check
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+  needs:
+    - validate-backend
+  allow_failure: false
+
+static-spotbugs:
+  stage: static-analysis
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - echo "Eseguo SpotBugs..."
+    - mvn spotbugs:check
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - $BACKEND_DIR/.m2/
+  needs:
+    - validate-backend
+  allow_failure: false
+
 
 # Job per costruire il frontend Next.js
 build-frontend:
@@ -19,15 +102,19 @@ build-frontend:
   script:
     - cd $FRONTEND_DIR
     - npm ci
+    - echo "Building frontend application..."
     - npm run build -- --no-lint
+    - echo "Frontend build completed successfully!"
   artifacts:
     paths:
       - $FRONTEND_DIR/.next/
-    expire_in: 1 hour
+    expire_in: 1 day
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend
     paths:
       - $FRONTEND_DIR/node_modules/
+  needs:
+    - validate-frontend
 
 # Job per costruire il backend Spring Boot
 build-backend:
@@ -36,23 +123,31 @@ build-backend:
   script:
     - cd $BACKEND_DIR
     - mvn package -B -DskipTests
+    - echo "Backend build completed successfully!"
+    - ls -la target/*.jar
+    - echo "JAR_FILE=$(find \"$BACKEND_DIR/target\" -name '*.jar' | head -1)" > build.env
+
   artifacts:
     paths:
       - $BACKEND_DIR/target/*.jar
-    expire_in: 1 hour
+    expire_in: 1 day
   cache:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
+  needs:
+    - validate-backend
 
 # Job per testare il frontend
 test-frontend:
   stage: test
+  when: always
   image: node:20
   script:
     - cd $FRONTEND_DIR
     - npm ci
     - npm run lint
+    - npm run test_selenium
   dependencies:
     - build-frontend
   cache:
@@ -63,6 +158,7 @@ test-frontend:
 # Job per testare il backend
 test-backend:
   stage: test
+  when: always
   image: maven:3-eclipse-temurin-21
   script:
     - cd $BACKEND_DIR
@@ -73,6 +169,36 @@ test-backend:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - $BACKEND_DIR/.m2/
+
+
+# Selenium E2E tests
+selenium-e2e:
+  stage: test
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    SELENIUM_IMAGE: selenium/standalone-chrome:latest
+  when: always
+  allow_failure: true
+  script:
+    - docker-compose up -d --build
+    - |
+      for i in $(seq 1 30); do
+        docker-compose exec -T -e NODE_ENV=development frontend curl -s http://localhost:3000 && break
+        sleep 2
+      done
+    - docker-compose exec -T -e NODE_ENV=development frontend npm ci
+    - docker-compose exec -T frontend npm run test_selenium
+    - docker-compose down
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - $FRONTEND_DIR/node_modules/
+
+
 
 # Job per deploy del frontend (placeholder)
 deploy-frontend:
@@ -105,3 +231,8 @@ deploy-backend:
   only:
     - develop
   when: manual
+
+
+
+
+
