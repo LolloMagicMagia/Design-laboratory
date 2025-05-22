@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["src/app"],
+    "include": ["src/app", "src/lib"],
     "includePattern": ".+\\.(js|jsx)$",
     "exclude": ["**/node_modules/**"]
   },
