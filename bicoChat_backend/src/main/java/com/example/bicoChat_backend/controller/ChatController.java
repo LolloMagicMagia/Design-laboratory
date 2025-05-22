@@ -126,6 +126,7 @@ public class ChatController {
                 });
     }
 
+
     @Operation(
             summary = "Delete chat",
             description = "Deletes any chat (individual or group) by its ID."

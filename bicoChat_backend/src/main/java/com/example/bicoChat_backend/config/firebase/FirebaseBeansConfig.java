@@ -17,16 +17,6 @@ public class FirebaseBeansConfig {
     @Value("${DATABASE_URL}")
     private String databaseUrl;
 
-
-/* Firestore
-
-    @Bean
-    @DependsOn("firebaseApp")
-    public Firestore firestoreDatabase() {
-        return FirestoreClient.getFirestore();
-    }
-*/
-
     /**
      * Bean for Firebase Authentication
      */
@@ -54,15 +44,4 @@ public class FirebaseBeansConfig {
         return StorageClient.getInstance();
     }
 
-    /*
-     * Bean for Firebase Cloud Messaging
-
-    @Bean
-    @DependsOn("firebaseApp")
-    public FirebaseMessaging firebaseMessaging() {
-        return FirebaseMessaging.getInstance();
-    }
-
-     */
 }
-
