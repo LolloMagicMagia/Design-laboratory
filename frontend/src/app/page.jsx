@@ -149,6 +149,7 @@ export default function Home() {
 
   const router = useRouter();
 
+
   /**
    * Fetches the current user and their chat list on component mount.
    * Retrieves chat data and sets application state.
@@ -876,6 +877,7 @@ export default function Home() {
               backgroundColor: "#f9fafb"
             }}>
               <button
+                  id="all-chats"
                   onClick={() => setActiveTab("all")}
                   style={{
                     padding: "10px 16px",
@@ -924,6 +926,7 @@ export default function Home() {
                 Groups
               </button>
               <button
+                  id="hidden-chats-list"
                   onClick={() => setActiveTab("hidden")}
                   style={{
                     padding: "10px 16px",
@@ -1020,6 +1023,7 @@ export default function Home() {
                                             e.stopPropagation();
                                             handleUnhide(chat);
                                           }}
+                                          id='make-it-visible'
                                           title="Rendi visibile"
                                           style={{
                                             color: "#22c55e",
@@ -1119,6 +1123,7 @@ export default function Home() {
                                 </span>
                                     {chat.type === "individual" && (
                                         <button
+                                            id = "trash-button"
                                             onClick={e => {
                                               e.stopPropagation();
                                               handleDeleteChat(chat.chatId);
@@ -1150,6 +1155,7 @@ export default function Home() {
                                           e.stopPropagation();
                                           handleHideChat(chat);
                                         }}
+                                        id="hide-chat-button"
                                         title="Nascondi Chat"
                                         style={{
                                           color: "#6366f1",
@@ -1188,7 +1194,7 @@ export default function Home() {
                             {renderReadStatus(chat.lastUser, chat.unreadCount, chat.chatId, chat.type)}
                           </span>
                                   )}
-                                  <span style={{
+                                  <span id="last-message" style={{
                                     fontSize: "0.85rem",
                                     color: "#6b7280",
                                     fontWeight: chat.unreadCount > 0 ? 500 : 400,
@@ -1210,7 +1216,7 @@ export default function Home() {
           </div>
 
           {/* Floating action button per nuova chat */}
-          <div style={{ position: "fixed", bottom: "20px", right: "20px", zIndex: 10 }}>
+          <div id = "new-chat-button" style={{ position: "fixed", bottom: "20px", right: "20px", zIndex: 10 }}>
             <Link href="/new-chat" style={{
               display: "flex",
               alignItems: "center",
@@ -1263,6 +1269,7 @@ export default function Home() {
               <div style={{ background: "white", padding: "24px", borderRadius: "8px", minWidth: "300px" }}>
                 <h3 style={{ marginBottom: "16px" }}>Enter PIN to hide the Chat</h3>
                 <input
+                    id="hide-password"
                     type="password"
                     value={pin}
                     onChange={e => setPin(e.target.value)}
@@ -1296,24 +1303,24 @@ export default function Home() {
                   >
                     Undo
                   </button>
-                  <button
-                      onClick={confirmHideChat}
-                      disabled={!pin}
-                      style={{
-                        backgroundColor: "#990033",
-                        border: "none",
-                        borderRadius: "4px",
-                        padding: "6px 14px",
-                        color: "white",
-                        fontSize: "0.95rem",
-                        cursor: !pin ? "not-allowed" : "pointer",
-                        opacity: !pin ? 0.7 : 1,
-                        display: "flex",
-                        alignItems: "center",
-                        transition: "background-color 0.2s"
-                      }}
-                      onMouseEnter={e => { if (pin) e.currentTarget.style.backgroundColor = "#660022"; }}
-                      onMouseLeave={e => { if (pin) e.currentTarget.style.backgroundColor = "#990033"; }}
+                  <button id="confirm-HideChat"
+                          onClick={confirmHideChat}
+                          disabled={!pin}
+                          style={{
+                            backgroundColor: "#990033",
+                            border: "none",
+                            borderRadius: "4px",
+                            padding: "6px 14px",
+                            color: "white",
+                            fontSize: "0.95rem",
+                            cursor: !pin ? "not-allowed" : "pointer",
+                            opacity: !pin ? 0.7 : 1,
+                            display: "flex",
+                            alignItems: "center",
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseEnter={e => { if (pin) e.currentTarget.style.backgroundColor = "#660022"; }}
+                          onMouseLeave={e => { if (pin) e.currentTarget.style.backgroundColor = "#990033"; }}
                   >
                     Confirm
                   </button>
@@ -1394,6 +1401,7 @@ export default function Home() {
               <div style={{ background: "white", padding: "24px", borderRadius: "8px", minWidth: "300px" }}>
                 <h3 style={{ marginBottom: "16px" }}>Enter PIN to unhide the Chat</h3>
                 <input
+                    id="unhide-password"
                     type="password"
                     value={unhidePin}
                     onChange={e => setUnhidePin(e.target.value)}
@@ -1429,6 +1437,7 @@ export default function Home() {
                     Undo
                   </button>
                   <button
+                      id="unhide-button"
                       onClick={confirmUnhide}
                       style={{
                         backgroundColor: "#990033",
