@@ -518,11 +518,11 @@ export default function ChatPage() {
           <p style={{ color: "#6b7280", fontSize: "14px" }}>Loading chat...</p>
         </div>
         <style jsx>{`
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `}</style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
   );
   if (error) return <div className="text-red-500 p-4">{error}</div>;
@@ -570,18 +570,18 @@ export default function ChatPage() {
               alignItems: "center",
               gap: "0.75rem"
             }}>
-              <button
-                  onClick={() => router.push("/")}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "white",
-                    cursor: "pointer",
-                    padding: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
+              <button id = "back-button"
+                      onClick={() => router.push("/")}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "white",
+                        cursor: "pointer",
+                        padding: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
               >
                 <ArrowLeft size={24} />
               </button>
