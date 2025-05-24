@@ -1,5 +1,6 @@
 package com.example.bicoChat_backend.service.google;
 
+import com.example.bicoChat_backend.service.FirebaseService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -13,6 +14,11 @@ import java.util.Map;
 @Service
 public class GoogleAuthService {
 
+    private final FirebaseService firebaseService;
+
+    public GoogleAuthService(FirebaseService firebaseService) {
+        this.firebaseService = firebaseService;
+    }
     /**
      * Verifies the Google token ID and gets user's information
      * @param idToken Google token ID.
@@ -27,6 +33,8 @@ public class GoogleAuthService {
             try {
                 // Obtains the user's data from Firebase if present
                 userRecord = FirebaseAuth.getInstance().getUser(decodedToken.getUid());
+                // Add the user on realtime DB
+                firebaseService.initializeUserIfMissing(userRecord);
             } catch (FirebaseAuthException e) {
                 // Create the user's data on Firebase if it's not present
                 CreateRequest request = new CreateRequest()

@@ -18,5 +18,5 @@ export default function RedirectBack() {
         return () => clearTimeout(timeout);
     }, [router]);
 
-    return <div className="p-4 text-center text-gray-500">Reindirizzamento...</div>;
+    return <div className="p-4 text-center text-gray-500">Redirection...</div>;
 }
