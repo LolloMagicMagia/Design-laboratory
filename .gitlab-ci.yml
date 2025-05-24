@@ -6,11 +6,18 @@ variables:
   FRONTEND_DIR: "./frontend"
   BACKEND_DIR: "./bicoChat_backend"
 
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
+
 stages:
   - validate
   - static-analysis
   - build
   - test
+  - docs
   - deploy
 
 # Job per validare il frontend
@@ -198,6 +205,30 @@ selenium-e2e:
     paths:
       - $FRONTEND_DIR/node_modules/
 
+generate-docs-frontend:
+  stage: docs
+  image: node:20
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+    - npx jsdoc -c jsdoc.json -d docs   # o “npm run docs” se hai uno script dedicato
+  artifacts:
+    name: "frontend-docs-$CI_COMMIT_REF_SLUG"
+    paths:
+      - $FRONTEND_DIR/docs
+    expire_in: 1 week
+
+generate-docs-backend:
+  stage: docs
+  image: maven:3-eclipse-temurin-21
+  script:
+    - cd $BACKEND_DIR
+    - mvn javadoc:javadoc
+  artifacts:
+    name: "backend-javadoc-$CI_COMMIT_REF_SLUG"
+    paths:
+      - $BACKEND_DIR/target/site/apidocs
+    expire_in: 1 week
 
 
 # Job per deploy del frontend (placeholder)
