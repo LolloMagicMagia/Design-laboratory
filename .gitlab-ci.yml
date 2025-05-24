@@ -7,10 +7,10 @@ variables:
   BACKEND_DIR: "./bicoChat_backend"
 
 workflow:
-   rules:
-     - if: '$CI_COMMIT_BRANCH == "main"'
-       when: always
-     - when: never
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
 
 stages:
   - validate
