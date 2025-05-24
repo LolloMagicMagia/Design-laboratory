@@ -2,7 +2,9 @@ package com.example.bicoChat_backend.dto.response;
 
 import com.example.bicoChat_backend.model.Message;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class MessageResponse {
     @JsonProperty("id")
     private String id;
@@ -18,16 +20,8 @@ public class MessageResponse {
         this.message = message;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Message getMessage() {
-        return message;
     }
 
     public void setMessage(Message message) {
