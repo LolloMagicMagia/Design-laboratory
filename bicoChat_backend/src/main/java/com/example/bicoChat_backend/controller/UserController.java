@@ -1,7 +1,6 @@
 package com.example.bicoChat_backend.controller;
 
 import com.example.bicoChat_backend.dto.response.UserResponse;
-import com.example.bicoChat_backend.model.User;
 import com.example.bicoChat_backend.service.FirebaseService;
 import com.example.bicoChat_backend.service.UserService;
 import com.google.firebase.database.*;
@@ -15,10 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

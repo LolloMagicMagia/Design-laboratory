@@ -754,9 +754,9 @@ public class ChatService {
                 // 🔒 Controlli permessi
                 if (!requesterId.equals(targetUserId)) {
                     if (isRequesterCreator) {
-                        // Il creatore può rimuovere tutti tranne se stesso → già garantito
+                        System.out.println("[DEBUG] Il creatore ha autorizzazione implicita per rimuovere utenti.");
                     } else if (isRequesterAdmin && !isTargetAdmin) {
-                        // Admin può rimuovere solo membri
+                        System.out.println("[DEBUG] L'admin ha autorizzazione per rimuovere un membro.");
                     } else {
                         throw new SecurityException("Non hai i permessi per rimuovere questo utente.");
                     }
