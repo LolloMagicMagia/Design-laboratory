@@ -128,6 +128,223 @@ public class ChatController {
 
 
     @Operation(
+            summary = "Create group chat",
+            description = "Creates a new group chat with the specified members and metadata.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request payload containing group chat creation details",
+                    required = true
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Group chat created successfully"),
+            @ApiResponse(responseCode = "500", description = "Error occurred while creating the group chat")
+    })
+    @PostMapping("/createGroup")
+    public ResponseEntity<String> createGroupChat(@RequestBody CreateGroupRequest request) {
+        try {
+            chatService.createGroupChat(request);
+            return ResponseEntity.ok("Chat di gruppo creata con successo.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nella creazione della chat di gruppo: " + e.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Update group chat information",
+            description = "Updates metadata of a group chat such as name or image.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Payload containing updated group chat information",
+                    required = true
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Group updated successfully"),
+            @ApiResponse(responseCode = "403", description = "You do not have permission to modify the group"),
+            @ApiResponse(responseCode = "500", description = "Error occurred while updating the group")
+    })
+    @PatchMapping("/{chatId}")
+    public ResponseEntity<String> updateGroupInfo(
+            @PathVariable String chatId,
+            @RequestBody GroupUpdateRequest request
+    ) {
+        try {
+            chatService.updateGroupInfo(chatId, request);
+            return ResponseEntity.ok("Gruppo aggiornato con successo.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Non hai i permessi per modificare il gruppo.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore aggiornamento gruppo.");
+        }
+    }
+
+    @Operation(
+            summary = "Update user role in a group chat",
+            description = "Updates the role of a user within a specific group chat, for example promoting a member to admin.",
+            parameters = {
+                    @Parameter(
+                            name = "chatId",
+                            description = "The unique identifier of the group chat",
+                            required = true,
+                            in = ParameterIn.PATH
+                    )
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request payload containing the target user and the new role to assign",
+                    required = true
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role updated successfully"),
+            @ApiResponse(responseCode = "403", description = "Permission denied to update role"),
+            @ApiResponse(responseCode = "500", description = "Internal server error while updating role")
+    })
+    @PatchMapping("/{chatId}/role")
+    public ResponseEntity<String> updateUserRole(
+            @PathVariable String chatId,
+            @RequestBody RoleUpdateRequest request
+    ) {
+        try {
+            chatService.updateUserRole(chatId, request);
+            return ResponseEntity.ok("Ruolo aggiornato.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Permesso negato.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore aggiornamento ruolo.");
+        }
+    }
+
+    @Operation(
+            summary = "Remove user from group chat",
+            description = "Removes a specified user from a group chat if the requester has the necessary permissions.",
+            parameters = {
+                    @Parameter(
+                            name = "chatId",
+                            description = "The ID of the group chat",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "targetUserId",
+                            description = "The ID of the user to be removed from the group",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "requesterId",
+                            description = "The ID of the user requesting the removal",
+                            required = true,
+                            in = ParameterIn.QUERY
+                    )
+            }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User successfully removed from the group"),
+            @ApiResponse(responseCode = "403", description = "Permission denied to remove user"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during user removal")
+    })
+    @DeleteMapping("/{chatId}/user/{targetUserId}")
+    public ResponseEntity<String> removeUserFromGroup(
+            @PathVariable String chatId,
+            @PathVariable String targetUserId,
+            @RequestParam String requesterId
+    ) {
+        try {
+            chatService.removeUserFromGroup(chatId, targetUserId, requesterId);
+            return ResponseEntity.ok("Utente rimosso con successo.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Permesso negato.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la rimozione dell'utente.");
+        }
+    }
+
+    @Operation(
+            summary = "Delete group chat",
+            description = "Deletes an entire group chat if the requester has the necessary permissions.",
+            parameters = {
+                    @Parameter(
+                            name = "chatId",
+                            description = "The ID of the group chat to delete",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "requesterId",
+                            description = "The ID of the user requesting the deletion",
+                            required = true,
+                            in = ParameterIn.QUERY
+                    )
+            }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Group deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Not authorized to delete the group"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during group deletion")
+    })
+    @DeleteMapping("/group/{chatId}")
+    public ResponseEntity<String> deleteGroupChat(
+            @PathVariable String chatId,
+            @RequestParam String requesterId
+    ) {
+        try {
+            chatService.deleteGroupChat(chatId, requesterId);
+            return ResponseEntity.ok("Gruppo eliminato.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Non sei autorizzato a eliminare il gruppo.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'eliminazione del gruppo.");
+        }
+    }
+
+    @Operation(
+            summary = "Add user to group chat",
+            description = "Adds a user to a group chat if the requester has the necessary permissions.",
+            parameters = {
+                    @Parameter(
+                            name = "chatId",
+                            description = "ID of the group chat",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "userId",
+                            description = "ID of the user to be added to the group",
+                            required = true,
+                            in = ParameterIn.PATH
+                    ),
+                    @Parameter(
+                            name = "requesterId",
+                            description = "ID of the user performing the add operation",
+                            required = true,
+                            in = ParameterIn.QUERY
+                    )
+            }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User successfully added to the group"),
+            @ApiResponse(responseCode = "400", description = "Invalid request, e.g. user cannot be added"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during user addition")
+    })
+    @PostMapping("/{chatId}/add-user/{userId}")
+    public ResponseEntity<String> addUserToGroup(
+            @PathVariable String chatId,
+            @PathVariable String userId,
+            @RequestParam String requesterId
+    ) {
+        try {
+            chatService.addUserToGroup(chatId, userId, requesterId);
+            return ResponseEntity.ok("Utente aggiunto al gruppo.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Permesso negato.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'aggiunta al gruppo.");
+        }
+    }
+
+    @Operation(
             summary = "Delete chat",
             description = "Deletes any chat (individual or group) by its ID."
     )
