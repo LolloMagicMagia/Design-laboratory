@@ -8,7 +8,7 @@ async function checkNRHchat() {
     const error_message_chat = "You need to write a message to create the chat."
 
     const options = new chrome.Options();
-    //options.addArguments("--headless=new");
+    options.addArguments("--headless=new");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1920,1080");
 
