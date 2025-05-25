@@ -5,7 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import API from "@/lib/api";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { ArrowLeft, Paperclip, Smile, X } from "lucide-react";
+import { ArrowLeft, Paperclip, Smile, X, Search } from "lucide-react";
 
 /**
  * Generates the URL for the user's avatar.
@@ -69,6 +69,10 @@ export default function ChatPage() {
   const [editedText, setEditedText] = useState("");
   const [attachedImage, setAttachedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  // For search messages
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [filteredMessages, setFilteredMessages] = useState([]);
 
   /**
    * Reference to the bottom of the message list for auto-scrolling.
@@ -77,6 +81,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const searchInputRef = useRef(null);
   const router = useRouter();
 
   /**
@@ -485,9 +490,21 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (sendingMessage) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      scrollToBottom('smooth');
     }
   }, [messages, sendingMessage]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredMessages([]);
+      return;
+    }
+
+    const filtered = messages.filter((msg) =>
+      msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredMessages(filtered);
+  }, [searchQuery, messages]);
 
   if (loading) return (
       <div style={{
@@ -598,24 +615,37 @@ export default function ChatPage() {
 
         {/* Barra bianca fissa con immagine + nome + info */}
         <div
+          style={{
+            backgroundColor: "#f2f2f2",
+            padding: "12px 16px",
+            borderBottom: "1px solid #e5e7eb",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "0.75rem",
+            position: "relative",
+            flexShrink: 0,
+          }}
+        >
+          <div
             style={{
-              backgroundColor: "#f2f2f2",
-              padding: "12px 16px",
-              borderBottom: "1px solid #e5e7eb",
               display: "flex",
-              flexDirection: "row",
+              flexGrow: 1,
               alignItems: "center",
+              cursor: showSearch ? "default" : "pointer",
               gap: "0.75rem",
-              cursor: "pointer",
-              flexShrink: 0
             }}
             onClick={(e) => {
-              e.stopPropagation();
-              if (isGroup) router.push(`/group-info/${chatId}`);
-              else if (otherUser) router.push(`/user/${otherUser}`);
+              if (!showSearch && isGroup) {
+                e.preventDefault();
+                router.push(`/group-info/${chatId}`);
+              } else if (!showSearch && !isGroup) {
+                e.preventDefault();
+                router.push(`/user/${otherUser}`);
+              }
             }}
-        >
-          <img
+          >
+            <img
               src={chatAvatar}
               alt={title}
               className="user-avatar"
@@ -625,13 +655,81 @@ export default function ChatPage() {
                 borderRadius: "50%",
                 objectFit: "cover",
               }}
-          />
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <span style={{ color: "black", fontSize: "18px", fontWeight: 600 }}>{title}</span>
-            <span style={{ fontSize: "12px", color: "#6b7280", fontWeight: "normal" }}>
-              {isGroup ? `${participants.length || 0} participants` : usersMap[otherUser]?.user?.bio || ""}
-            </span>
+            />
+            {!showSearch ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    color: "black",
+                    fontSize: "18px",
+                    fontWeight: 600,
+                  }}
+                >
+                  {title}
+                </span>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    fontWeight: "normal",
+                  }}
+                >
+                  {isGroup
+                    ? `${participants.length || 0} participants`
+                    : usersMap[otherUser]?.user?.bio || ""}
+                </span>
+              </div>
+            ) : (
+              <div style={{ flexGrow: 1 }}>
+                <input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search in messages"
+                  autoFocus
+                  style={{
+                    width: "99%",
+                    padding: "8px 12px",
+                    borderRadius: "16px",
+                    border: "1px solid #d1d5db",
+                    fontSize: "14px",
+                  }}
+                />
+              </div>
+            )}
           </div>
+
+          <button
+            onClick={() => {
+              setShowSearch(!showSearch);
+              if (!showSearch) {
+                setTimeout(() => searchInputRef.current?.focus(), 100);
+              } else {
+                setSearchQuery("");
+              }
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {showSearch ? (
+              <X size={20} color="#6b7280" />
+            ) : (
+              <Search size={20} color="#6b7280" />
+            )}
+          </button>
         </div>
 
         {/* Contenuto principale scorrevole */}
@@ -653,7 +751,173 @@ export default function ChatPage() {
               }}
           >
             <div className="message-list px-4 py-2">
-              {messageGroups.map(([date, msgs]) => (
+  {searchQuery.trim() ? (
+    filteredMessages.length > 0 ? (
+      <div>
+        <div
+          className="search-results-info"
+          style={{
+            textAlign: "center",
+            padding: "10px",
+            color: "#6b7280",
+            fontSize: "14px",
+            marginBottom: "16px",
+          }}
+        >
+          Found {filteredMessages.length} message
+          {filteredMessages.length !== 1 ? "s" : ""} containing "
+          {searchQuery}"
+        </div>
+        <div className="space-y-3">
+          {filteredMessages.map((msg) => {
+            const isMine = msg.sender === currentUserId;
+            const senderName =
+              usersMap[msg.sender]?.user?.username ||
+              usersMap[msg.sender]?.username ||
+              "User";
+
+            return (
+              <div
+                key={msg.id}
+                className={`message relative ${
+                  isMine ? "message-sent" : "message-received"
+                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "10px",
+                  justifyContent: isMine
+                    ? "flex-end"
+                    : "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    marginTop: "10px",
+                    flexShrink: 0,
+                  }}
+                  onClick={() =>
+                    router.push(`/user/${msg.sender}`)
+                  }
+                >
+                  <img
+                    src={getAvatarSrc(
+                      usersMap[String(msg.sender)]?.avatar ||
+                        usersMap[String(msg.sender)]?.user?.avatar,
+                      "U"
+                    )}
+                    alt="avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+                <div>
+                  {isGroup && !isMine && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        marginBottom: "4px",
+                        color: "#93c5fd",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        router.push(`/user/${msg.sender}`)
+                      }
+                    >
+                      {senderName}
+                    </p>
+                  )}
+                  <p
+                    style={{
+                      backgroundColor: "#990033",
+                      color: "white",
+                      padding: "8px 12px",
+                      borderRadius: "12px",
+                      maxWidth: "300px",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {msg.content}
+                  </p>
+                  {msg.image && (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={`data:image/png;base64,${msg.image}`}
+                        alt="attachment"
+                        onClick={() =>
+                          setPreviewImage(
+                            `data:image/png;base64,${msg.image}`
+                          )
+                        }
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "240px",
+                          borderRadius: "4px",
+                          objectFit: "cover",
+                          marginTop: "8px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      textAlign: "right",
+                      marginTop: "2px",
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      gap: "2px",
+                      color: "#d1d5db",
+                    }}
+                  >
+                    <span style={{ fontSize: "10px" }}>
+                      {new Date(msg.timestamp).toLocaleTimeString(
+                        [],
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ) : (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "200px",
+          color: "#6b7280",
+        }}
+      >
+        <Search size={48} strokeWidth={1} color="#d1d5db" />
+        <p style={{ marginTop: "16px", fontSize: "16px" }}>
+          No messages found
+        </p>
+      </div>
+    )
+  ) : (
+    messageGroups.map(([date, msgs]) => (
                   <div key={date}>
                     <div className="message-date" style={{
                       display: "flex",
@@ -826,26 +1090,26 @@ export default function ChatPage() {
                                             justifyContent: "flex-end",
                                             alignItems: "center",
                                             gap: "2px",
-                                            color: isMine ? "#d1d5db" : "transparent",
+                                            color: "#d1d5db",
                                           }}>
-        <span style={{ fontSize: "10px" }}>
-          {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </span>
-                                            {isMine && (
-                                                <>
-                                                  {msg.read ? (
-                                                      <span title="Read">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L9.1 15 4 9.9" />
-                  <path d="M18 14L9.1 23 4 17.9" />
-                </svg>
-              </span>
-                                                  ) : (
-                                                      <span title="Delivered">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L9.1 15 4 9.9" />
-                </svg>
-              </span>
+                                              <span style={{ fontSize: "10px" }}>
+                                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                              </span>
+                                                                                  {isMine && (
+                                                                                      <>
+                                                                                        {msg.read ? (
+                                                                                            <span title="Read">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M18 6L9.1 15 4 9.9" />
+                                                        <path d="M18 14L9.1 23 4 17.9" />
+                                                      </svg>
+                                                    </span>
+                                                                                        ) : (
+                                                                                            <span title="Delivered">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M18 6L9.1 15 4 9.9" />
+                                                      </svg>
+                                                    </span>
                                                   )}
                                                 </>
                                             )}
@@ -919,7 +1183,7 @@ export default function ChatPage() {
                       })}
                     </div>
                   </div>
-              ))}
+              )))}
               <div ref={messagesEndRef} />
             </div>
           </div>
