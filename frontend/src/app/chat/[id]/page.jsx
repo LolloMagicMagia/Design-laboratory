@@ -751,7 +751,173 @@ export default function ChatPage() {
               }}
           >
             <div className="message-list px-4 py-2">
-              {messageGroups.map(([date, msgs]) => (
+  {searchQuery.trim() ? (
+    filteredMessages.length > 0 ? (
+      <div>
+        <div
+          className="search-results-info"
+          style={{
+            textAlign: "center",
+            padding: "10px",
+            color: "#6b7280",
+            fontSize: "14px",
+            marginBottom: "16px",
+          }}
+        >
+          Found {filteredMessages.length} message
+          {filteredMessages.length !== 1 ? "s" : ""} containing "
+          {searchQuery}"
+        </div>
+        <div className="space-y-3">
+          {filteredMessages.map((msg) => {
+            const isMine = msg.sender === currentUserId;
+            const senderName =
+              usersMap[msg.sender]?.user?.username ||
+              usersMap[msg.sender]?.username ||
+              "User";
+
+            return (
+              <div
+                key={msg.id}
+                className={`message relative ${
+                  isMine ? "message-sent" : "message-received"
+                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "10px",
+                  justifyContent: isMine
+                    ? "flex-end"
+                    : "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    marginTop: "10px",
+                    flexShrink: 0,
+                  }}
+                  onClick={() =>
+                    router.push(`/user/${msg.sender}`)
+                  }
+                >
+                  <img
+                    src={getAvatarSrc(
+                      usersMap[String(msg.sender)]?.avatar ||
+                        usersMap[String(msg.sender)]?.user?.avatar,
+                      "U"
+                    )}
+                    alt="avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+                <div>
+                  {isGroup && !isMine && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        marginBottom: "4px",
+                        color: "#93c5fd",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        router.push(`/user/${msg.sender}`)
+                      }
+                    >
+                      {senderName}
+                    </p>
+                  )}
+                  <p
+                    style={{
+                      backgroundColor: "#990033",
+                      color: "white",
+                      padding: "8px 12px",
+                      borderRadius: "12px",
+                      maxWidth: "300px",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {msg.content}
+                  </p>
+                  {msg.image && (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={`data:image/png;base64,${msg.image}`}
+                        alt="attachment"
+                        onClick={() =>
+                          setPreviewImage(
+                            `data:image/png;base64,${msg.image}`
+                          )
+                        }
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "240px",
+                          borderRadius: "4px",
+                          objectFit: "cover",
+                          marginTop: "8px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      textAlign: "right",
+                      marginTop: "2px",
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      gap: "2px",
+                      color: "#d1d5db",
+                    }}
+                  >
+                    <span style={{ fontSize: "10px" }}>
+                      {new Date(msg.timestamp).toLocaleTimeString(
+                        [],
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ) : (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "200px",
+          color: "#6b7280",
+        }}
+      >
+        <Search size={48} strokeWidth={1} color="#d1d5db" />
+        <p style={{ marginTop: "16px", fontSize: "16px" }}>
+          No messages found
+        </p>
+      </div>
+    )
+  ) : (
+    messageGroups.map(([date, msgs]) => (
                   <div key={date}>
                     <div className="message-date" style={{
                       display: "flex",
@@ -926,24 +1092,24 @@ export default function ChatPage() {
                                             gap: "2px",
                                             color: isMine ? "#d1d5db" : "transparent",
                                           }}>
-        <span style={{ fontSize: "10px" }}>
-          {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </span>
-                                            {isMine && (
-                                                <>
-                                                  {msg.read ? (
-                                                      <span title="Read">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L9.1 15 4 9.9" />
-                  <path d="M18 14L9.1 23 4 17.9" />
-                </svg>
-              </span>
-                                                  ) : (
-                                                      <span title="Delivered">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L9.1 15 4 9.9" />
-                </svg>
-              </span>
+                                              <span style={{ fontSize: "10px" }}>
+                                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                              </span>
+                                                                                  {isMine && (
+                                                                                      <>
+                                                                                        {msg.read ? (
+                                                                                            <span title="Read">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M18 6L9.1 15 4 9.9" />
+                                                        <path d="M18 14L9.1 23 4 17.9" />
+                                                      </svg>
+                                                    </span>
+                                                                                        ) : (
+                                                                                            <span title="Delivered">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M18 6L9.1 15 4 9.9" />
+                                                      </svg>
+                                                    </span>
                                                   )}
                                                 </>
                                             )}
@@ -1017,7 +1183,7 @@ export default function ChatPage() {
                       })}
                     </div>
                   </div>
-              ))}
+              )))}
               <div ref={messagesEndRef} />
             </div>
           </div>
