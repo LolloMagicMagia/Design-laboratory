@@ -638,10 +638,10 @@ export default function ChatPage() {
             onClick={(e) => {
               if (!showSearch && isGroup) {
                 e.preventDefault();
-                router.push(`/groups/${chatId}/details?name=${encodeURIComponent(title)}`);
+                router.push(`/group-info/${chatId}`);
               } else if (!showSearch && !isGroup) {
                 e.preventDefault();
-                router.push(`/users/${otherUser}?name=${encodeURIComponent(usersMap[otherUser]?.user?.username || title)}`);
+                router.push(`/user/${otherUser}`);
               }
             }}
           >
@@ -1090,7 +1090,7 @@ export default function ChatPage() {
                                             justifyContent: "flex-end",
                                             alignItems: "center",
                                             gap: "2px",
-                                            color: isMine ? "#d1d5db" : "transparent",
+                                            color: "#d1d5db",
                                           }}>
                                               <span style={{ fontSize: "10px" }}>
                                                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
