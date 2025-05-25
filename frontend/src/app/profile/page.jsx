@@ -334,7 +334,7 @@ export default function ProfilePage() {
                 marginBottom: "0.25rem"
               }}>
                 {(currentUser.firstName || currentUser.lastName)
-                    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
+                    ? `${currentUser.firstName || ""} ${currentUser.lastName || ""}`.trim()
                     : currentUser.username}
               </h2>
 

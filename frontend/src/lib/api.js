@@ -600,7 +600,7 @@ const API = {
         const userId = getCurrentUserId();
         const res = await fetch(`/api/chats/${chatId}/hide?userId=${userId}&pin=${pin}`, { method: "POST" });
         if (!res.ok) throw new Error("Error while hiding chat");
-        return res
+        return res;
     },
 
     /**
@@ -615,7 +615,7 @@ const API = {
         const userId = getCurrentUserId();
         const res = await fetch(`/api/chats/${chatId}/unhide?userId=${userId}`, { method: "POST" });
         if (!res.ok) throw new Error("Error while unhiding chat");
-        return res
+        return res;
     },
 
     /**

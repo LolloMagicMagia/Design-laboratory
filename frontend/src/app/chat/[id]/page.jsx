@@ -453,12 +453,12 @@ export default function ChatPage() {
   useEffect(() => {
     if (!loading) {
       // Scroll to bottom immediately without animation
-      scrollToBottom('auto');
+      scrollToBottom("auto");
     }
   }, [loading]);
 
 // Modifica 3: Aggiungi questa funzione helper per lo scroll
-  const scrollToBottom = (behavior = 'smooth') => {
+  const scrollToBottom = (behavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
@@ -473,15 +473,15 @@ export default function ChatPage() {
   useEffect(() => {
     if (messages.length > 0) {
       // Prima nascondi i messaggi
-      const chatContainer = document.querySelector('.chat-container');
+      const chatContainer = document.querySelector(".chat-container");
       if (chatContainer) {
-        chatContainer.style.opacity = '0';
+        chatContainer.style.opacity = "0";
 
         // Poi dopo un breve delay, scorra alla fine e rendi visibile con animazione
         setTimeout(() => {
           scrollToBottom();
-          chatContainer.style.opacity = '1';
-          chatContainer.style.transition = 'opacity 0.3s ease-in';
+          chatContainer.style.opacity = "1";
+          chatContainer.style.transition = "opacity 0.3s ease-in";
         }, 100);
       }
     }

@@ -5,7 +5,7 @@ const assert = require("assert");
 async function checkNRHchat() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const testMessage = `Messaggio test inviato alle ${timestamp}`;
-    const error_message_chat = "You need to write a message to create the chat."
+    const error_message_chat = "You need to write a message to create the chat.";
 
     const options = new chrome.Options();
     options.addArguments("--headless=new");
@@ -50,7 +50,7 @@ async function checkNRHchat() {
 
         // 5. Check that the message appears in the chat list
         const chatElement = await driver.wait(
-            until.elementLocated(By.css('[data-testid="chat-PescaMende-TonLev"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-PescaMende-TonLev\"]")),
             10000
         );
 
@@ -69,14 +69,14 @@ async function checkNRHchat() {
 
         // 6. Hide the chat
         const chat_chatal = await driver.wait(
-            until.elementLocated(By.css('[data-testid="chat-Catal-Kuz"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Catal-Kuz\"]")),
             10000
         );
         await chat_chatal.findElement(By.id("hide-chat-button")).click();
 
 
         const pin_input_hide = await driver.findElement(By.id("hide-password"));
-        await pin_input_hide.sendKeys('1234');
+        await pin_input_hide.sendKeys("1234");
         await driver.findElement(By.id("confirm-HideChat")).click();
         await driver.findElement(By.id("hidden-chats-list")).click();
 
@@ -90,7 +90,7 @@ async function checkNRHchat() {
 
         await parentElement.findElement(By.id("make-it-visible")).click();
         const pin_input_unhide = await driver.findElement(By.id("unhide-password"));
-        await pin_input_unhide.sendKeys('1234');
+        await pin_input_unhide.sendKeys("1234");
         await driver.findElement(By.id("unhide-button")).click();
         console.log("✅ Unhide chat chatal");
 

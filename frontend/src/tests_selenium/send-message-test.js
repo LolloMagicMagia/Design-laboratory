@@ -25,7 +25,7 @@ async function sendMessageTest() {
 
         // 2. Wait for the home page to load and click on the chat with Catal-Kuz
         const chatElement = await driver.wait(
-            until.elementLocated(By.css('[data-testid="chat-Catal-Kuz"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Catal-Kuz\"]")),
             10000
         );
         await chatElement.click();
@@ -54,7 +54,7 @@ async function sendMessageTest() {
         //const parentHTML = await parentElement.getAttribute("outerHTML");
         //console.log("📌 HTML del padre:", parentHTML);
         const statusSpan = await parentElement.findElement(
-            By.xpath(`//span[@title="Delivered"]`)
+            By.xpath("//span[@title=\"Delivered\"]")
         );
         const statusTitle = await statusSpan.getAttribute("title");
         assert.strictEqual(statusTitle, "Delivered", "The message should be marked as 'Delivered'");

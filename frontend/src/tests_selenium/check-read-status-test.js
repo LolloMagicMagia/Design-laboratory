@@ -30,7 +30,7 @@ async function checkReadStatusTest() {
         //console.log("📌 HTML del padre:\n", parentHTML);
 
         const last_text  = await parentElement.findElement(
-            By.id(`last-message`)
+            By.id("last-message")
         );
 
         const lastMessageText = await last_text.getText();
@@ -38,7 +38,7 @@ async function checkReadStatusTest() {
 
         // 3. Wait for the home page to load and click on the chat with Luigi Bianchi
         const chatElement = await driver.wait(
-            until.elementLocated(By.css('[data-testid="chat-Catal-Kuz"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Catal-Kuz\"]")),
             10000
         );
         await chatElement.click();
@@ -53,7 +53,7 @@ async function checkReadStatusTest() {
 
         const parentElement_chat = await last_text_chat.findElement(By.xpath("..")); // Va al padre immediato
         const statusSpan = await parentElement_chat.findElement(
-            By.xpath(`//span[@title="Read"]`)
+            By.xpath("//span[@title=\"Read\"]")
         );
         const statusTitle = await statusSpan.getAttribute("title");
         assert.strictEqual(statusTitle, "Read", "The message should be marked as 'Read'");

@@ -7,7 +7,7 @@ async function realTimeMessageTest() {
     options.addArguments("--headless=new");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1920,1080");
-    options.addArguments('--incognito');
+    options.addArguments("--incognito");
     const driver1 = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
     const driver2 = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
 
@@ -33,7 +33,7 @@ async function realTimeMessageTest() {
 
         // 3. Wait for the home page to load and click on the chat with Marco Sossi
         const chatElementMarco = await driver1.wait(
-            until.elementLocated(By.css('[data-testid="chat-Catal-Kuz"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Catal-Kuz\"]")),
             10000
         );
         await chatElementMarco.click();
@@ -42,7 +42,7 @@ async function realTimeMessageTest() {
 
         // 3. Wait for the home page to load and click on the chat with Catal Kuz
         const chatElementCatal = await driver2.wait(
-            until.elementLocated(By.css('[data-testid="chat-Marco-Sossi"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Marco-Sossi\"]")),
             10000
         );
         await chatElementCatal.click();
@@ -74,7 +74,7 @@ async function realTimeMessageTest() {
 
         const parentElement_chat = await last_text_chat.findElement(By.xpath("..")); // Va al padre immediato
         const statusSpan = await parentElement_chat.findElement(
-            By.xpath(`//span[@title="Read"]`)
+            By.xpath("//span[@title=\"Read\"]")
         );
         const statusTitle = await statusSpan.getAttribute("title");
         assert.strictEqual(statusTitle, "Read", "The message should be marked as 'Read'");

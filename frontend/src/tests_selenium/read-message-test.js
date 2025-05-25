@@ -5,19 +5,19 @@ const assert = require("assert");
 async function readMessageTest() {
     const options = new chrome.Options();
     options.setUserPreferences({
-        'credentials_enable_service': false,
-        'profile.password_manager_enabled': false,
-        'profile.default_content_setting_values.notifications': 2, // blocca notifiche
+        "credentials_enable_service": false,
+        "profile.password_manager_enabled": false,
+        "profile.default_content_setting_values.notifications": 2, // blocca notifiche
     });
 
     options.addArguments("--headless=new"); // Nuova modalità headless
     options.addArguments("--disable-gpu");  // Utile su Windows
     options.addArguments("--window-size=1920,1080"); // Facoltativo
-    options.addArguments('--disable-infobars');
-    options.addArguments('--disable-notifications');
-    options.addArguments('--disable-popup-blocking');
-    options.addArguments('--start-maximized');
-    options.addArguments('--incognito');
+    options.addArguments("--disable-infobars");
+    options.addArguments("--disable-notifications");
+    options.addArguments("--disable-popup-blocking");
+    options.addArguments("--start-maximized");
+    options.addArguments("--incognito");
 
     const driver = await new Builder()
         .forBrowser("chrome")
@@ -33,8 +33,8 @@ async function readMessageTest() {
         console.log("✅ Log in Catal Kuz");
 
         try {
-            const warningPopup = await driver.findElement(By.css('div[role="dialog"]'));
-            const okButton = await warningPopup.findElement(By.css('button'));
+            const warningPopup = await driver.findElement(By.css("div[role=\"dialog\"]"));
+            const okButton = await warningPopup.findElement(By.css("button"));
             await okButton.click();
             console.log("✅ pop-up found and closed");
             await driver.sleep(500); // aspetta che si chiuda
@@ -57,7 +57,7 @@ async function readMessageTest() {
 
         // 3. Wait for the home page to load and click on the chat with Marco Sossi
         const chatElementMarco = await driver.wait(
-            until.elementLocated(By.css('[data-testid="chat-Marco-Sossi"]')),
+            until.elementLocated(By.css("[data-testid=\"chat-Marco-Sossi\"]")),
             10000
         );
         await chatElementMarco.click();
