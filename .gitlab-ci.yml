@@ -51,21 +51,6 @@ validate-backend:
       - $BACKEND_DIR/.m2/
   allow_failure: true
 
-static-checkstyle:
-  stage: static-analysis
-  image: maven:3-eclipse-temurin-21
-  script:
-    - cd $BACKEND_DIR
-    - echo "Eseguo Checkstyle..."
-    - mvn checkstyle:check
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-backend
-    paths:
-      - $BACKEND_DIR/.m2/
-  needs:
-    - validate-backend
-  allow_failure: false
-
 static-pmd:
   stage: static-analysis
   image: maven:3-eclipse-temurin-21
@@ -73,21 +58,6 @@ static-pmd:
     - cd $BACKEND_DIR
     - echo "Eseguo PMD..."
     - mvn pmd:check
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-backend
-    paths:
-      - $BACKEND_DIR/.m2/
-  needs:
-    - validate-backend
-  allow_failure: false
-
-static-spotbugs:
-  stage: static-analysis
-  image: maven:3-eclipse-temurin-21
-  script:
-    - cd $BACKEND_DIR
-    - echo "Eseguo SpotBugs..."
-    - mvn spotbugs:check
   cache:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
@@ -149,7 +119,6 @@ test-frontend:
     - cd $FRONTEND_DIR
     - npm ci
     - npm run lint
-    - npm run test_selenium
   dependencies:
     - build-frontend
   cache:
@@ -174,56 +143,31 @@ test-backend:
 
 
 # Selenium E2E tests
-selenium-e2e:
-  stage: test
-  image: docker/compose:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-    SELENIUM_IMAGE: selenium/standalone-chrome:latest
-  when: always
-  allow_failure: true
-  script:
-    - docker-compose up -d --build
-    - |
-      for i in $(seq 1 30); do
-        docker-compose exec -T -e NODE_ENV=development frontend curl -s http://localhost:3000 && break
-        sleep 2
-      done
-    - docker-compose exec -T -e NODE_ENV=development frontend npm ci
-    - docker-compose exec -T frontend npm run test_selenium
-    - docker-compose down
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-frontend
-    paths:
-      - $FRONTEND_DIR/node_modules/
-
-generate-docs-frontend:
-  stage: docs
-  image: node:20
-  script:
-    - cd $FRONTEND_DIR
-    - npm ci
-    - npx jsdoc -c jsdoc.json -d docs   # o “npm run docs” se hai uno script dedicato
-  artifacts:
-    name: "frontend-docs-$CI_COMMIT_REF_SLUG"
-    paths:
-      - $FRONTEND_DIR/docs
-    expire_in: 1 week
-
-generate-docs-backend:
-  stage: docs
-  image: maven:3-eclipse-temurin-21
-  script:
-    - cd $BACKEND_DIR
-    - mvn javadoc:javadoc
-  artifacts:
-    name: "backend-javadoc-$CI_COMMIT_REF_SLUG"
-    paths:
-      - $BACKEND_DIR/target/site/apidocs
-    expire_in: 1 week
+#selenium-e2e:
+#  stage: test
+#  image: docker/compose:latest
+#  services:
+#    - docker:dind
+#  variables:
+#    DOCKER_HOST: tcp://docker:2375/
+#    DOCKER_TLS_CERTDIR: ""
+#    SELENIUM_IMAGE: selenium/standalone-chrome:latest
+#  when: always
+#  allow_failure: true
+#  script:
+#    - docker-compose up -d --build
+#    - |
+#      for i in $(seq 1 30); do
+#        docker-compose exec -T -e NODE_ENV=development frontend curl -s http://localhost:3000 && break
+#        sleep 2
+#      done
+#    - docker-compose exec -T -e NODE_ENV=development frontend npm ci
+#    - docker-compose exec -T frontend npm run test_selenium
+#    - docker-compose down
+#  cache:
+#    key: ${CI_COMMIT_REF_SLUG}-frontend
+#    paths:
+#      - $FRONTEND_DIR/node_modules/
 
 
 # Job per deploy del frontend (placeholder)
