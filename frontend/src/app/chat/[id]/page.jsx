@@ -490,7 +490,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (sendingMessage) {
-      scrollToBottom('smooth');
+      scrollToBottom("smooth");
     }
   }, [messages, sendingMessage]);
 
@@ -765,8 +765,8 @@ export default function ChatPage() {
           }}
         >
           Found {filteredMessages.length} message
-          {filteredMessages.length !== 1 ? "s" : ""} containing "
-          {searchQuery}"
+          {filteredMessages.length !== 1 ? "s" : ""} containing
+          &quot;{searchQuery}&quot;
         </div>
         <div className="space-y-3">
           {filteredMessages.map((msg) => {
