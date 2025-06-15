@@ -12,6 +12,19 @@ public class Chat {
     @JsonProperty("name")
     private String name;
 
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @JsonProperty("title")
+    private String title; // specifico per gruppi
+
     @JsonProperty("type")
     private String type; // "individual" or "group"
 
@@ -20,6 +33,15 @@ public class Chat {
 
     @JsonProperty("messages")
     private Map<String, Message> messages;
+
+    @JsonProperty("creator")
+    private String creator; // solo per gruppi
+
+    @JsonProperty("admin")
+    private Map<String, Object> admin; // mappa creator/other
+
+    @JsonProperty("avatar")
+    private String avatar; // base64 opzionale per gruppi
 
     // Constructors
     public Chat() {
@@ -38,13 +60,21 @@ public class Chat {
         this.participants = participants;
     }
 
-    // Getter e Setter
+    // Getters and Setters
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getType() {
@@ -71,6 +101,30 @@ public class Chat {
         this.messages = messages;
     }
 
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public Map<String, Object> getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Map<String, Object> admin) {
+        this.admin = admin;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     // Adding messages
     public void addMessage(String messageId, Message message) {
         if (this.messages == null) {
@@ -83,8 +137,12 @@ public class Chat {
     public String toString() {
         return "Chat{" +
                 "name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 ", type='" + type + '\'' +
                 ", participants=" + participants +
+                ", creator='" + creator + '\'' +
+                ", admin=" + admin +
+                ", avatar='" + avatar + '\'' +
                 ", messages=" + messages +
                 '}';
     }

@@ -3,180 +3,380 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import API from "@/lib/DataService";
+import { useParams, useRouter } from "next/navigation";
+import API from "@/lib/api";
+import { ArrowLeft } from "lucide-react";
 
-export default function UserProfilePage({ params }) {
-  const userId = params.id;
+/**
+ * UserProfilePage è un componente React client-side che visualizza il profilo
+ * di un utente specifico, recuperato tramite ID dalla URL dinamica. Mostra
+ * informazioni come nome, stato, bio e consente l'invio di una richiesta
+ * di amicizia se non già amici.
+ *
+ * @module src/app/user/id/page.jsx
+ * @returns {JSX.Element} Interfaccia utente del profilo con informazioni dettagliate e interazioni.
+ */
+export default function UserProfilePage() {
+  const { id: userId } = useParams();
+  const router = useRouter();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
+  const [isFriend, setIsFriend] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
+  /**
+   * useEffect per effettuare il fetch dei dati dell'utente e controllare
+   * lo stato di amicizia.
+   */
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await API.getUserById(userId);
         setUser(userData);
-        setLoading(false);
+
+        const currentId = localStorage.getItem("currentUserId");
+        if (!currentId || currentId === userId) {
+          setIsFriend(true);
+          return;
+        }
+
+        const friends = await API.getFriendsList();
+        const isAlreadyFriend = friends.some(f => f.id === userId && f.friendshipStatus === "active");
+        setIsFriend(isAlreadyFriend);
       } catch (err) {
-        console.error("Errore nel caricamento dell'utente:", err);
-        setError("Si è verificato un errore nel caricamento dell'utente. Riprova più tardi.");
+        console.error("User loading error:", err);
+        setError("Error loading the user.");
+      } finally {
         setLoading(false);
       }
     };
-
-    fetchUser();
+    if (userId) fetchUser();
   }, [userId]);
-
-  const handleStartChat = async () => {
-    try {
-      // Verifica se esiste già una chat individuale con questo utente
-      const chats = await API.getChats();
-      const existingChat = chats.find(chat => 
-        chat.type === "individual" && 
-        chat.participants.includes(userId) && 
-        chat.participants.includes("currentUser")
-      );
-      
-      if (existingChat) {
-        // Naviga alla chat esistente
-        router.push(`/chat/${existingChat.id}`);
-      } else {
-        // Crea una nuova chat
-        const newChat = await API.createChat({
-          name: user.name,
-          type: "individual",
-          participants: ["currentUser", userId]
-        });
-        
-        // Naviga alla nuova chat
-        router.push(`/chat/${newChat.id}`);
-      }
-    } catch (err) {
-      console.error("Errore nell'avvio della chat:", err);
-      setError("Si è verificato un errore nell'avvio della chat. Riprova più tardi.");
-    }
-  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl font-semibold">Caricamento...</div>
-      </div>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          backgroundColor: "#f9fafb"
+        }}>
+          <div style={{
+            fontSize: "1.25rem",
+            fontWeight: "600",
+            color: "#374151"
+          }}>
+            Loading...
+          </div>
+        </div>
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="text-red-500 mb-4">{error}</div>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="btn btn-primary"
-        >
-          Riprova
-        </button>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="text-red-500 mb-4">Utente non trovato</div>
-        <button 
-          onClick={() => router.push("/")} 
-          className="btn btn-primary"
-        >
-          Torna alla lista chat
-        </button>
-      </div>
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: "1rem",
+          backgroundColor: "#f9fafb"
+        }}>
+          <div style={{
+            color: "#ef4444",
+            marginBottom: "1rem",
+            fontSize: "1rem"
+          }}>
+            {error || "User not found"}
+          </div>
+          <button
+              onClick={() => router.push("/")}
+              style={{
+                backgroundColor: "#990033",
+                color: "white",
+                padding: "0.5rem 1rem",
+                borderRadius: "0.375rem",
+                border: "none",
+                fontWeight: "500",
+                cursor: "pointer",
+                transition: "background-color 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#660022";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#990033";
+              }}
+          >
+            Back to home
+          </button>
+        </div>
     );
   }
 
   return (
-    <div className="page-container">
-      {/* Header */}
-      <header className="page-header">
-        <div className="container mx-auto flex items-center">
-          <button 
-            onClick={() => router.back()} 
-            className="btn btn-icon"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-xl font-bold ml-3">Profilo Utente</h1>
-        </div>
-      </header>
+      <div style={{
+        width: "100vw",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#f9fafb",
+        overflow: "hidden"
+      }}>
+        {/* Header */}
+        <header style={{
+          backgroundColor: "#990033",
+          padding: "0.1rem 1.5rem",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "1px solid #FFFFFF"
+        }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem"
+          }}>
+            <button
+                onClick={() => router.back()}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                  padding: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h1 style={{
+              fontSize: "1.5rem",
+              fontWeight: "bold"
+            }}>
+              User Information
+            </h1>
+          </div>
 
-      {/* Main content */}
-      <main className="page-content">
-        <div className="card overflow-hidden">
-          {/* Copertina profilo */}
-          <div className="profile-header"></div>
-          
-          {/* Informazioni utente */}
-          <div className="profile-avatar-container">
-            <img 
-              src={user.avatar || "https://dummyimage.com/128x128/000/fff&text=P"}
-              alt={user.name} 
-              className="profile-avatar"
-            />
-            
-            <h2 className="profile-name">{user.name}</h2>
-            
-            <div className="user-status mt-2">
-              <span className={`status-indicator ${
-                user.status === "online" ? "status-online" : "status-offline"
-              }`}></span>
-              <span className="capitalize">{user.status}</span>
-            </div>
-            
-            {/* Azioni */}
-            <div className="profile-actions">
-              <button 
-                onClick={handleStartChat}
-                className="btn btn-primary flex items-center"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                Invia Messaggio
-              </button>
-              
-              <button 
-                className="btn btn-secondary flex items-center"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Aggiungi Contatto
-              </button>
+          <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Milano-Bicocca_University_logo_2.svg/2095px-Milano-Bicocca_University_logo_2.svg.png"
+              width="60"
+              alt="logo"
+              style={{ borderRadius: "4px" }}
+          />
+        </header>
+
+        {/* Main content */}
+        <main style={{
+          flex: 1,
+          padding: "1.5rem",
+          overflowY: "auto"
+        }}>
+          <div style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            backgroundColor: "white",
+            borderRadius: "0.5rem",
+            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+            overflow: "hidden"
+          }}>
+            {/* Profile header banner */}
+            <div style={{
+              height: "100px",
+              backgroundColor: "#990033",
+              position: "relative"
+            }}></div>
+
+            {/* Profile info section */}
+            <div style={{
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              position: "relative",
+              marginTop: "-50px"
+            }}>
+              <img
+                  src={user.user.avatar ? `data:image/png;base64,${user.user.avatar}` : "https://dummyimage.com/128x128/000/fff&text=P"}
+                  alt={user.user.username}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                    border: "4px solid white",
+                    objectFit: "cover",
+                    backgroundColor: "#f3f4f6"
+                  }}
+              />
+
+              <h2 style={{
+                fontSize: "1.5rem",
+                fontWeight: "600",
+                color: "#1f2937",
+                marginTop: "1rem",
+                marginBottom: "0.25rem"
+              }}>
+                {user.user.username}
+              </h2>
+
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem"
+              }}>
+                <div style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: user.user.status === "online" ? "#10b981" : "#9ca3af"
+                }}></div>
+                <span style={{
+                  fontSize: "0.875rem",
+                  color: "#4b5563",
+                  textTransform: "capitalize"
+                }}>
+                {user.user.status || "offline"}
+              </span>
+              </div>
+
+              {/* User info details */}
+              <div style={{
+                width: "80%",
+                marginTop: "1.5rem"
+              }}>
+                <h3 style={{
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                  color: "#374151",
+                  marginBottom: "1rem",
+                  paddingBottom: "0.5rem",
+                  borderBottom: "1px solid #e5e7eb"
+                }}>
+                  User Information
+                </h3>
+
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "0.5rem",
+                  marginBottom: "0.75rem"
+                }}>
+                  <div style={{ fontWeight: "500", color: "#6b7280", fontSize: "0.875rem" }}>User ID:</div>
+                  <div style={{
+                    color: "#1f2937",
+                    fontSize: "0.875rem",
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }}>{user.id}</div>
+                </div>
+
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "0.5rem",
+                  marginBottom: "0.75rem"
+                }}>
+                  <div style={{ fontWeight: "500", color: "#6b7280", fontSize: "0.875rem" }}>Name:</div>
+                  <div style={{ color: "#1f2937", fontSize: "0.875rem" }}>{user.user.username}</div>
+                </div>
+
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "0.5rem",
+                  marginBottom: "0.75rem"
+                }}>
+                  <div style={{ fontWeight: "500", color: "#6b7280", fontSize: "0.875rem" }}>Status:</div>
+                  <div style={{ color: "#1f2937", fontSize: "0.875rem", textTransform: "capitalize" }}>{user.user.status || "N/A"}</div>
+                </div>
+
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "0.5rem",
+                  marginBottom: "1.5rem"
+                }}>
+                  <div style={{ fontWeight: "500", color: "#6b7280", fontSize: "0.875rem" }}>Bio:</div>
+                  <div style={{ color: "#1f2937", fontSize: "0.875rem" }}>{user.user.bio || "No bio available."}</div>
+                </div>
+
+                {/* Friend request section */}
+                {!isFriend && !requestSent && (
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "1rem",
+                      marginBottom: "1rem"
+                    }}>
+                      <button
+                          onClick={async () => {
+                            try {
+                              await API.sendFriendRequest(userId);
+                              setRequestSent(true);
+                            } catch (err) {
+                              console.error("Error in sending request:", err);
+                            }
+                          }}
+                          style={{
+                            backgroundColor: "#990033",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "0.375rem",
+                            padding: "0.625rem 1rem",
+                            fontSize: "0.875rem",
+                            fontWeight: "500",
+                            cursor: "pointer",
+                            transition: "background-color 0.2s ease"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#660022";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "#990033";
+                          }}
+                      >
+                        Send friend request
+                      </button>
+                    </div>
+                )}
+
+                {requestSent && (
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "1rem",
+                      marginBottom: "1rem"
+                    }}>
+                      <p style={{
+                        color: "#10b981",
+                        border: "1px solid #d1fae5",
+                        backgroundColor: "#ecfdf5",
+                        padding: "0.625rem 1rem",
+                        borderRadius: "0.375rem",
+                        fontSize: "0.875rem",
+                        fontWeight: "500"
+                      }}>
+                        Request sent!
+                      </p>
+                    </div>
+                )}
+              </div>
             </div>
           </div>
-          
-          {/* Altri dettagli */}
-          <div className="border-t mt-6">
-            <dl className="divide-y">
-              <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium text-gray-500">ID Utente</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.id}</dd>
-              </div>
-              <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium text-gray-500">Stato</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 capitalize">{user.status}</dd>
-              </div>
-              <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                <dt className="text-sm font-medium text-gray-500">Avatar URL</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 truncate">{user.avatar}</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
   );
 }
